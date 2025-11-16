@@ -21,23 +21,13 @@
             >
               <button
                 class="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors flex items-center"
-                :class="{ 'text-blue-600 border-b-2 border-blue-600': isAboutActive }"
+                :class="{ 'text-primary-600 border-b-2 border-primary-600': isAboutActive }"
               >
                 About Us
-                <svg
+                <ChevronDown
                   class="ml-1 h-4 w-4 transition-transform"
                   :class="{ 'rotate-180': aboutDropdownOpen }"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
+                />
               </button>
               <div
                 v-show="aboutDropdownOpen"
@@ -48,7 +38,7 @@
                   :key="subItem.path"
                   :to="subItem.path"
                   class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors"
-                  active-class="bg-blue-50 text-blue-600"
+                  active-class="bg-primary-50 text-primary-600"
                 >
                   {{ subItem.label }}
                 </router-link>
@@ -61,111 +51,44 @@
               :key="item.path"
               :to="item.path"
               class="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm font-medium transition-colors"
-              active-class="text-blue-600 border-b-2 border-blue-600"
+              active-class="text-primary-600 border-b-2 border-primary-600"
             >
               {{ item.label }}
             </router-link>
           </nav>
 
-          <!-- Mobile Menu Button -->
-          <button
-            @click="mobileMenuOpen = !mobileMenuOpen"
-            class="md:hidden p-2 rounded-md text-gray-700 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
-            aria-label="Toggle menu"
-          >
-            <svg
-              class="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                v-if="!mobileMenuOpen"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M4 6h16M4 12h16M4 18h16"
-              />
-              <path
-                v-else
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
-
-        <!-- Mobile Navigation -->
-        <div
-          v-show="mobileMenuOpen"
-          class="md:hidden border-t border-gray-200 py-4"
-        >
-          <div class="flex flex-col space-y-1">
-            <!-- About Us Mobile Dropdown -->
-            <div>
-              <button
-                @click="mobileAboutOpen = !mobileAboutOpen"
-                class="w-full text-left text-gray-700 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium transition-colors flex items-center justify-between"
-                :class="{ 'text-blue-600 bg-blue-50': isAboutActive }"
-              >
-                <span>About Us</span>
-                <svg
-                  class="h-5 w-5 transition-transform"
-                  :class="{ 'rotate-180': mobileAboutOpen }"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </button>
-              <div
-                v-show="mobileAboutOpen"
-                class="pl-6 mt-1 space-y-1"
-              >
-                <router-link
-                  v-for="subItem in aboutSubItems"
-                  :key="subItem.path"
-                  :to="subItem.path"
-                  @click="mobileMenuOpen = false; mobileAboutOpen = false"
-                  class="block text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-                  active-class="text-blue-600 bg-blue-50"
-                >
-                  {{ subItem.label }}
-                </router-link>
-              </div>
-            </div>
-
-            <!-- Regular Navigation Items -->
-            <router-link
-              v-for="item in navItems"
-              :key="item.path"
-              :to="item.path"
-              @click="mobileMenuOpen = false"
-              class="text-gray-700 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-md text-base font-medium transition-colors"
-              active-class="text-blue-600 bg-blue-50"
-            >
-              {{ item.label }}
-            </router-link>
-          </div>
         </div>
       </div>
     </header>
 
     <!-- Main Content -->
-    <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+    <main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-20 md:pb-8">
       <slot></slot>
     </main>
 
+    <!-- Bottom Navigation Bar (Mobile Only) -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 md:hidden safe-area-inset-bottom">
+      <div class="flex justify-around items-center h-16">
+        <template v-for="item in bottomNavItems" :key="item.path">
+          <router-link
+            :to="item.path"
+            class="flex flex-col items-center justify-center flex-1 h-full text-gray-600 hover:text-primary-600 transition-colors"
+            :class="{ 'text-primary-600': item.path === '/about' ? isAboutActive : false }"
+            active-class="text-primary-600"
+          >
+            <Users v-if="item.icon === 'about'" class="w-6 h-6 mb-1" />
+            <Newspaper v-else-if="item.icon === 'news'" class="w-6 h-6 mb-1" />
+            <Briefcase v-else-if="item.icon === 'projects'" class="w-6 h-6 mb-1" />
+            <Video v-else-if="item.icon === 'videos'" class="w-6 h-6 mb-1" />
+            <Mail v-else-if="item.icon === 'contact'" class="w-6 h-6 mb-1" />
+            <span class="text-xs font-medium">{{ item.label }}</span>
+          </router-link>
+        </template>
+      </div>
+    </nav>
+
     <!-- Footer -->
-    <footer class="bg-white border-t border-gray-200 mt-auto">
+    <footer class="hidden bg-white border-t border-gray-200 mt-auto">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           <!-- Column 1 -->
@@ -270,11 +193,10 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
+import { ChevronDown, Newspaper, Briefcase, Mail, Users, Video } from 'lucide-vue-next'
 
 const route = useRoute()
-const mobileMenuOpen = ref(false)
 const aboutDropdownOpen = ref(false)
-const mobileAboutOpen = ref(false)
 
 const currentYear = computed(() => new Date().getFullYear())
 
@@ -290,7 +212,17 @@ const isAboutActive = computed(() => {
   return route.path.startsWith('/about')
 })
 
-// Navigation items for public users
+// Bottom navigation items (main items - mobile)
+const bottomNavItems = [
+  { path: '/about', label: 'About Us', icon: 'about' },
+  { path: '/news', label: 'News', icon: 'news' },
+  { path: '/projects', label: 'Projects', icon: 'projects' },
+  { path: '/videos', label: 'Videos', icon: 'videos' },
+  { path: '/contact', label: 'Contact', icon: 'contact' },
+]
+
+
+// All navigation items for desktop
 const navItems = [
   { path: '/', label: 'Home' },
   { path: '/news', label: 'Latest News' },

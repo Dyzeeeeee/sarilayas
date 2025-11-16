@@ -14,7 +14,7 @@
             type="text"
             required
             placeholder="Enter your full name"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
           />
         </div>
 
@@ -26,7 +26,7 @@
             type="email"
             required
             placeholder="Enter your email"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
           />
         </div>
 
@@ -38,14 +38,14 @@
             type="password"
             required
             placeholder="Create a password"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
           />
         </div>
 
         <!-- Register Button -->
         <button
           type="submit"
-          class="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200 font-semibold"
+          class="w-full py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition duration-200 font-semibold"
         >
           Register
         </button>
@@ -57,7 +57,7 @@
       <!-- Login Link -->
       <p class="text-center text-gray-600 text-sm">
         Already have an account?
-        <router-link to="/login" class="text-blue-600 font-medium hover:underline">
+        <router-link to="/login" class="text-primary-600 font-medium hover:underline">
           Login here
         </router-link>
       </p>

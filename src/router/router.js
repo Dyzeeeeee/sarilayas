@@ -7,6 +7,7 @@ import Projects from '../pages/Projects.vue'
 import Videos from '../pages/Videos.vue'
 import Photos from '../pages/Photos.vue'
 import Contact from '../pages/Contact.vue'
+import About from '../pages/about/About.vue'
 import Officers from '../pages/about/Officers.vue'
 import NationalCouncil from '../pages/about/NationalCouncil.vue'
 import Chapters from '../pages/about/Chapters.vue'
@@ -18,6 +19,7 @@ const routes = [
   { path: '/videos', name: 'Videos', component: Videos },
   { path: '/photos', name: 'Photos', component: Photos },
   { path: '/contact', name: 'Contact', component: Contact },
+  { path: '/about', name: 'About', component: About },
   { path: '/about/officers', name: 'Officers', component: Officers },
   { path: '/about/national-council', name: 'NationalCouncil', component: NationalCouncil },
   { path: '/about/chapters', name: 'Chapters', component: Chapters },
