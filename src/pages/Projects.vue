@@ -1,84 +1,80 @@
 <template>
   <PublicLayout>
-    <div class="space-y-3">
+    <div class="space-y-4 px-2 sm:px-4">
+
       <!-- HEADER -->
-      <div>
-        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Projects</h1>
-        <p class="text-gray-600 text-sm">Discover our ongoing and completed projects.</p>
+      <div class="text-center sm:text-left">
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-black">
+          Projects
+        </h1>
+        <p class="text-black/80 mt-1 text-sm sm:text-base">
+          Discover our ongoing and completed projects.
+        </p>
       </div>
 
-      <!-- PROJECTS GRID -->
-      <div>
+      <!-- PROJECTS LIST -->
+      <div class="max-w-6xl mx-auto">
+
         <!-- Loading skeleton -->
-        <div v-if="loading" class="space-y-1">
+        <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
           <div
             v-for="n in 6"
             :key="n"
-            class="bg-white rounded-lg border border-gray-200 p-1.5 shadow-sm animate-pulse space-y-1"
+            class="bg-primary-700 rounded-lg border border-white/30 p-2 shadow animate-pulse space-y-2"
           >
-            <div class="w-full h-28 bg-gray-200 rounded mb-1.5"></div>
-            <div class="h-2.5 bg-gray-200 rounded w-3/4 mb-1"></div>
-            <div class="h-2 bg-gray-200 rounded w-1/2"></div>
+            <div class="h-36 bg-white/20 rounded mb-1"></div>
+            <div class="h-4 bg-white/20 rounded w-3/4"></div>
+            <div class="h-3 bg-white/20 rounded w-full"></div>
+            <div class="h-3 bg-white/20 rounded w-5/6"></div>
           </div>
         </div>
 
         <!-- Projects cards -->
-        <div v-else class="space-y-1">
+        <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+          <div v-if="projects.length === 0" class="text-center text-white/70 py-6 col-span-full">
+            No projects available.
+          </div>
+
           <div
             v-for="project in projects"
             :key="project.id"
-            class="bg-white rounded-lg border border-gray-200 p-1.5 shadow-sm hover:shadow-md transition flex flex-col"
+            class="bg-primary-700 rounded-lg border border-white/30 shadow-sm flex flex-col overflow-hidden hover:shadow-md transition"
           >
-            <!-- FEATURED IMAGE -->
-            <div v-if="project.image" class="w-full h-28 mb-1.5 rounded-lg overflow-hidden">
+            <!-- IMAGE FULL -->
+            <div v-if="project.image" class="relative w-full h-40 sm:h-48 lg:h-56 overflow-hidden cursor-pointer">
               <img
                 :src="project.image"
                 :alt="project.title"
                 class="w-full h-full object-cover"
               />
             </div>
-            <div v-else class="w-full h-28 mb-1.5 rounded-lg bg-primary-100 flex items-center justify-center">
-              <svg
-                class="h-8 w-8 text-primary-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-                />
-              </svg>
+
+            <div class="p-3 flex-1 flex flex-col justify-between text-white">
+              <!-- TITLE -->
+              <h3 v-if="project.title" class="text-sm sm:text-base font-semibold mb-1 truncate">
+                {{ project.title }}
+              </h3>
+
+              <!-- TAGLINE -->
+              <p v-if="project.tagline" class="text-white/80 text-xs sm:text-sm italic mb-1 truncate">
+                {{ project.tagline }}
+              </p>
+
+              <!-- DESCRIPTION -->
+              <p v-if="project.description" class="text-white/80 text-xs sm:text-sm line-clamp-3 mb-1">
+                {{ project.description }}
+              </p>
+
+              <!-- FULL CONTENT -->
+              <div v-if="project.content" class="text-white/70 text-xs sm:text-sm whitespace-pre-wrap mt-1 line-clamp-none">
+                {{ project.content }}
+              </div>
             </div>
-
-            <!-- TITLE -->
-            <h3 class="font-semibold text-gray-900 text-sm truncate">{{ project.title }}</h3>
-
-            <!-- TAGLINE -->
-            <p
-              v-if="project.tagline"
-              class="text-gray-600 text-xs mt-0.5 italic truncate"
-            >
-              {{ project.tagline }}
-            </p>
-
-            <!-- DESCRIPTION -->
-            <p
-              v-if="project.description"
-              class="text-gray-600 text-xs mt-0.5 line-clamp-3"
-            >
-              {{ project.description }}
-            </p>
           </div>
         </div>
 
-        <!-- Empty state -->
-        <p v-if="!loading && projects.length === 0" class="text-center text-gray-500 py-2 text-sm">
-          No projects available.
-        </p>
       </div>
+
     </div>
   </PublicLayout>
 </template>

@@ -1,16 +1,22 @@
 <template>
   <PublicLayout>
-    <div class="space-y-4">
+    <div class="space-y-4 px-2 sm:px-4">
+
       <!-- HEADER -->
-      <div>
-        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Officers</h1>
-        <p class="text-gray-600 text-sm">Meet our organization's leadership team.</p>
+      <div class="text-center sm:text-left">
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">
+          Officers
+        </h1>
+        <p class="text-gray-600 text-sm sm:text-base mt-1">
+          Meet our organization's leadership team.
+        </p>
       </div>
 
       <!-- OFFICERS LIST -->
       <div class="divide-y divide-gray-200">
+
         <!-- Loading skeleton -->
-        <div v-if="loading" class="space-y-2">
+        <div v-if="loading" class="space-y-2 mt-2">
           <div
             v-for="n in 6"
             :key="n"
@@ -25,11 +31,11 @@
         </div>
 
         <!-- Officers -->
-        <div v-else>
+        <div v-else class="mt-2">
           <div
             v-for="officer in officers"
             :key="officer.id"
-            class="flex items-center space-x-3 py-2"
+            class="flex items-center space-x-3 py-3 sm:py-2"
           >
             <!-- PHOTO -->
             <div v-if="officer.photo" class="w-12 h-12 flex-shrink-0">
@@ -45,16 +51,19 @@
 
             <!-- INFO -->
             <div class="flex-1 min-w-0">
-              <h3 class="font-semibold text-gray-900 text-sm truncate">{{ officer.name }}</h3>
-              <p class="text-gray-500 text-xs truncate">{{ officer.position }}</p>
+              <h3 class="font-semibold text-gray-900 text-sm sm:text-base truncate">
+                {{ officer.name }}
+              </h3>
+              <p class="text-gray-500 text-xs sm:text-sm truncate">{{ officer.position }}</p>
             </div>
           </div>
         </div>
 
         <!-- Empty state -->
-        <p v-if="!loading && officers.length === 0" class="text-center text-gray-500 py-4 text-sm">
+        <p v-if="!loading && officers.length === 0" class="text-center text-gray-500 py-4 text-sm sm:text-base">
           No officers available.
         </p>
+
       </div>
     </div>
   </PublicLayout>

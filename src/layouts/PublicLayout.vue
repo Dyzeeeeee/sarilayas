@@ -56,7 +56,6 @@
               {{ item.label }}
             </router-link>
           </nav>
-
         </div>
       </div>
     </header>
@@ -73,14 +72,14 @@
           <router-link
             :to="item.path"
             class="flex flex-col items-center justify-center flex-1 h-full text-gray-600 hover:text-primary-600 transition-colors"
-            :class="{ 'text-primary-600': item.path === '/about' ? isAboutActive : false }"
+            :class="{ 'text-primary-600': route.path.startsWith(item.path) }"
             active-class="text-primary-600"
           >
             <Users v-if="item.icon === 'about'" class="w-6 h-6 mb-1" />
             <Newspaper v-else-if="item.icon === 'news'" class="w-6 h-6 mb-1" />
             <Briefcase v-else-if="item.icon === 'projects'" class="w-6 h-6 mb-1" />
             <Video v-else-if="item.icon === 'videos'" class="w-6 h-6 mb-1" />
-            <Mail v-else-if="item.icon === 'contact'" class="w-6 h-6 mb-1" />
+            <Image v-else-if="item.icon === 'photos'" class="w-6 h-6 mb-1" />
             <span class="text-xs font-medium">{{ item.label }}</span>
           </router-link>
         </template>
@@ -88,141 +87,71 @@
     </nav>
 
     <!-- Footer -->
-    <footer class="hidden bg-white border-t border-gray-200 mt-auto">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          <!-- Column 1 -->
-          <div class="space-y-4">
-            <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider">
-              About
-            </h3>
-            <p class="text-sm text-gray-600">
-              Your company description goes here.
-            </p>
-          </div>
+    <footer class="bg-white text-gray-700 mt-auto border-t border-gray-200">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
-          <!-- Column 2 -->
-          <div class="space-y-4">
-            <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider">
-              Quick Links
-            </h3>
-            <ul class="space-y-2">
-              <li>
-                <router-link
-                  to="/"
-                  class="text-sm text-gray-600 hover:text-gray-900 transition-colors"
-                >
-                  Home
-                </router-link>
-              </li>
-              <li>
-                <router-link
-                  to="/news"
-                  class="text-sm text-gray-600 hover:text-gray-900 transition-colors"
-                >
-                  Latest News
-                </router-link>
-              </li>
-              <li>
-                <router-link
-                  to="/projects"
-                  class="text-sm text-gray-600 hover:text-gray-900 transition-colors"
-                >
-                  Projects
-                </router-link>
-              </li>
-              <li>
-                <router-link
-                  to="/contact"
-                  class="text-sm text-gray-600 hover:text-gray-900 transition-colors"
-                >
-                  Contact Us
-                </router-link>
-              </li>
-            </ul>
-          </div>
+        <!-- Column 1: Legal -->
+        <div>
+          <h3 class="text-sm font-semibold uppercase tracking-wider mb-3">Legal</h3>
+          <ul class="space-y-2">
+            <li v-if="footerData?.privacyPolicy">
+              <a :href="footerData.privacyPolicy" class="text-gray-600 hover:text-gray-900 text-sm" target="_blank">Privacy Policy</a>
+            </li>
+            <li v-if="footerData?.termsOfService">
+              <a :href="footerData.termsOfService" class="text-gray-600 hover:text-gray-900 text-sm" target="_blank">Terms of Service</a>
+            </li>
+          </ul>
+        </div>
 
-          <!-- Column 3 -->
-          <div class="space-y-4">
-            <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider">
-              Legal
-            </h3>
-            <ul class="space-y-2">
-              <li>
-                <a
-                  href="#"
-                  class="text-sm text-gray-600 hover:text-gray-900 transition-colors"
-                >
-                  Privacy Policy
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#"
-                  class="text-sm text-gray-600 hover:text-gray-900 transition-colors"
-                >
-                  Terms of Service
-                </a>
-              </li>
-            </ul>
-          </div>
+        <!-- Column 2: Contact -->
+        <div>
+          <h3 class="text-sm font-semibold uppercase tracking-wider mb-3">Contact</h3>
+          <ul class="space-y-2 text-sm">
+            <li v-if="footerData?.email">Email: {{ footerData.email }}</li>
+            <li v-if="footerData?.phone">Phone: {{ footerData.phone }}</li>
+            <li v-if="footerData?.address">Address: {{ footerData.address }}</li>
+          </ul>
+        </div>
 
-          <!-- Column 4 -->
-          <div class="space-y-4">
-            <h3 class="text-sm font-semibold text-gray-900 uppercase tracking-wider">
-              Contact
-            </h3>
-            <ul class="space-y-2">
-              <li class="text-sm text-gray-600">Email: info@example.com</li>
-              <li class="text-sm text-gray-600">Phone: +1 (555) 123-4567</li>
-            </ul>
+        <!-- Column 3: Social -->
+        <div>
+          <h3 class="text-sm font-semibold uppercase tracking-wider mb-3">Social</h3>
+          <div class="flex space-x-4">
+            <a v-if="footerData?.facebook" :href="footerData.facebook" target="_blank" class="hover:text-gray-900">
+              <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                <path d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.879v-6.987h-2.54v-2.892h2.54V9.845c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.196 2.238.196v2.465h-1.26c-1.242 0-1.63.771-1.63 1.562v1.875h2.773l-.443 2.892h-2.33v6.987C18.343 21.128 22 16.991 22 12z"/>
+              </svg>
+            </a>
+            <a v-if="footerData?.youtube" :href="footerData.youtube" target="_blank" class="hover:text-gray-900">
+              <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                <path d="M19.615 3.184a2.994 2.994 0 00-2.114-.896C15.3 2.25 12 2.25 12 2.25s-3.3 0-5.5.038a2.994 2.994 0 00-2.115.896A2.977 2.977 0 003 5.385c-.004 2.097-.004 5.123-.004 5.123s0 3.026.004 5.123c.014 1.188.876 2.223 2.115 2.827 2.2.038 5.5.038 5.5.038s3.3 0 5.5-.038c1.238-.604 2.1-1.639 2.115-2.827.004-2.097.004-5.123.004-5.123s0-3.026-.004-5.123a2.977 2.977 0 00-.115-.201zM9.75 15.5V8.5l6.5 3.5-6.5 3.5z"/>
+              </svg>
+            </a>
           </div>
         </div>
 
-        <!-- Bottom Bar -->
-        <div class="mt-8 pt-8 border-t border-gray-200">
-          <p class="text-center text-sm text-gray-600">
-            &copy; {{ currentYear }} Sarilaya. All rights reserved.
-          </p>
-        </div>
+      </div>
+
+      <div class="mt-8 pt-8 border-t border-gray-200">
+        <p class="text-center text-gray-500 text-sm">
+          &copy; {{ currentYear }} Sarilaya. All rights reserved.
+        </p>
       </div>
     </footer>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { ChevronDown, Newspaper, Briefcase, Mail, Users, Video } from 'lucide-vue-next'
+import { ChevronDown, Newspaper, Briefcase, Users, Video, Image } from 'lucide-vue-next'
+import { contactService } from '../firebase/firestore' // fixed path
 
 const route = useRoute()
 const aboutDropdownOpen = ref(false)
-
 const currentYear = computed(() => new Date().getFullYear())
 
-// About Us sub-items
-const aboutSubItems = [
-  { path: '/about/officers', label: 'Officers' },
-  { path: '/about/national-council', label: 'National Council' },
-  { path: '/about/chapters', label: 'Chapters' },
-]
-
-// Check if any About Us route is active
-const isAboutActive = computed(() => {
-  return route.path.startsWith('/about')
-})
-
-// Bottom navigation items (main items - mobile)
-const bottomNavItems = [
-  { path: '/about', label: 'About Us', icon: 'about' },
-  { path: '/news', label: 'News', icon: 'news' },
-  { path: '/projects', label: 'Projects', icon: 'projects' },
-  { path: '/videos', label: 'Videos', icon: 'videos' },
-  { path: '/contact', label: 'Contact', icon: 'contact' },
-]
-
-
-// All navigation items for desktop
+// Navigation
 const navItems = [
   { path: '/', label: 'Home' },
   { path: '/news', label: 'Latest News' },
@@ -232,9 +161,34 @@ const navItems = [
   { path: '/contact', label: 'Contact Us' },
 ]
 
-// Expose navItems so parent can override if needed
-defineExpose({
-  navItems,
+const aboutSubItems = [
+  { path: '/about/officers', label: 'Officers' },
+  { path: '/about/national-council', label: 'National Council' },
+  { path: '/about/chapters', label: 'Chapters' },
+]
+
+const isAboutActive = computed(() => route.path.startsWith('/about'))
+
+const bottomNavItems = [
+  { path: '/about', label: 'About Us', icon: 'about' },
+  { path: '/news', label: 'News', icon: 'news' },
+  { path: '/projects', label: 'Projects', icon: 'projects' },
+  { path: '/videos', label: 'Videos', icon: 'videos' },
+  { path: '/photos', label: 'Photos', icon: 'photos' },
+]
+
+// Dynamic Footer Data
+const footerData = ref(null)
+const loadFooterData = async () => {
+  try {
+    const data = await contactService.getContact()
+    footerData.value = data
+  } catch (err) {
+    console.error('Error fetching footer data:', err)
+  }
+}
+
+onMounted(() => {
+  loadFooterData()
 })
 </script>
-

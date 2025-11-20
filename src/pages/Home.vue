@@ -1,31 +1,45 @@
 <template>
   <PublicLayout>
-    <div class="space-y-8">
-      <!-- Hero Section -->
-      <section class="text-center py-8 sm:py-12">
-        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-gray-900 mb-4">
+    <div class="space-y-6">
+      
+      <!-- HERO -->
+      <section class="text-center py-6 sm:py-10">
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-2">
           Welcome to Sarilaya
         </h1>
-        <p class="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
-          Your mobile-first website built with Vue.js and Tailwind CSS
-        </p>
       </section>
 
-      <!-- Content Grid -->
-      <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div
-          v-for="i in 3"
-          :key="i"
-          class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
-        >
-          <h2 class="text-xl font-semibold text-gray-900 mb-2">
-            Card {{ i }}
-          </h2>
-          <p class="text-gray-600">
-            This is a sample card component. Content goes here.
+      <!-- CONTENT LIST WITH DIVIDERS -->
+      <section class="max-w-3xl mx-auto px-4 space-y-4">
+
+        <!-- Item 1 -->
+        <div class="py-3">
+          <h2 class="text-lg font-semibold text-gray-900">Introduction</h2>
+          <p class="text-sm text-gray-600">
+            This is a simple description of the first section of your content.
           </p>
         </div>
+        <div class="w-full h-px bg-gray-200"></div>
+
+        <!-- Item 2 -->
+        <div class="py-3">
+          <h2 class="text-lg font-semibold text-gray-900">Our Goal</h2>
+          <p class="text-sm text-gray-600">
+            We aim to create a responsive, accessible, and clean UI for Sarilaya.
+          </p>
+        </div>
+        <div class="w-full h-px bg-gray-200"></div>
+
+        <!-- Item 3 -->
+        <div class="py-3">
+          <h2 class="text-lg font-semibold text-gray-900">Technology</h2>
+          <p class="text-sm text-gray-600">
+            Built with Vue 3, Tailwind CSS, Firebase, and well-structured components.
+          </p>
+        </div>
+
       </section>
+
     </div>
   </PublicLayout>
 </template>
@@ -33,4 +47,3 @@
 <script setup>
 import PublicLayout from '../layouts/PublicLayout.vue'
 </script>
-

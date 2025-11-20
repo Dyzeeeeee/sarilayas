@@ -1,71 +1,72 @@
 <template>
   <PublicLayout>
-    <div class="space-y-6">
+    <div class="space-y-4 max-w-6xl mx-auto px-2 sm:px-4">
+
       <!-- HEADER -->
-      <div>
-        <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">Photo Gallery</h1>
-        <p class="text-gray-600">Browse through our photo collection.</p>
+      <div class="text-center sm:text-left mb-2">
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-Black">Photo Gallery</h1>
+        <p class="text-gray-600 mt-1 text-sm sm:text-base">
+          Browse through our photo collection.
+        </p>
       </div>
 
-      <!-- GALLERY -->
-      <div>
-        <!-- Loading state -->
-        <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div
-            v-for="n in 6"
-            :key="n"
-            class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm animate-pulse"
-          >
-            <div class="aspect-square bg-gray-200 rounded-lg mb-4"></div>
-            <div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-            <div class="h-3 bg-gray-200 rounded w-full mb-1"></div>
-          </div>
+      <!-- PHOTO GRID -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+
+        <!-- Loading Skeleton -->
+        <div
+          v-if="loading"
+          v-for="n in 6"
+          :key="n"
+          class="bg-gray-100 rounded-lg p-3 animate-pulse shadow-md"
+        >
+          <div class="w-full aspect-square bg-gray-200 rounded mb-2"></div>
+          <div class="h-3 bg-gray-200 rounded w-3/4 mb-1"></div>
+          <div class="h-2 bg-gray-200 rounded w-1/2"></div>
         </div>
 
-        <!-- Photos -->
-        <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div
-            v-for="photo in photos"
-            :key="photo.id"
-            class="bg-white rounded-xl border border-gray-200 p-4 shadow-sm hover:shadow-md transition"
-          >
-            <!-- IMAGE -->
-            <div
-              class="w-full aspect-square mb-3 cursor-pointer overflow-hidden rounded-lg"
-              @click="openModal(photo.url)"
-            >
-              <img
-                :src="photo.url"
-                :alt="photo.title || 'Photo'"
-                class="w-full h-full object-cover rounded-lg hover:scale-105 transition-transform duration-300"
-              />
-            </div>
+        <!-- Empty State -->
+        <p v-if="!loading && photos.length === 0" class="text-center text-gray-400 col-span-full">
+          No photos available.
+        </p>
 
-            <!-- TITLE -->
-            <p v-if="photo.title" class="text-sm font-semibold text-gray-900 mb-1 truncate">
+        <!-- Photo Cards -->
+        <div
+          v-else
+          v-for="photo in photos"
+          :key="photo.id"
+          class="bg-gray-100 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300 cursor-pointer flex flex-col"
+          @click="openModal(photo.url)"
+        >
+          <!-- IMAGE -->
+          <div class="w-full aspect-square overflow-hidden">
+            <img
+              :src="photo.url"
+              :alt="photo.title || 'Photo'"
+              class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+            />
+          </div>
+
+          <!-- CONTENT -->
+          <div class="p-3 sm:p-4 flex-1 flex flex-col text-primary-700">
+            <p v-if="photo.title" class="text-base sm:text-lg font-semibold mb-1 truncate">
               {{ photo.title }}
             </p>
-
-            <!-- DESCRIPTION -->
-            <p v-if="photo.description" class="text-xs text-gray-600 line-clamp-2">
+            <p v-if="photo.description" class="text-primary-700/80 text-sm line-clamp-2">
               {{ photo.description }}
             </p>
           </div>
         </div>
 
-        <!-- Empty state -->
-        <p v-if="!loading && photos.length === 0" class="text-center text-gray-500 py-10 text-sm">
-          No photos available.
-        </p>
       </div>
 
-      <!-- IMAGE MODAL -->
+      <!-- IMAGE MODAL FULLSCREEN -->
       <div
         v-if="modalImage"
-        class="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50"
+        class="fixed inset-0 backdrop-blur-sm bg-black/70 flex items-center justify-center z-50 p-3"
         @click.self="closeModal"
       >
-        <div class="relative max-w-[90%] max-h-[90%]">
+        <div class="relative w-full max-w-3xl max-h-[90%]">
           <img
             :src="modalImage"
             alt="Full Image"
@@ -79,6 +80,7 @@
           </button>
         </div>
       </div>
+
     </div>
   </PublicLayout>
 </template>
