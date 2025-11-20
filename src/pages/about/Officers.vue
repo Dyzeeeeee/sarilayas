@@ -1,14 +1,85 @@
 <template>
   <PublicLayout>
-    <div class="space-y-6">
-      <h1 class="text-3xl sm:text-4xl font-bold text-gray-900">Officers</h1>
-      <p class="text-gray-600">Meet our organization's leadership team.</p>
-      <!-- Add your officers content here -->
+    <div class="space-y-4">
+      <!-- HEADER -->
+      <div>
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Officers</h1>
+        <p class="text-gray-600 text-sm">Meet our organization's leadership team.</p>
+      </div>
+
+      <!-- OFFICERS LIST -->
+      <div class="divide-y divide-gray-200">
+        <!-- Loading skeleton -->
+        <div v-if="loading" class="space-y-2">
+          <div
+            v-for="n in 6"
+            :key="n"
+            class="flex items-center space-x-3 py-2 animate-pulse"
+          >
+            <div class="w-12 h-12 rounded-full bg-gray-200 flex-shrink-0"></div>
+            <div class="flex-1 space-y-1">
+              <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+              <div class="h-3 bg-gray-200 rounded w-1/2"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Officers -->
+        <div v-else>
+          <div
+            v-for="officer in officers"
+            :key="officer.id"
+            class="flex items-center space-x-3 py-2"
+          >
+            <!-- PHOTO -->
+            <div v-if="officer.photo" class="w-12 h-12 flex-shrink-0">
+              <img
+                :src="officer.photo"
+                :alt="officer.name"
+                class="w-12 h-12 rounded-full object-cover ring-2 ring-gray-100"
+              />
+            </div>
+            <div v-else class="w-12 h-12 flex-shrink-0 rounded-full bg-primary-100 flex items-center justify-center ring-2 ring-gray-100">
+              <span class="text-primary-600 text-sm font-semibold">{{ officer.name.charAt(0) }}</span>
+            </div>
+
+            <!-- INFO -->
+            <div class="flex-1 min-w-0">
+              <h3 class="font-semibold text-gray-900 text-sm truncate">{{ officer.name }}</h3>
+              <p class="text-gray-500 text-xs truncate">{{ officer.position }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty state -->
+        <p v-if="!loading && officers.length === 0" class="text-center text-gray-500 py-4 text-sm">
+          No officers available.
+        </p>
+      </div>
     </div>
   </PublicLayout>
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue'
 import PublicLayout from '../../layouts/PublicLayout.vue'
-</script>
+import { aboutUsService } from '../../firebase/firestore'
 
+const officers = ref([])
+const loading = ref(true)
+
+async function loadOfficers() {
+  loading.value = true
+  try {
+    officers.value = await aboutUsService.getOfficers()
+  } catch (error) {
+    console.error('Error loading officers:', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+onMounted(() => {
+  loadOfficers()
+})
+</script>
