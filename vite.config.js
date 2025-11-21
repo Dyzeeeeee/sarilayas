@@ -15,5 +15,14 @@ export default defineConfig({
       '.ngrok-free.app',
       '.ngrok.io'
     ]
-  } : undefined
+  } : undefined,
+  // Optimize dependencies for Firebase
+  optimizeDeps: {
+    include: ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/storage', 'firebase/analytics']
+  },
+  build: {
+    commonjsOptions: {
+      include: [/firebase/, /node_modules/]
+    }
+  }
 })
