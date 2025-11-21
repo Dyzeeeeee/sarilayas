@@ -1,4 +1,4 @@
-import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, addDoc } from 'firebase/firestore'
+import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, addDoc, query, orderBy, limit as firestoreLimit } from 'firebase/firestore'
 import { app } from './config'
 
 const db = getFirestore(app)
@@ -16,8 +16,22 @@ export const firestoreService = {
   },
 
   // Get all documents in a collection
-  async getCollection(collectionName) {
-    const querySnapshot = await getDocs(collection(db, collectionName))
+  async getCollection(collectionName, whereClause = null, orderByField = null, orderDirection = 'asc', limitCount = null) {
+    let q = collection(db, collectionName)
+    
+    if (whereClause) {
+      q = query(q, whereClause)
+    }
+    
+    if (orderByField) {
+      q = query(q, orderBy(orderByField, orderDirection))
+    }
+    
+    if (limitCount) {
+      q = query(q, firestoreLimit(limitCount))
+    }
+    
+    const querySnapshot = await getDocs(q)
     return querySnapshot.docs.map(doc => ({
       id: doc.id,
       ...doc.data()
@@ -128,6 +142,31 @@ export const contactService = {
   // Update contact information
   async updateContact(data) {
     return await firestoreService.setDocument('contact', 'main', data)
+  },
+
+  // Submit contact message
+  async submitMessage(messageData) {
+    const message = {
+      ...messageData,
+      createdAt: new Date(),
+      read: false
+    }
+    return await firestoreService.addDocument('messages', message)
+  },
+
+  // Get all messages (for admin)
+  async getMessages() {
+    return await firestoreService.getCollection('messages', null, 'createdAt', 'desc')
+  },
+
+  // Update message (e.g., mark as read)
+  async updateMessage(messageId, data) {
+    return await firestoreService.updateDocument('messages', messageId, data)
+  },
+
+  // Delete message
+  async deleteMessage(messageId) {
+    return await firestoreService.deleteDocument('messages', messageId)
   }
 }
 

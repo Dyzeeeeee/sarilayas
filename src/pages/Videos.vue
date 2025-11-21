@@ -14,16 +14,15 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
 
         <!-- Loading Skeleton -->
-        <div
+        <Skeleton
           v-if="loading"
           v-for="n in 6"
           :key="n"
-          class="bg-primary-700/10 rounded-lg p-3 animate-pulse space-y-1 shadow-md"
-        >
-          <div class="w-full h-32 sm:h-40 bg-white/20 rounded mb-1"></div>
-          <div class="h-3 bg-white/20 rounded w-3/4"></div>
-          <div class="h-2 bg-white/20 rounded w-1/2"></div>
-        </div>
+          type="card"
+          variant="primary"
+          image-aspect="video"
+          :description-lines="3"
+        />
 
         <!-- Empty State -->
         <p v-if="!loading && videos.length === 0" class="text-center text-gray-400 col-span-full">
@@ -31,34 +30,33 @@
         </p>
 
         <!-- Video Cards -->
-        <div
+        <Card
           v-else
           v-for="video in videos"
           :key="video.id"
-          class="bg-primary-700 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300 flex flex-col cursor-pointer"
+          variant="primary"
+          :title="video.title"
+          :description="video.description"
+          description-clamp="3"
+          clickable
           @click="openModal(video.url)"
         >
-          <!-- Thumbnail / Embed -->
-          <div class="w-full aspect-video overflow-hidden">
-            <iframe
-              v-if="getYouTubeEmbedUrl(video.url)"
-              :src="getYouTubeEmbedUrl(video.url)"
-              class="w-full h-full object-cover"
-              frameborder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowfullscreen
-            ></iframe>
-            <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs">
-              No Video
+          <template #image>
+            <div class="w-full aspect-video overflow-hidden">
+              <iframe
+                v-if="getYouTubeEmbedUrl(video.url)"
+                :src="getYouTubeEmbedUrl(video.url)"
+                class="w-full h-full object-cover"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen
+              ></iframe>
+              <div v-else class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500 text-xs">
+                No Video
+              </div>
             </div>
-          </div>
-
-          <!-- Content -->
-          <div class="p-3 sm:p-4 flex-1 flex flex-col text-white">
-            <h2 class="text-base sm:text-lg font-semibold mb-1 truncate">{{ video.title }}</h2>
-            <p v-if="video.description" class="text-white/80 text-sm line-clamp-3">{{ video.description }}</p>
-          </div>
-        </div>
+          </template>
+        </Card>
 
       </div>
 
@@ -93,6 +91,8 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import PublicLayout from "../layouts/PublicLayout.vue";
+import Card from "../components/Card.vue";
+import Skeleton from "../components/Skeleton.vue";
 import { mediaService } from "../firebase/firestore";
 
 const videos = ref([]);

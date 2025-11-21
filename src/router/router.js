@@ -3,9 +3,9 @@ import Login from '../pages/auth/login.vue'
 import Register from '../pages/auth/register.vue'
 import Home from '../pages/Home.vue'
 import News from '../pages/News.vue'
+import NewsDetail from '../pages/NewsDetail.vue'
 import Projects from '../pages/Projects.vue'
-import Videos from '../pages/Videos.vue'
-import Photos from '../pages/Photos.vue'
+import Media from '../pages/Media.vue'
 import Contact from '../pages/Contact.vue'
 import About from '../pages/about/About.vue'
 import Officers from '../pages/about/Officers.vue'
@@ -26,9 +26,9 @@ import AdminProjects from '../pages/admin/Projects.vue'
 const routes = [
   { path: '/', name: 'Home', component: Home },
   { path: '/news', name: 'News', component: News },
+  { path: '/news/:id', name: 'NewsDetail', component: NewsDetail },
   { path: '/projects', name: 'Projects', component: Projects },
-  { path: '/videos', name: 'Videos', component: Videos },
-  { path: '/photos', name: 'Photos', component: Photos },
+  { path: '/media', name: 'Media', component: Media },
   { path: '/contact', name: 'Contact', component: Contact },
   { path: '/about', name: 'About', component: About },
   { path: '/about/officers', name: 'Officers', component: Officers },
@@ -47,6 +47,7 @@ const routes = [
   { path: '/admin/photos', name: 'AdminPhotos', component: AdminPhotos, meta: { requiresAuth: true } },
   { path: '/admin/news', name: 'AdminNews', component: AdminNews, meta: { requiresAuth: true } },
   { path: '/admin/projects', name: 'AdminProjects', component: AdminProjects, meta: { requiresAuth: true } },
+  { path: '/admin/messages', name: 'AdminMessages', component: () => import('../pages/admin/Messages.vue'), meta: { requiresAuth: true } },
 ]
 
 const router = createRouter({

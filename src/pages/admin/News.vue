@@ -93,35 +93,33 @@
           </div>
           <div>
             <label class="block text-xs font-semibold text-gray-700 mb-1.5">
-              Publish Date *
+              Publish Date & Time *
             </label>
             <input
               v-model="form.publishDate"
-              type="date"
+              type="datetime-local"
               required
               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-sm"
             />
           </div>
           <div class="flex space-x-2">
-            <button
+            <Button
               type="submit"
-              :disabled="loading || uploadingImage"
-              class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 transition-colors text-xs font-semibold flex items-center space-x-2"
+              :loading="loading || uploadingImage"
+              :loading-text="loading ? 'Saving...' : ''"
+              size="xs"
             >
-              <svg v-if="loading" class="animate-spin h-3 w-3" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              <span>{{ loading ? 'Saving...' : editingArticle ? 'Update' : 'Add' }} Article</span>
-            </button>
-            <button
+              {{ editingArticle ? 'Update' : 'Add' }} Article
+            </Button>
+            <Button
               v-if="editingArticle"
               type="button"
+              variant="outline"
+              size="xs"
               @click="cancelEdit"
-              class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-xs font-medium"
             >
               Cancel
-            </button>
+            </Button>
           </div>
         </form>
         </div>
@@ -132,15 +130,15 @@
           <h2 class="text-sm font-semibold text-gray-900">Current Articles</h2>
         </div>
         <div class="p-4 flex-1 overflow-y-auto max-h-[600px]">
-          <div v-if="loadingData" class="space-y-2">
-            <div v-for="i in 3" :key="i" class="border border-gray-200 rounded-lg p-3 animate-pulse">
-              <div class="space-y-2">
-                <div class="h-4 bg-gray-200 rounded w-3/4"></div>
-                <div class="h-3 bg-gray-200 rounded w-full"></div>
-                <div class="h-3 bg-gray-200 rounded w-1/2"></div>
-              </div>
-            </div>
-          </div>
+          <Skeleton
+            v-if="loadingData"
+            v-for="i in 3"
+            :key="i"
+            type="list"
+            :lines="1"
+            :show-avatar="false"
+            custom-class="border border-gray-200 rounded-lg p-3"
+          />
           <div v-else-if="articles.length === 0" class="text-gray-500 text-center py-6 text-xs">
             No articles added yet
           </div>
@@ -171,18 +169,22 @@
                   </p>
                 </div>
                 <div class="flex space-x-1.5">
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="xs"
                     @click="handleEdit(article)"
-                    class="px-2.5 py-1 text-xs text-primary-600 hover:bg-primary-50 rounded-lg transition-colors font-medium"
+                    custom-class="text-primary-600 hover:bg-primary-50"
                   >
                     Edit
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="xs"
                     @click="handleDelete(article.id)"
-                    class="px-2.5 py-1 text-xs text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium"
+                    custom-class="text-red-600 hover:bg-red-50"
                   >
                     Delete
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -197,6 +199,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import AdminLayout from '../../layouts/AdminLayout.vue'
+import Button from '../../components/Button.vue'
+import Skeleton from '../../components/Skeleton.vue'
 import { newsService } from '../../firebase/firestore'
 import { useToast } from '../../composables/useToast'
 import { useConfirm } from '../../composables/useConfirm'
@@ -309,7 +313,14 @@ function removeImage() {
 function formatDate(dateString) {
   if (!dateString) return ''
   const date = new Date(dateString)
-  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
+  return date.toLocaleString('en-US', { 
+    year: 'numeric', 
+    month: 'short', 
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  })
 }
 
 async function loadArticles() {
@@ -332,12 +343,23 @@ async function loadArticles() {
 
 function handleEdit(article) {
   editingArticle.value = article
+  // Convert date to datetime-local format (YYYY-MM-DDTHH:mm)
+  let dateTimeLocal = ''
+  if (article.publishDate) {
+    const date = new Date(article.publishDate)
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    const hours = String(date.getHours()).padStart(2, '0')
+    const minutes = String(date.getMinutes()).padStart(2, '0')
+    dateTimeLocal = `${year}-${month}-${day}T${hours}:${minutes}`
+  }
   form.value = {
     title: article.title || '',
     description: article.description || '',
     content: article.content || '',
     image: article.image || '',
-    publishDate: article.publishDate ? new Date(article.publishDate).toISOString().split('T')[0] : ''
+    publishDate: dateTimeLocal
   }
 }
 

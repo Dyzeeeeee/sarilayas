@@ -14,16 +14,15 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
 
         <!-- Loading Skeleton -->
-        <div
+        <Skeleton
           v-if="loading"
           v-for="n in 6"
           :key="n"
-          class="bg-gray-100 rounded-lg p-3 animate-pulse shadow-md"
-        >
-          <div class="w-full aspect-square bg-gray-200 rounded mb-2"></div>
-          <div class="h-3 bg-gray-200 rounded w-3/4 mb-1"></div>
-          <div class="h-2 bg-gray-200 rounded w-1/2"></div>
-        </div>
+          type="card"
+          variant="default"
+          image-aspect="square"
+          :description-lines="2"
+        />
 
         <!-- Empty State -->
         <p v-if="!loading && photos.length === 0" class="text-center text-gray-400 col-span-full">
@@ -31,32 +30,21 @@
         </p>
 
         <!-- Photo Cards -->
-        <div
+        <Card
           v-else
           v-for="photo in photos"
           :key="photo.id"
-          class="bg-gray-100 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300 cursor-pointer flex flex-col"
+          variant="light"
+          :image="photo.url"
+          :image-alt="photo.title || 'Photo'"
+          image-aspect="square"
+          :image-hover="true"
+          :title="photo.title"
+          :description="photo.description"
+          description-clamp="2"
+          clickable
           @click="openModal(photo.url)"
-        >
-          <!-- IMAGE -->
-          <div class="w-full aspect-square overflow-hidden">
-            <img
-              :src="photo.url"
-              :alt="photo.title || 'Photo'"
-              class="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-            />
-          </div>
-
-          <!-- CONTENT -->
-          <div class="p-3 sm:p-4 flex-1 flex flex-col text-primary-700">
-            <p v-if="photo.title" class="text-base sm:text-lg font-semibold mb-1 truncate">
-              {{ photo.title }}
-            </p>
-            <p v-if="photo.description" class="text-primary-700/80 text-sm line-clamp-2">
-              {{ photo.description }}
-            </p>
-          </div>
-        </div>
+        />
 
       </div>
 
@@ -88,6 +76,8 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import PublicLayout from "../layouts/PublicLayout.vue";
+import Card from "../components/Card.vue";
+import Skeleton from "../components/Skeleton.vue";
 import { mediaService } from "../firebase/firestore";
 
 const photos = ref([]);

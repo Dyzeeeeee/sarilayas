@@ -30,18 +30,20 @@
 
             <!-- Footer -->
             <div class="px-6 py-4 border-t border-gray-200 flex justify-end space-x-3">
-              <button
+              <Button
+                variant="outline"
+                size="sm"
                 @click="handleCancel"
-                class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors text-sm font-medium"
               >
-                Cancel
-              </button>
-              <button
+                {{ cancelText }}
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
                 @click="handleConfirm"
-                class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors text-sm font-semibold"
               >
                 {{ confirmText }}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -52,6 +54,7 @@
 
 <script setup>
 import { ref, watch } from 'vue'
+import Button from './Button.vue'
 
 const props = defineProps({
   isOpen: {

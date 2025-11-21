@@ -78,25 +78,23 @@
             </div>
           </div>
           <div class="flex space-x-2">
-            <button
+            <Button
               type="submit"
-              :disabled="loading || uploadingPhoto"
-              class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 transition-colors text-xs font-semibold flex items-center space-x-2"
+              :loading="loading || uploadingPhoto"
+              :loading-text="loading ? 'Saving...' : ''"
+              size="xs"
             >
-              <svg v-if="loading" class="animate-spin h-3 w-3" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              <span>{{ loading ? 'Saving...' : editingPhoto ? 'Update' : 'Add' }} Photo</span>
-            </button>
-            <button
+              {{ editingPhoto ? 'Update' : 'Add' }} Photo
+            </Button>
+            <Button
               v-if="editingPhoto"
               type="button"
+              variant="outline"
+              size="xs"
               @click="cancelEdit"
-              class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-xs font-medium"
             >
               Cancel
-            </button>
+            </Button>
           </div>
         </form>
         </div>
@@ -107,12 +105,16 @@
           <h2 class="text-sm font-semibold text-gray-900">Current Photos</h2>
         </div>
         <div class="p-4 flex-1 overflow-y-auto max-h-[600px]">
-          <div v-if="loadingData" class="grid grid-cols-2 gap-3">
-            <div v-for="i in 4" :key="i" class="border border-gray-200 rounded-lg p-3 animate-pulse">
-              <div class="aspect-square bg-gray-200 rounded"></div>
-              <div class="h-3 bg-gray-200 rounded w-3/4 mt-2"></div>
-            </div>
-          </div>
+          <Skeleton
+            v-if="loadingData"
+            v-for="i in 4"
+            :key="i"
+            type="card"
+            variant="default"
+            image-aspect="square"
+            :show-description="false"
+            custom-class="border border-gray-200 rounded-lg p-3"
+          />
           <div v-else-if="photos.length === 0" class="text-gray-500 text-center py-6 text-xs">
             No photos added yet
           </div>
@@ -136,18 +138,22 @@
                     <p v-if="photo.description" class="text-xs text-gray-600 line-clamp-2 mt-0.5">{{ photo.description }}</p>
                   </div>
                   <div class="flex space-x-1 ml-2">
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="xs"
                       @click="handleEdit(photo)"
-                      class="px-2 py-1 text-xs text-primary-600 hover:bg-primary-50 rounded transition-colors"
+                      custom-class="text-primary-600 hover:bg-primary-50"
                     >
                       Edit
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="xs"
                       @click="handleDelete(photo.id)"
-                      class="px-2 py-1 text-xs text-red-600 hover:bg-red-50 rounded transition-colors"
+                      custom-class="text-red-600 hover:bg-red-50"
                     >
                       Delete
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -163,6 +169,8 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import AdminLayout from '../../layouts/AdminLayout.vue'
+import Button from '../../components/Button.vue'
+import Skeleton from '../../components/Skeleton.vue'
 import { mediaService } from '../../firebase/firestore'
 import { useToast } from '../../composables/useToast'
 import { useConfirm } from '../../composables/useConfirm'
