@@ -16,15 +16,30 @@
               <img 
                 src="/MainSarilayaLogo.png" 
                 alt="Sarilaya Logo" 
-                class="h-8 w-8 lg:h-10 lg:w-auto object-contain"
+                class="hidden lg:block h-10 w-auto object-contain"
+              />
+              <img 
+                src="/SarilayaLogo.png" 
+                alt="Sarilaya Logo" 
+                class="lg:hidden h-8 w-8 object-contain"
               />
               <span>{{ pageTitle }}</span>
             </router-link>
           </div>
 
+          <!-- View Toggler (Mobile) -->
+          <div v-if="showViewToggler" class="flex items-center md:hidden">
+            <ViewToggler
+              :key="viewTogglerKey"
+              :storage-key="viewTogglerKey"
+              :modes="viewTogglerModes"
+              :default-mode="viewTogglerDefaultMode"
+            />
+          </div>
+
           <!-- Desktop Navigation -->
           <nav class="hidden md:flex items-center space-x-1">
-            <!-- View Toggler (only on Media and News pages) -->
+            <!-- View Toggler (Desktop) -->
             <div v-if="showViewToggler" class="flex items-center mr-2">
               <ViewToggler
                 :key="viewTogglerKey"
@@ -70,7 +85,7 @@
     </header>
 
     <!-- Main Content -->
-    <main class="flex-1 w-full lg:max-w-none mx-auto px-0 sm:px-6 lg:px-8 py-0 sm:pt-6 pb-24 md:pb-0 overflow-hidden pt-6 ">
+    <main class="flex-1 w-full mx-auto px-0 sm:px-6 lg:px-8 py-0 sm:pt-6 pb-24 md:pb-0 overflow-hidden pt-6 lg:max-w-none">
       <slot></slot>
     </main>
 
