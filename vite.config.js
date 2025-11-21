@@ -22,7 +22,7 @@ export default defineConfig({
   },
   build: {
     commonjsOptions: {
-      include: [/firebase/, /node_modules/]
+      transformMixedEsModules: true
     }
   }
 })
