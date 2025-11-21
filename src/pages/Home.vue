@@ -108,7 +108,7 @@
         </aside>
 
         <!-- Main Feed (Center Column) -->
-        <main ref="centerColumn" class="lg:pr-2 lg:flex-1" style="flex: 0 0 45%; max-width: 45%;">
+        <main ref="centerColumn" class="w-full lg:pr-2 lg:flex-[0_0_45%] lg:max-w-[45%]">
       <!-- UNIFIED FEED -->
            <section class="space-y-4 md:space-y-6 lg:space-y-8 lg:pb-8">
         <!-- Loading Skeleton -->
