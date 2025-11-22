@@ -182,9 +182,9 @@
           </div>
 
           <!-- Modal Body (Two Columns) -->
-          <div class="flex-1 overflow-hidden flex">
-            <!-- Preview Column -->
-            <div class="w-1/2 border-r border-gray-200 overflow-y-auto p-6 bg-gray-50">
+          <div class="flex-1 overflow-hidden flex flex-col md:flex-row">
+            <!-- Preview Column - Hidden on mobile -->
+            <div class="hidden md:block w-1/2 border-r border-gray-200 overflow-y-auto p-6 bg-gray-50">
               <p class="text-sm font-semibold text-gray-700 mb-4">Preview</p>
               <div class="space-y-4">
                 <!-- Single URL preview (for editing or URL input) -->
@@ -226,7 +226,16 @@
             </div>
 
             <!-- Editor Column -->
-            <div class="w-1/2 overflow-y-auto p-6 space-y-4">
+            <div class="w-full md:w-1/2 overflow-y-auto p-6 space-y-4">
+              <!-- Preview Button - Mobile Only -->
+              <button
+                @click="showPreviewModal = true"
+                type="button"
+                class="md:hidden w-full px-4 py-2 text-sm font-medium text-primary-600 bg-primary-50 border border-primary-200 rounded-lg hover:bg-primary-100 transition-colors flex items-center justify-center gap-2 mb-4"
+              >
+                <Eye class="h-4 w-4" />
+                Preview
+              </button>
               <form @submit.prevent="savePhotoAndClose" class="space-y-4">
           <div>
                   <label class="block text-sm font-semibold text-gray-700 mb-2">
@@ -327,6 +336,81 @@
         </div>
       </div>
     </Teleport>
+
+    <!-- Preview Modal - Mobile Only -->
+    <Teleport to="body">
+      <div
+        v-if="showPreviewModal"
+        @click.self="showPreviewModal = false"
+        @keydown.esc="showPreviewModal = false"
+        class="fixed inset-0 bg-black/50 z-60 flex items-center justify-center p-4"
+        tabindex="-1"
+      >
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+          <!-- Header -->
+          <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between shrink-0">
+            <h2 class="text-lg font-semibold text-gray-900">Preview</h2>
+            <button
+              @click="showPreviewModal = false"
+              class="p-2 text-gray-400 hover:text-gray-600 rounded-lg transition-colors"
+            >
+              <X class="h-5 w-5" />
+            </button>
+          </div>
+
+          <!-- Preview Content -->
+          <div class="flex-1 overflow-y-auto p-6 bg-gray-50">
+            <div class="space-y-4">
+              <!-- Single URL preview (for editing or URL input) -->
+              <div v-if="form.url && selectedFiles.length === 0" class="bg-white rounded-lg border border-gray-200 p-4">
+                <div class="aspect-square rounded-lg overflow-hidden bg-gray-100 mb-4">
+                  <img
+                    :src="form.url"
+                    :alt="form.title || 'Photo'"
+                    class="w-full h-full object-cover"
+                  />
+                </div>
+                <div v-if="form.title || form.description" class="space-y-2">
+                  <h3 class="text-sm font-semibold text-gray-900">{{ form.title || 'Photo Title' }}</h3>
+                  <p v-if="form.description" class="text-xs text-gray-600">{{ form.description }}</p>
+                </div>
+              </div>
+              <!-- Multiple file previews -->
+              <div
+                v-for="(file, index) in selectedFiles"
+                :key="index"
+                class="bg-white rounded-lg border border-gray-200 p-4"
+              >
+                <div class="aspect-square rounded-lg overflow-hidden bg-gray-100 mb-4">
+                  <img
+                    :src="file.preview"
+                    :alt="file.name"
+                    class="w-full h-full object-cover"
+                  />
+                </div>
+                <div class="space-y-2">
+                  <h3 class="text-sm font-semibold text-gray-900">{{ file.nameWithoutExt }}</h3>
+                  <p v-if="form.description" class="text-xs text-gray-600">{{ form.description }}</p>
+                </div>
+              </div>
+              <div v-if="!form.url && selectedFiles.length === 0" class="bg-white rounded-lg border border-gray-200 p-4">
+                <p class="text-xs text-gray-500 text-center">Upload photos or enter an image URL to see preview</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="px-6 py-4 border-t border-gray-200 flex justify-end shrink-0">
+            <button
+              @click="showPreviewModal = false"
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </AdminLayout>
 </template>
 
@@ -337,7 +421,7 @@ import { mediaService } from '../../firebase/firestore'
 import { useToast } from '../../composables/useToast'
 import { useConfirm } from '../../composables/useConfirm'
 import { useBodyScrollLock } from '../../composables/useBodyScrollLock'
-import { Plus, Edit, Trash2, X, Grid3x3, List } from 'lucide-vue-next'
+import { Plus, Edit, Trash2, X, Grid3x3, List, Eye } from 'lucide-vue-next'
 
 const { success: showSuccess, error: showError } = useToast()
 const { confirm } = useConfirm()
@@ -348,6 +432,7 @@ const loadingData = ref(true)
 const photos = ref([])
 const editingPhoto = ref(null)
 const showPhotoModal = ref(false)
+const showPreviewModal = ref(false)
 const uploadingPhoto = ref(false)
 const fileInput = ref(null)
 const viewMode = ref('grid') // 'grid' or 'list'
@@ -355,6 +440,7 @@ const selectedFiles = ref([]) // For multiple file uploads
 
 // Lock body scroll when modal is open
 useLock(showPhotoModal)
+useLock(showPreviewModal)
 
 const form = ref({
   title: '',

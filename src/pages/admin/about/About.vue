@@ -290,9 +290,9 @@
           </div>
 
           <!-- Modal Body (Two Columns) -->
-          <div class="flex-1 overflow-hidden flex">
-            <!-- Preview Column -->
-            <div class="w-1/2 border-r border-gray-200 overflow-y-auto p-6 bg-gray-50">
+          <div class="flex-1 overflow-hidden flex flex-col md:flex-row">
+            <!-- Preview Column - Hidden on mobile -->
+            <div class="hidden md:block w-1/2 border-r border-gray-200 overflow-y-auto p-6 bg-gray-50">
               <p class="text-sm font-semibold text-gray-700 mb-4">Preview</p>
               <div class="flex justify-center">
                 <div class="w-full max-w-md">
@@ -329,7 +329,16 @@
             </div>
 
             <!-- Editor Column -->
-            <div class="w-1/2 overflow-y-auto p-6 space-y-6">
+            <div class="w-full md:w-1/2 overflow-y-auto p-6 space-y-6">
+              <!-- Preview Button - Mobile Only -->
+              <button
+                @click="showPreviewModal = 'hero'"
+                type="button"
+                class="md:hidden w-full px-4 py-2 text-sm font-medium text-primary-600 bg-primary-50 border border-primary-200 rounded-lg hover:bg-primary-100 transition-colors flex items-center justify-center gap-2 mb-4"
+              >
+                <Eye class="h-4 w-4" />
+                Preview
+              </button>
               <!-- Hero Image -->
               <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Hero Image (optional)</label>
@@ -437,9 +446,9 @@
           </div>
 
           <!-- Modal Body (Two Columns) -->
-          <div class="flex-1 overflow-hidden flex">
-            <!-- Preview Column -->
-            <div class="w-1/2 border-r border-gray-200 overflow-y-auto p-6 bg-gray-50">
+          <div class="flex-1 overflow-hidden flex flex-col md:flex-row">
+            <!-- Preview Column - Hidden on mobile -->
+            <div class="hidden md:block w-1/2 border-r border-gray-200 overflow-y-auto p-6 bg-gray-50">
               <p class="text-sm font-semibold text-gray-700 mb-4">Preview</p>
               <div class="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 rounded-lg border border-gray-200 p-4">
                 <div class="text-center mb-4">
@@ -491,7 +500,16 @@
             </div>
 
             <!-- Editor Column -->
-            <div class="w-1/2 overflow-y-auto p-6 space-y-6">
+            <div class="w-full md:w-1/2 overflow-y-auto p-6 space-y-6">
+              <!-- Preview Button - Mobile Only -->
+              <button
+                @click="showPreviewModal = 'purpose'"
+                type="button"
+                class="md:hidden w-full px-4 py-2 text-sm font-medium text-primary-600 bg-primary-50 border border-primary-200 rounded-lg hover:bg-primary-100 transition-colors flex items-center justify-center gap-2 mb-4"
+              >
+                <Eye class="h-4 w-4" />
+                Preview
+              </button>
         <!-- Mission -->
         <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Mission</label>
@@ -562,9 +580,9 @@
           </div>
 
           <!-- Modal Body (Two Columns) -->
-          <div class="flex-1 overflow-hidden flex">
-            <!-- Preview Column -->
-            <div class="w-1/2 border-r border-gray-200 overflow-y-auto p-6 bg-gray-50">
+          <div class="flex-1 overflow-hidden flex flex-col md:flex-row">
+            <!-- Preview Column - Hidden on mobile -->
+            <div class="hidden md:block w-1/2 border-r border-gray-200 overflow-y-auto p-6 bg-gray-50">
               <p class="text-sm font-semibold text-gray-700 mb-4">Preview</p>
               <div class="bg-gradient-to-b from-white to-gray-50 rounded-lg border border-gray-200 p-4">
                 <div class="text-center mb-4">
@@ -614,7 +632,16 @@
             </div>
 
             <!-- Editor Column -->
-            <div class="w-1/2 overflow-y-auto p-6 space-y-6">
+            <div class="w-full md:w-1/2 overflow-y-auto p-6 space-y-6">
+              <!-- Preview Button - Mobile Only -->
+              <button
+                @click="showPreviewModal = 'stats'"
+                type="button"
+                class="md:hidden w-full px-4 py-2 text-sm font-medium text-primary-600 bg-primary-50 border border-primary-200 rounded-lg hover:bg-primary-100 transition-colors flex items-center justify-center gap-2 mb-4"
+              >
+                <Eye class="h-4 w-4" />
+                Preview
+              </button>
               <!-- Description -->
               <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Description (optional)</label>
@@ -716,9 +743,9 @@
             </div>
 
           <!-- Modal Body (Two Columns) -->
-          <div class="flex-1 overflow-hidden flex">
-            <!-- Preview Column -->
-            <div class="w-1/2 border-r border-gray-200 overflow-y-auto p-6 bg-gray-50">
+          <div class="flex-1 overflow-hidden flex flex-col md:flex-row">
+            <!-- Preview Column - Hidden on mobile -->
+            <div class="hidden md:block w-1/2 border-r border-gray-200 overflow-y-auto p-6 bg-gray-50">
               <p class="text-sm font-semibold text-gray-700 mb-4">Preview</p>
               <div class="bg-gradient-to-b from-white via-primary-50/30 to-white rounded-lg border border-gray-200 p-4">
                 <div class="text-center mb-4">
@@ -751,7 +778,16 @@
           </div>
 
             <!-- Editor Column -->
-            <div class="w-1/2 overflow-y-auto p-6 space-y-6">
+            <div class="w-full md:w-1/2 overflow-y-auto p-6 space-y-6">
+              <!-- Preview Button - Mobile Only -->
+              <button
+                @click="showPreviewModal = 'values'"
+                type="button"
+                class="md:hidden w-full px-4 py-2 text-sm font-medium text-primary-600 bg-primary-50 border border-primary-200 rounded-lg hover:bg-primary-100 transition-colors flex items-center justify-center gap-2 mb-4"
+              >
+                <Eye class="h-4 w-4" />
+                Preview
+              </button>
               <!-- Values Description -->
               <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Description (optional)</label>
@@ -826,6 +862,197 @@
     </div>
       </div>
     </Teleport>
+
+    <!-- Preview Modal - Mobile Only -->
+    <Teleport to="body">
+      <div
+        v-if="showPreviewModal"
+        @click.self="showPreviewModal = ''"
+        @keydown.esc="showPreviewModal = ''"
+        class="fixed inset-0 bg-black/50 z-60 flex items-center justify-center p-4"
+        tabindex="-1"
+      >
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+          <!-- Header -->
+          <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between shrink-0">
+            <h2 class="text-lg font-semibold text-gray-900">Preview</h2>
+            <button
+              @click="showPreviewModal = ''"
+              class="p-2 text-gray-400 hover:text-gray-600 rounded-lg transition-colors"
+            >
+              <X class="h-5 w-5" />
+            </button>
+          </div>
+
+          <!-- Preview Content -->
+          <div class="flex-1 overflow-y-auto p-6 bg-gray-50">
+            <!-- Hero Preview -->
+            <div v-if="showPreviewModal === 'hero'" class="flex justify-center">
+              <div class="w-full max-w-md">
+                <div class="relative w-full aspect-video max-h-[400px] bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 rounded-lg overflow-hidden border border-gray-200">
+                  <img
+                    v-if="form.heroImage"
+                    :src="form.heroImage"
+                    alt="Hero Background"
+                    class="absolute inset-0 w-full h-full object-cover"
+                  />
+                  <div class="absolute inset-0 bg-primary-600/85"></div>
+                  <div class="absolute inset-0 opacity-10">
+                    <div class="absolute top-4 left-3 w-16 h-16 bg-white rounded-full blur-xl"></div>
+                    <div class="absolute bottom-4 right-3 w-20 h-20 bg-white rounded-full blur-xl"></div>
+                  </div>
+                  <div class="relative z-10 text-center px-3 py-4 h-full flex flex-col items-center justify-center">
+                    <div class="inline-block mb-2 px-2 py-1 bg-white/20 backdrop-blur-sm rounded-full border border-white/30">
+                      <span class="text-[10px] font-semibold text-white uppercase tracking-wider">Who We Are</span>
+                    </div>
+                    <h1 class="text-lg md:text-xl font-extrabold text-white mb-2 drop-shadow-2xl leading-tight">
+                      {{ form.title || 'SARILAYA' }}
+                    </h1>
+                    <p class="text-xs md:text-sm text-white/95 max-w-md mx-auto drop-shadow-lg leading-relaxed line-clamp-2">
+                      {{ form.description || 'Learn more about our organization and our commitment to excellence.' }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Purpose Preview -->
+            <div v-if="showPreviewModal === 'purpose'" class="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-800 rounded-lg border border-gray-200 p-4">
+              <div class="text-center mb-4">
+                <h3 class="text-lg font-extrabold text-white mb-2">Our Purpose</h3>
+                <div class="w-12 h-0.5 bg-white mx-auto rounded-full"></div>
+              </div>
+              <div class="grid grid-cols-1 gap-3">
+                <div class="bg-white/10 backdrop-blur-sm rounded-lg border border-white/30 p-3">
+                  <div class="flex items-center gap-2 mb-2">
+                    <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center shrink-0">
+                      <svg class="w-4 h-4 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <h4 class="text-sm font-bold text-white">Our Mission</h4>
+                  </div>
+                  <p class="text-xs text-white/90 leading-relaxed text-justify">
+                    {{ form.mission || 'No mission has been set.' }}
+                  </p>
+                </div>
+                <div class="bg-white/10 backdrop-blur-sm rounded-lg border border-white/30 p-3">
+                  <div class="flex items-center gap-2 mb-2">
+                    <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center shrink-0">
+                      <svg class="w-4 h-4 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    </div>
+                    <h4 class="text-sm font-bold text-white">Our Vision</h4>
+                  </div>
+                  <div class="space-y-1.5">
+                    <p 
+                      v-for="(item, index) in visionPoints"
+                      :key="index"
+                      class="text-xs text-white/90 leading-relaxed flex items-start gap-1.5"
+                    >
+                      <span class="text-white font-bold text-xs mt-0.5 shrink-0">▸</span>
+                      <span>{{ item }}</span>
+                    </p>
+                    <p v-if="visionPoints.length === 0" class="text-xs text-white/90">
+                      No vision has been set.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Stats Preview -->
+            <div v-if="showPreviewModal === 'stats'" class="bg-gradient-to-b from-white to-gray-50 rounded-lg border border-gray-200 p-4">
+              <div class="text-center mb-4">
+                <h3 class="text-lg font-extrabold text-gray-900 mb-2">Where We Are</h3>
+                <div class="w-16 h-0.5 bg-primary-600 mx-auto rounded-full"></div>
+              </div>
+              <div class="grid grid-cols-2 gap-3 mb-3">
+                <div class="text-center group">
+                  <div class="inline-flex items-center justify-center w-12 h-12 bg-primary-100 rounded-xl mb-2 group-hover:bg-primary-600 transition-colors">
+                    <span class="text-lg font-extrabold text-primary-600 group-hover:text-white transition-colors">
+                      {{ formatNumber(form.stats.regions) }}
+                    </span>
+                  </div>
+                  <div class="text-xs text-gray-700 font-semibold">Regions</div>
+                </div>
+                <div class="text-center group">
+                  <div class="inline-flex items-center justify-center w-12 h-12 bg-primary-100 rounded-xl mb-2 group-hover:bg-primary-600 transition-colors">
+                    <span class="text-lg font-extrabold text-primary-600 group-hover:text-white transition-colors">
+                      {{ formatNumber(form.stats.provinces) }}
+                    </span>
+                  </div>
+                  <div class="text-xs text-gray-700 font-semibold">Provinces</div>
+                </div>
+                <div class="text-center group">
+                  <div class="inline-flex items-center justify-center w-12 h-12 bg-primary-100 rounded-xl mb-2 group-hover:bg-primary-600 transition-colors">
+                    <span class="text-lg font-extrabold text-primary-600 group-hover:text-white transition-colors">
+                      {{ formatNumber(form.stats.municipalities) }}
+                    </span>
+                  </div>
+                  <div class="text-xs text-gray-700 font-semibold">Municipalities</div>
+                </div>
+                <div class="text-center group">
+                  <div class="inline-flex items-center justify-center w-12 h-12 bg-primary-100 rounded-xl mb-2 group-hover:bg-primary-600 transition-colors">
+                    <span class="text-lg font-extrabold text-primary-600 group-hover:text-white transition-colors">
+                      {{ formatNumber(form.stats.members) }}
+                    </span>
+                  </div>
+                  <div class="text-xs text-gray-700 font-semibold">Members</div>
+                </div>
+              </div>
+              <div v-if="form.statsDescription" class="text-center pt-3 border-t border-gray-200">
+                <p class="text-xs text-gray-700 leading-relaxed text-justify">
+                  {{ form.statsDescription }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Values Preview -->
+            <div v-if="showPreviewModal === 'values'" class="bg-gradient-to-b from-white via-primary-50/30 to-white rounded-lg border border-gray-200 p-4">
+              <div class="text-center mb-4">
+                <h3 class="text-lg font-extrabold text-gray-900 mb-2">Our Core Values</h3>
+                <div v-if="form.valuesDescription" class="mb-3">
+                  <p class="text-xs text-gray-700 leading-relaxed text-justify">
+                    {{ form.valuesDescription }}
+                  </p>
+                </div>
+                <div class="w-12 h-0.5 bg-primary-600 mx-auto rounded-full"></div>
+              </div>
+              <div v-if="form.values && form.values.length > 0" class="space-y-2">
+                <div
+                  v-for="(value, index) in form.values"
+                  :key="index"
+                  class="bg-white rounded-lg border-2 border-primary-500 p-3 shadow-sm"
+                >
+                  <div class="flex items-center gap-2">
+                    <div class="w-6 h-6 bg-primary-600 rounded-full flex items-center justify-center shrink-0">
+                      <span class="text-white font-bold text-xs">{{ index + 1 }}</span>
+                    </div>
+                    <div class="text-sm font-bold text-primary-600">
+                      {{ value.name || value }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <p v-else class="text-xs text-gray-400 italic text-center py-4">No values added yet</p>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="px-6 py-4 border-t border-gray-200 flex justify-end shrink-0">
+            <button
+              @click="showPreviewModal = ''"
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </AdminLayout>
 </template>
 
@@ -835,7 +1062,7 @@ import AdminLayout from '../../../layouts/AdminLayout.vue'
 import { aboutUsService } from '../../../firebase/firestore'
 import { useToast } from '../../../composables/useToast'
 import { useBodyScrollLock } from '../../../composables/useBodyScrollLock'
-import { Pencil, X, Plus } from 'lucide-vue-next'
+import { Pencil, X, Plus, Eye } from 'lucide-vue-next'
 
 const { success: showSuccess, error: showError } = useToast()
 const { useLock } = useBodyScrollLock()
@@ -849,12 +1076,15 @@ const showHeroModal = ref(false)
 const showPurposeModal = ref(false)
 const showStatsModal = ref(false)
 const showValuesModal = ref(false)
+const showPreviewModal = ref('') // 'hero', 'purpose', 'stats', 'values'
 
 // Lock body scroll when modals are open
 useLock(showHeroModal)
 useLock(showPurposeModal)
 useLock(showStatsModal)
 useLock(showValuesModal)
+const previewModalOpen = computed(() => !!showPreviewModal.value)
+useLock(previewModalOpen)
 const savingValue = ref(false)
 const newValue = ref({ name: '' })
 const uploadingImages = ref({

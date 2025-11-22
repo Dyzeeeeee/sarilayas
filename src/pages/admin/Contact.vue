@@ -118,9 +118,9 @@
           </div>
 
           <!-- Modal Body (Two Columns) -->
-          <div class="flex-1 overflow-hidden flex">
-            <!-- Preview Column -->
-            <div class="w-1/2 border-r border-gray-200 overflow-y-auto p-6 bg-gray-50">
+          <div class="flex-1 overflow-hidden flex flex-col md:flex-row">
+            <!-- Preview Column - Hidden on mobile -->
+            <div class="hidden md:block w-1/2 border-r border-gray-200 overflow-y-auto p-6 bg-gray-50">
               <p class="text-sm font-semibold text-gray-700 mb-4">Preview</p>
               <div class="bg-white rounded-lg border border-gray-200 p-6 space-y-6">
                 <!-- Email -->
@@ -187,7 +187,16 @@
             </div>
 
             <!-- Editor Column -->
-            <div class="w-1/2 overflow-y-auto p-6 space-y-4">
+            <div class="w-full md:w-1/2 overflow-y-auto p-6 space-y-4">
+              <!-- Preview Button - Mobile Only -->
+              <button
+                @click="showPreviewModal = true"
+                type="button"
+                class="md:hidden w-full px-4 py-2 text-sm font-medium text-primary-600 bg-primary-50 border border-primary-200 rounded-lg hover:bg-primary-100 transition-colors flex items-center justify-center gap-2 mb-4"
+              >
+                <Eye class="h-4 w-4" />
+                Preview
+              </button>
               <form @submit.prevent="saveContact" class="space-y-4">
                 <!-- Email -->
                 <div>
@@ -277,6 +286,106 @@
         </div>
       </div>
     </Teleport>
+
+    <!-- Preview Modal - Mobile Only -->
+    <Teleport to="body">
+      <div
+        v-if="showPreviewModal"
+        @click.self="showPreviewModal = false"
+        @keydown.esc="showPreviewModal = false"
+        class="fixed inset-0 bg-black/50 z-60 flex items-center justify-center p-4"
+        tabindex="-1"
+      >
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+          <!-- Header -->
+          <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between shrink-0">
+            <h2 class="text-lg font-semibold text-gray-900">Preview</h2>
+            <button
+              @click="showPreviewModal = false"
+              class="p-2 text-gray-400 hover:text-gray-600 rounded-lg transition-colors"
+            >
+              <X class="h-5 w-5" />
+            </button>
+          </div>
+
+          <!-- Preview Content -->
+          <div class="flex-1 overflow-y-auto p-6 bg-gray-50">
+            <div class="bg-white rounded-lg border border-gray-200 p-6 space-y-6">
+              <!-- Email -->
+              <div class="flex items-start gap-4">
+                <div class="bg-primary-100 rounded-lg p-3 shrink-0">
+                  <Mail class="w-6 h-6 text-primary-600" />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <h3 class="font-semibold text-gray-900 mb-1">Email</h3>
+                  <p v-if="tempForm.email" class="text-primary-600 break-words">{{ tempForm.email }}</p>
+                  <p v-else class="text-gray-400 italic text-sm">No email set</p>
+                </div>
+              </div>
+
+              <!-- Phone -->
+              <div class="flex items-start gap-4">
+                <div class="bg-primary-100 rounded-lg p-3 shrink-0">
+                  <Phone class="w-6 h-6 text-primary-600" />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <h3 class="font-semibold text-gray-900 mb-1">Phone</h3>
+                  <p v-if="tempForm.phone" class="text-primary-600 break-words">{{ tempForm.phone }}</p>
+                  <p v-else class="text-gray-400 italic text-sm">No phone set</p>
+                </div>
+              </div>
+
+              <!-- Address -->
+              <div class="flex items-start gap-4">
+                <div class="bg-primary-100 rounded-lg p-3 shrink-0">
+                  <MapPin class="w-6 h-6 text-primary-600" />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <h3 class="font-semibold text-gray-900 mb-1">Address</h3>
+                  <p v-if="tempForm.address" class="text-gray-600 leading-relaxed break-words">{{ tempForm.address }}</p>
+                  <p v-else class="text-gray-400 italic text-sm">No address set</p>
+                </div>
+              </div>
+
+              <!-- Social Media -->
+              <div class="pt-4 border-t border-gray-200">
+                <h3 class="font-semibold text-gray-900 mb-4">Follow Us</h3>
+                <div class="flex gap-4">
+                  <a
+                    v-if="tempForm.facebook"
+                    :href="tempForm.facebook"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="bg-primary-100 hover:bg-primary-200 rounded-lg p-3 transition-colors"
+                  >
+                    <Facebook class="w-6 h-6 text-primary-600" />
+                  </a>
+                  <a
+                    v-if="tempForm.youtube"
+                    :href="tempForm.youtube"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="bg-primary-100 hover:bg-primary-200 rounded-lg p-3 transition-colors"
+                  >
+                    <Youtube class="w-6 h-6 text-primary-600" />
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="px-6 py-4 border-t border-gray-200 flex justify-end shrink-0">
+            <button
+              @click="showPreviewModal = false"
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </AdminLayout>
 </template>
 
@@ -286,7 +395,7 @@ import AdminLayout from '../../layouts/AdminLayout.vue'
 import { contactService } from '../../firebase/firestore'
 import { useToast } from '../../composables/useToast'
 import { useBodyScrollLock } from '../../composables/useBodyScrollLock'
-import { Pencil, X, Mail, Phone, MapPin, Facebook, Youtube } from 'lucide-vue-next'
+import { Pencil, X, Mail, Phone, MapPin, Facebook, Youtube, Eye } from 'lucide-vue-next'
 
 const { success: showSuccess, error: showError } = useToast()
 const { useLock } = useBodyScrollLock()
@@ -294,9 +403,11 @@ const { useLock } = useBodyScrollLock()
 const loading = ref(false)
 const loadingData = ref(true)
 const showModal = ref(false)
+const showPreviewModal = ref(false)
 
 // Lock body scroll when modal is open
 useLock(showModal)
+useLock(showPreviewModal)
 
 const form = ref({
   email: '',

@@ -170,8 +170,8 @@
 
           <!-- Modal Body (Two Columns) -->
           <div class="flex-1 overflow-hidden flex">
-            <!-- Preview Column -->
-            <div class="w-1/2 border-r border-gray-200 overflow-y-auto p-6 bg-gray-50">
+            <!-- Preview Column - Hidden on mobile -->
+            <div class="hidden md:block w-1/2 border-r border-gray-200 overflow-y-auto p-6 bg-gray-50">
               <p class="text-sm font-semibold text-gray-700 mb-4">Preview</p>
               <div class="bg-white rounded-lg border border-gray-200 p-6">
                 <div class="flex flex-col items-center text-center space-y-4">
@@ -198,7 +198,16 @@
             </div>
 
             <!-- Editor Column -->
-            <div class="w-1/2 overflow-y-auto p-6 space-y-4">
+            <div class="w-full md:w-1/2 overflow-y-auto p-6 space-y-4">
+              <!-- Preview Button - Mobile Only -->
+              <button
+                @click="showPreviewModal = 'officer'"
+                type="button"
+                class="md:hidden w-full px-4 py-2 text-sm font-medium text-primary-600 bg-primary-50 border border-primary-200 rounded-lg hover:bg-primary-100 transition-colors flex items-center justify-center gap-2 mb-4"
+              >
+                <Eye class="h-4 w-4" />
+                Preview
+              </button>
               <form @submit.prevent="saveOfficerAndClose" class="space-y-4">
                 <div class="grid grid-cols-1 gap-4">
                   <div>
@@ -313,9 +322,9 @@
           </div>
 
           <!-- Modal Body (Two Columns) -->
-          <div class="flex-1 overflow-hidden flex">
-            <!-- Preview Column -->
-            <div class="w-1/2 border-r border-gray-200 overflow-y-auto p-6 bg-gray-50">
+          <div class="flex-1 overflow-hidden flex flex-col md:flex-row">
+            <!-- Preview Column - Hidden on mobile -->
+            <div class="hidden md:block w-1/2 border-r border-gray-200 overflow-y-auto p-6 bg-gray-50">
               <p class="text-sm font-semibold text-gray-700 mb-4">Preview</p>
               <div class="relative rounded-xl overflow-hidden aspect-[4/5] min-h-[400px] bg-gradient-to-br from-primary-500 to-primary-700">
                 <img
@@ -341,7 +350,16 @@
             </div>
 
             <!-- Editor Column -->
-            <div class="w-1/2 overflow-y-auto p-6 space-y-6">
+            <div class="w-full md:w-1/2 overflow-y-auto p-6 space-y-6">
+              <!-- Preview Button - Mobile Only -->
+              <button
+                @click="showPreviewModal = 'image'"
+                type="button"
+                class="md:hidden w-full px-4 py-2 text-sm font-medium text-primary-600 bg-primary-50 border border-primary-200 rounded-lg hover:bg-primary-100 transition-colors flex items-center justify-center gap-2 mb-4"
+              >
+                <Eye class="h-4 w-4" />
+                Preview
+              </button>
               <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-2">Background Image (optional)</label>
                 <div class="space-y-2">
@@ -400,17 +418,101 @@
         </div>
       </div>
     </Teleport>
+
+    <!-- Preview Modal - Mobile Only -->
+    <Teleport to="body">
+      <div
+        v-if="showPreviewModal"
+        @click.self="showPreviewModal = ''"
+        @keydown.esc="showPreviewModal = ''"
+        class="fixed inset-0 bg-black/50 z-60 flex items-center justify-center p-4"
+        tabindex="-1"
+      >
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+          <!-- Header -->
+          <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between shrink-0">
+            <h2 class="text-lg font-semibold text-gray-900">Preview</h2>
+            <button
+              @click="showPreviewModal = ''"
+              class="p-2 text-gray-400 hover:text-gray-600 rounded-lg transition-colors"
+            >
+              <X class="h-5 w-5" />
+            </button>
+          </div>
+
+          <!-- Preview Content -->
+          <div class="flex-1 overflow-y-auto p-6 bg-gray-50">
+            <!-- Officer Preview -->
+            <div v-if="showPreviewModal === 'officer'" class="bg-white rounded-lg border border-gray-200 p-6">
+              <div class="flex flex-col items-center text-center space-y-4">
+                <div v-if="form.photo" class="relative">
+                  <img
+                    :src="form.photo"
+                    :alt="form.name || 'Officer'"
+                    class="w-24 h-24 rounded-full object-cover ring-4 ring-primary-100"
+                  />
+                </div>
+                <div v-else class="w-24 h-24 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center ring-4 ring-primary-100">
+                  <span class="text-white text-2xl font-bold">{{ (form.name || 'O').charAt(0).toUpperCase() }}</span>
+                </div>
+                <div class="space-y-1">
+                  <h3 class="text-lg font-bold text-gray-900">
+                    {{ form.name || 'Officer Name' }}
+                  </h3>
+                  <p class="text-sm text-primary-600 font-medium">
+                    {{ form.position || 'Position' }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Image Preview -->
+            <div v-if="showPreviewModal === 'image'" class="relative rounded-xl overflow-hidden aspect-[4/5] min-h-[400px] bg-gradient-to-br from-primary-500 to-primary-700">
+              <img
+                v-if="officersImage"
+                :src="officersImage"
+                alt="Officers Background"
+                class="absolute inset-0 w-full h-full object-cover"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-primary-900/90 via-primary-800/60 to-primary-700/40"></div>
+              <div class="relative h-full flex flex-col justify-end p-6 text-white">
+                <h3 class="text-2xl font-bold mb-3">Officers</h3>
+                <p class="text-sm text-white/90 leading-relaxed mb-4">
+                  Meet our organization's leadership team and their roles.
+                </p>
+                <div class="flex items-center text-white opacity-80">
+                  <span class="text-sm font-semibold">Learn more</span>
+                  <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="px-6 py-4 border-t border-gray-200 flex justify-end shrink-0">
+            <button
+              @click="showPreviewModal = ''"
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </AdminLayout>
 </template>
 
 <script setup>
-import { ref, onMounted, Teleport } from 'vue'
+import { ref, computed, onMounted, Teleport } from 'vue'
 import AdminLayout from '../../../layouts/AdminLayout.vue'
 import { aboutUsService } from '../../../firebase/firestore'
 import { useToast } from '../../../composables/useToast'
 import { useConfirm } from '../../../composables/useConfirm'
 import { useBodyScrollLock } from '../../../composables/useBodyScrollLock'
-import { Pencil, X, Plus, Edit, Trash2, ChevronUp, ChevronDown } from 'lucide-vue-next'
+import { Pencil, X, Plus, Edit, Trash2, ChevronUp, ChevronDown, Eye } from 'lucide-vue-next'
 
 const { success: showSuccess, error: showError } = useToast()
 const { confirm } = useConfirm()
@@ -424,6 +526,7 @@ const uploadingPhoto = ref(false)
 const fileInput = ref(null)
 const showImageModal = ref(false)
 const showOfficerModal = ref(false)
+const showPreviewModal = ref('') // 'officer' or 'image'
 const officersImage = ref('')
 const uploadingImage = ref(false)
 const imageFileInput = ref(null)
@@ -431,6 +534,8 @@ const imageFileInput = ref(null)
 // Lock body scroll when modals are open
 useLock(showImageModal)
 useLock(showOfficerModal)
+const previewModalOpen = computed(() => !!showPreviewModal.value)
+useLock(previewModalOpen)
 
 const form = ref({
   name: '',
