@@ -57,15 +57,15 @@
       </form>
 
       <!-- Divider -->
-      <div class="my-5 border-t border-gray-200"></div>
+      <!-- <div class="my-5 border-t border-gray-200"></div> -->
 
       <!-- Register Link -->
-      <p class="text-center text-gray-600 text-xs">
+      <!-- <p class="text-center text-gray-600 text-xs">
         Don't have an account?
         <router-link to="/register" class="text-primary-600 font-medium hover:underline">
           Register here
         </router-link>
-      </p>
+      </p> -->
     </div>
   </div>
 </template>

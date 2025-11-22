@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Login from '../pages/auth/login.vue'
-import Register from '../pages/auth/register.vue'
+// import Register from '../pages/auth/register.vue'
 import Home from '../pages/Home.vue'
 import News from '../pages/News.vue'
 import NewsDetail from '../pages/NewsDetail.vue'
@@ -35,7 +35,7 @@ const routes = [
   { path: '/about/national-council', name: 'NationalCouncil', component: NationalCouncil },
   { path: '/about/chapters', name: 'Chapters', component: Chapters },
   { path: '/login', name: 'Login', component: Login, meta: { requiresGuest: true } },
-  { path: '/register', name: 'Register', component: Register, meta: { requiresGuest: true } },
+  // { path: '/register', name: 'Register', component: Register, meta: { requiresGuest: true } },
   { path: '/admin', name: 'AdminDashboard', component: AdminDashboard, meta: { requiresAuth: true } },
   { path: '/admin/about', name: 'AdminAbout', component: AdminAbout, meta: { requiresAuth: true } },
   { path: '/admin/about/values', name: 'AdminValues', component: AdminValues, meta: { requiresAuth: true } },
