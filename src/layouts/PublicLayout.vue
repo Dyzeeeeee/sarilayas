@@ -91,7 +91,7 @@
 
     <!-- Bottom Navigation Bar (Mobile Only) -->
     <nav class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 md:hidden safe-area-inset-bottom">
-      <div class="relative bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 px-6 py-3">
+      <div class="relative bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 px-3 py-2">
         <div class="flex items-center relative">
           <!-- Sliding Background Indicator -->
           <div
@@ -104,19 +104,19 @@
           ></div>
           
           <template v-for="(item, index) in bottomNavItems" :key="item.path">
-            <router-link
-              :to="item.path"
+            <button
+              @click="handleBottomNavClick(item)"
               class="relative z-10 flex items-center justify-center w-14 h-14 rounded-xl transition-all duration-500 ease-out"
               :class="{
-                'text-white scale-110': isActiveRoute(item.path),
-                'text-gray-500 hover:text-primary-500': !isActiveRoute(item.path)
+                'text-white scale-125 animate-scale-up': isActiveRoute(item.path),
+                'text-gray-500 hover:text-primary-500 hover:scale-105': !isActiveRoute(item.path)
               }"
             >
               <!-- Icon with animation -->
               <div
-                class="relative transition-all duration-500"
+                class="relative transition-all duration-500 ease-out"
                 :class="{
-                  'scale-110': isActiveRoute(item.path),
+                  'scale-125': isActiveRoute(item.path),
                   'scale-100': !isActiveRoute(item.path)
                 }"
               >
@@ -127,7 +127,7 @@
                     'drop-shadow-lg filter brightness-110': isActiveRoute(item.path)
                   }"
                 />
-                <Users 
+                <BadgeInfo 
                   v-else-if="item.icon === 'about'" 
                   class="w-6 h-6 transition-all duration-500"
                   :class="{
@@ -162,6 +162,13 @@
                     'drop-shadow-lg filter brightness-110': isActiveRoute(item.path)
                   }"
                 />
+                <Mail 
+                  v-else-if="item.icon === 'contact'" 
+                  class="w-6 h-6 transition-all duration-500"
+                  :class="{
+                    'drop-shadow-lg filter brightness-110': isActiveRoute(item.path)
+                  }"
+                />
               </div>
               
               <!-- Glow effect for active item -->
@@ -169,7 +176,7 @@
                 v-if="isActiveRoute(item.path)"
                 class="absolute inset-0 rounded-xl bg-white/20 blur-md -z-10 animate-pulse"
               ></div>
-            </router-link>
+            </button>
           </template>
         </div>
       </div>
@@ -179,11 +186,12 @@
 
 <script setup>
 import { ref, computed, provide, watch, onMounted, onUnmounted } from 'vue'
-import { useRoute } from 'vue-router'
-import { Newspaper, Briefcase, Users, Video, Image, Home, FolderOpenDot } from 'lucide-vue-next'
+import { useRoute, useRouter } from 'vue-router'
+import { Newspaper, Briefcase, Users, Video, Image, Home, FolderOpenDot, BadgeInfo, Mail } from 'lucide-vue-next'
 import ViewToggler from '../components/ViewToggler.vue'
 
 const route = useRoute()
+const router = useRouter()
 const isScrolledToTop = ref(true)
 
 // Scroll detection
@@ -308,6 +316,7 @@ const bottomNavItems = [
   { path: '/news', label: 'News', icon: 'news' },
   { path: '/projects', label: 'Projects', icon: 'projects' },
   { path: '/media', label: 'Media', icon: 'photos' },
+  { path: '/contact', label: 'Contact', icon: 'contact' },
 ]
 
 // Helper to check if a route is active
@@ -317,4 +326,36 @@ const isActiveRoute = (path) => {
   }
   return route.path === path || route.path.startsWith(path + '/')
 }
+
+// Handle bottom nav item click
+const handleBottomNavClick = (item) => {
+  if (isActiveRoute(item.path)) {
+    // If already on this page, scroll to top and dispatch event to refetch data
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+    window.dispatchEvent(new CustomEvent('refetch-page-data', { 
+      detail: { path: item.path } 
+    }))
+  } else {
+    // Navigate to the new page
+    router.push(item.path)
+  }
+}
 </script>
+
+<style scoped>
+@keyframes scale-up {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1.25);
+  }
+}
+
+.animate-scale-up {
+  animation: scale-up 0.3s ease-out;
+}
+</style>

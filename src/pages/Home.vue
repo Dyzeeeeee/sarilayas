@@ -127,6 +127,8 @@
           <div
             v-for="item in filteredFeedItems"
             :key="`${item.type}-${item.id}`"
+            :data-item-id="`${item.type}-${item.id}`"
+            :ref="el => { if (el) setItemRef(el, `${item.type}-${item.id}`) }"
             @click="handleItemClick(item)"
             class="bg-white rounded-xl border-2 border-gray-100 overflow-hidden transition-all duration-300 cursor-pointer hover:border-primary-300 shadow-sm md:shadow-md lg:shadow-lg hover:shadow-xl flex flex-col group"
           >
@@ -308,22 +310,6 @@
         >
           ×
         </button>
-        <button
-          v-if="getCurrentPhotoIndex() > 0"
-          @click.stop="navigateToPreviousPhoto"
-          class="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-gray-800/80 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-700 transition"
-          aria-label="Previous photo"
-        >
-          <ChevronLeft class="w-5 h-5" />
-        </button>
-        <button
-          v-if="getCurrentPhotoIndex() < getPhotosFromFeed().length - 1"
-          @click.stop="navigateToNextPhoto"
-          class="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-gray-800/80 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-700 transition"
-          aria-label="Next photo"
-        >
-          <ChevronRight class="w-5 h-5" />
-        </button>
         <div class="flex-1 overflow-auto flex items-center justify-center bg-gradient-to-br from-primary-500 via-primary-700 to-primary-900 p-4 md:p-6 lg:p-8">
           <img
             :src="selectedPhoto.url"
@@ -362,22 +348,6 @@
         >
           ×
         </button>
-        <button
-          v-if="getCurrentVideoIndex() > 0"
-          @click.stop="navigateToPreviousVideo"
-          class="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-gray-800/80 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-700 transition"
-          aria-label="Previous video"
-        >
-          <ChevronLeft class="w-5 h-5" />
-        </button>
-        <button
-          v-if="getCurrentVideoIndex() < getVideosFromFeed().length - 1"
-          @click.stop="navigateToNextVideo"
-          class="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-gray-800/80 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-700 transition"
-          aria-label="Next video"
-        >
-          <ChevronRight class="w-5 h-5" />
-        </button>
         <div class="relative w-full aspect-video bg-primary-700">
           <iframe
             v-if="getYouTubeEmbedUrl(selectedVideo.url)"
@@ -408,91 +378,31 @@
       </div>
     </div>
 
-    <!-- PROJECT MODAL -->
-    <div
-      v-if="selectedProject"
-      class="fixed inset-0 backdrop-blur-sm bg-black/70 flex items-center justify-center z-[60] p-3 md:p-6 lg:p-8 overflow-y-auto"
-      @click.self="closeProjectModal"
-    >
-      <div class="relative w-full max-w-4xl lg:max-w-6xl max-h-[90vh] flex flex-col bg-white rounded-lg lg:rounded-xl overflow-hidden my-8 shadow-2xl">
-        <button
-          @click="closeProjectModal"
-          class="absolute top-2 right-2 z-10 bg-gray-800 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-gray-700 transition text-lg leading-none"
-          aria-label="Close"
-        >
-          ×
-        </button>
-        <button
-          v-if="getCurrentProjectIndex() > 0"
-          @click.stop="navigateToPreviousProject"
-          class="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-gray-800/80 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-700 transition"
-          aria-label="Previous project"
-        >
-          <ChevronLeft class="w-5 h-5" />
-        </button>
-        <button
-          v-if="getCurrentProjectIndex() < getProjectsFromFeed().length - 1"
-          @click.stop="navigateToNextProject"
-          class="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-gray-800/80 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-700 transition"
-          aria-label="Next project"
-        >
-          <ChevronRight class="w-5 h-5" />
-        </button>
-        <div v-if="selectedProject.image" class="relative w-full h-64 sm:h-80 overflow-hidden bg-gradient-to-br from-primary-500 via-primary-700 to-primary-900">
-          <img
-            :src="selectedProject.image"
-            :alt="selectedProject.title"
-            class="w-full h-full object-cover"
-          />
-        </div>
-        <div v-else class="relative w-full h-64 sm:h-80 bg-gradient-to-br from-primary-500 via-primary-700 to-primary-900 flex items-center justify-center">
-          <Briefcase class="w-24 h-24 text-white/50" />
-        </div>
-        <div class="flex-1 overflow-y-auto p-6 sm:p-8">
-          <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-            {{ selectedProject.title }}
-          </h2>
-          <p v-if="selectedProject.tagline" class="text-lg sm:text-xl text-primary-600 font-semibold mb-4">
-            {{ selectedProject.tagline }}
-          </p>
-          <div v-if="selectedProject.createdAt" class="flex items-center gap-2 text-sm text-gray-500 mb-6">
-            <Calendar class="w-4 h-4" />
-            <span>{{ formatDate(selectedProject.createdAt) }}</span>
-          </div>
-          <div v-if="selectedProject.description" class="prose prose-sm sm:prose-base max-w-none mb-6">
-            <p class="text-gray-600 leading-relaxed">
-              {{ selectedProject.description }}
-            </p>
-          </div>
-          <div v-if="selectedProject.content" class="prose prose-sm sm:prose-base max-w-none text-gray-700 whitespace-pre-wrap leading-relaxed">
-            {{ selectedProject.content }}
-          </div>
-        </div>
-      </div>
-    </div>
   </PublicLayout>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import PublicLayout from '../layouts/PublicLayout.vue'
 import Skeleton from '../components/Skeleton.vue'
 import { newsService, mediaService, projectsService, aboutUsService } from '../firebase/firestore'
 import { useFeedAlgorithm } from '../composables/useFeedAlgorithm'
-import { Calendar, Newspaper, Image, Video, Briefcase, ChevronLeft, ChevronRight, Play, FolderOpenDot, Users } from 'lucide-vue-next'
+import { Calendar, Newspaper, Image, Video, ChevronLeft, ChevronRight, Play, FolderOpenDot, Users } from 'lucide-vue-next'
 
 const router = useRouter()
+const route = useRoute()
 const { createUnifiedFeed } = useFeedAlgorithm()
 const feedItems = ref([])
 const loading = ref(true)
 const selectedPhoto = ref(null)
 const selectedVideo = ref(null)
-const selectedProject = ref(null)
 const centerColumn = ref(null)
 const leftSidebar = ref(null)
 const rightSidebar = ref(null)
 const selectedContentType = ref('all')
+const seenItemsKey = 'sarilaya_seen_items'
+const itemRefs = ref(new Map())
 
 // Computed stats for display
 const stats = computed(() => {
@@ -503,24 +413,85 @@ const stats = computed(() => {
   }
 })
 
+// Get seen items from localStorage
+function getSeenItems() {
+  try {
+    const seen = localStorage.getItem(seenItemsKey)
+    const parsed = seen ? JSON.parse(seen) : []
+    console.log('Current seen items from localStorage:', parsed.length, parsed)
+    return parsed
+  } catch (error) {
+    console.error('Error reading seen items:', error)
+    return []
+  }
+}
+
+// Mark item as seen
+function markItemAsSeen(itemId) {
+  try {
+    const seen = getSeenItems()
+    if (!seen.includes(itemId)) {
+      seen.push(itemId)
+      localStorage.setItem(seenItemsKey, JSON.stringify(seen))
+      console.log('Marked as seen:', itemId, 'Total seen:', seen.length)
+    }
+  } catch (error) {
+    console.error('Error marking item as seen:', error)
+  }
+}
+
+// Sort items: unseen first, seen last. When all are seen, shuffle to keep feed dynamic
+function sortItemsBySeenStatus(items) {
+  const seen = getSeenItems()
+  const unseen = items.filter(item => {
+    const itemId = `${item.type}-${item.id}`
+    return !seen.includes(itemId)
+  })
+  const seenItems = items.filter(item => {
+    const itemId = `${item.type}-${item.id}`
+    return seen.includes(itemId)
+  })
+  
+  // If all items are seen, shuffle them to keep the feed dynamic
+  if (unseen.length === 0 && seenItems.length > 0) {
+    // Create a shuffled copy of seen items
+    const shuffled = [...seenItems]
+    
+    // Use a deterministic shuffle based on current time (changes every hour)
+    // This ensures the order changes periodically but stays consistent during the same hour
+    const hourSeed = Math.floor(Date.now() / (1000 * 60 * 60)) // Changes every hour
+    const seed = hourSeed % 10000 // Keep it manageable
+    
+    // Simple seeded shuffle algorithm
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      // Use seed to generate pseudo-random index
+      const j = (seed + i * 7919) % (i + 1) // 7919 is a prime number for better distribution
+      ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
+    }
+    
+    return shuffled
+  }
+  
+  return [...unseen, ...seenItems]
+}
+
 // Filtered feed items based on selected content type
 const filteredFeedItems = computed(() => {
-  if (selectedContentType.value === 'all') {
-    return feedItems.value
-  }
+  let items = feedItems.value
+  
+  // Filter by content type
   if (selectedContentType.value === 'news') {
-    return feedItems.value.filter(item => item.type === 'news')
+    items = items.filter(item => item.type === 'news')
+  } else if (selectedContentType.value === 'photos') {
+    items = items.filter(item => item.type === 'photo')
+  } else if (selectedContentType.value === 'videos') {
+    items = items.filter(item => item.type === 'video')
+  } else if (selectedContentType.value === 'projects') {
+    items = items.filter(item => item.type === 'project')
   }
-  if (selectedContentType.value === 'photos') {
-    return feedItems.value.filter(item => item.type === 'photo')
-  }
-  if (selectedContentType.value === 'videos') {
-    return feedItems.value.filter(item => item.type === 'video')
-  }
-  if (selectedContentType.value === 'projects') {
-    return feedItems.value.filter(item => item.type === 'project')
-  }
-  return feedItems.value
+  
+  // Sort: unseen first, seen last
+  return sortItemsBySeenStatus(items)
 })
 
 // Function to set content type filter
@@ -602,7 +573,7 @@ function handleItemClick(item) {
   } else if (item.type === 'video') {
     openVideoModal(item)
   } else if (item.type === 'project') {
-    openProjectModal(item)
+    router.push(`/projects/${item.id}`)
   }
 }
 
@@ -704,39 +675,6 @@ function getYouTubeEmbedUrl(url, hideControls = false) {
   return baseUrl
 }
 
-// Project modal functions
-function openProjectModal(project) {
-  selectedProject.value = project
-}
-
-function closeProjectModal() {
-  selectedProject.value = null
-}
-
-function getProjectsFromFeed() {
-  return feedItems.value.filter(item => item.type === 'project')
-}
-
-function getCurrentProjectIndex() {
-  if (!selectedProject.value) return -1
-  return getProjectsFromFeed().findIndex(p => p.id === selectedProject.value.id)
-}
-
-function navigateToPreviousProject() {
-  const projects = getProjectsFromFeed()
-  const currentIndex = getCurrentProjectIndex()
-  if (currentIndex > 0) {
-    selectedProject.value = projects[currentIndex - 1]
-  }
-}
-
-function navigateToNextProject() {
-  const projects = getProjectsFromFeed()
-  const currentIndex = getCurrentProjectIndex()
-  if (currentIndex < projects.length - 1) {
-    selectedProject.value = projects[currentIndex + 1]
-  }
-}
 
 // Format date for display
 function formatDate(date) {
@@ -806,6 +744,13 @@ async function loadFeed() {
         members: formatWhereWeAreNumber(aboutData.stats.members || 2000)
       }
     }
+    
+    // Setup Intersection Observer after items are loaded
+    await nextTick()
+    // Wait a bit for DOM to render
+    setTimeout(() => {
+      setupIntersectionObserver()
+    }, 200)
   } catch (error) {
     console.error('Error loading feed:', error)
   } finally {
@@ -821,7 +766,100 @@ function formatWhereWeAreNumber(num) {
   return num.toString()
 }
 
+// Set item ref for Intersection Observer
+function setItemRef(el, itemId) {
+  if (el) {
+    itemRefs.value.set(itemId, el)
+  } else {
+    itemRefs.value.delete(itemId)
+  }
+}
+
+// Setup Intersection Observer to track seen items
+let intersectionObserver = null
+
+function setupIntersectionObserver() {
+  if (typeof window === 'undefined' || !window.IntersectionObserver) {
+    console.warn('IntersectionObserver not available')
+    return
+  }
+
+  // Clean up existing observer
+  if (intersectionObserver) {
+    intersectionObserver.disconnect()
+  }
+
+  intersectionObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const itemId = entry.target.dataset.itemId
+          if (itemId) {
+            markItemAsSeen(itemId)
+          }
+        }
+      })
+    },
+    {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.3 // Item is considered seen when 30% is visible
+    }
+  )
+
+  // Also observe items by querying DOM directly as fallback
+  const itemElements = document.querySelectorAll('[data-item-id]')
+  let observedCount = 0
+  
+  itemElements.forEach((el) => {
+    if (el && el.nodeType === 1) {
+      intersectionObserver.observe(el)
+      observedCount++
+    }
+  })
+  
+  // Also observe refs if available
+  itemRefs.value.forEach((el, itemId) => {
+    if (el && el.nodeType === 1 && !el.dataset.observed) {
+      el.dataset.itemId = itemId
+      el.dataset.observed = 'true'
+      intersectionObserver.observe(el)
+      observedCount++
+    }
+  })
+  
+  console.log(`Intersection Observer setup: ${observedCount} items observed`)
+  console.log('Current localStorage:', localStorage.getItem(seenItemsKey))
+}
+
+const handleRefetch = () => {
+  if (route.path === '/') {
+    loadFeed()
+  }
+}
+
+// Watch for changes in filteredFeedItems to update observer
+watch(
+  () => filteredFeedItems.value.length,
+  () => {
+    nextTick(() => {
+      // Wait a bit more for DOM to fully render
+      setTimeout(() => {
+        setupIntersectionObserver()
+      }, 100)
+    })
+  }
+)
+
 onMounted(() => {
   loadFeed()
+  window.addEventListener('refetch-page-data', handleRefetch)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('refetch-page-data', handleRefetch)
+  if (intersectionObserver) {
+    intersectionObserver.disconnect()
+  }
 })
 </script>

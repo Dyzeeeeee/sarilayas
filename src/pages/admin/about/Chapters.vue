@@ -57,7 +57,7 @@
               <p class="text-xs text-gray-500 mt-0.5">Manage local chapters</p>
             </div>
             <button
-              @click="showChapterModal = true; editingChapter = null; form = { chapterName: '', region: '', province: '', municipality: '', membersCount: 0 }"
+              @click="showChapterModal = true; editingChapter = null; form = { chapterName: '', region: '', province: '', municipality: '', membersCount: 0, image: '' }"
               class="px-3 py-1.5 text-xs font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors flex items-center gap-2"
             >
               <Plus class="h-4 w-4" />
@@ -69,6 +69,7 @@
               <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                   <tr>
+                    <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Image</th>
                     <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Chapter Name</th>
                     <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Region</th>
                     <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Province</th>
@@ -79,6 +80,7 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                   <tr v-for="i in 3" :key="i" class="animate-pulse">
+                    <td class="px-3 py-2"><div class="w-10 h-10 bg-gray-200 rounded"></div></td>
                     <td class="px-3 py-2"><div class="h-4 bg-gray-200 rounded w-24"></div></td>
                     <td class="px-3 py-2"><div class="h-4 bg-gray-200 rounded w-20"></div></td>
                     <td class="px-3 py-2"><div class="h-4 bg-gray-200 rounded w-20"></div></td>
@@ -96,6 +98,9 @@
               <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                   <tr>
+                    <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                      Image
+                    </th>
                     <th class="px-3 py-2 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                       Chapter Name
                     </th>
@@ -118,6 +123,17 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                   <tr v-for="chapter in chapters" :key="chapter.id" class="hover:bg-gray-50 transition-colors">
+                    <td class="px-3 py-2 whitespace-nowrap">
+                      <div class="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
+                        <img
+                          v-if="chapter.image"
+                          :src="chapter.image"
+                          :alt="chapter.chapterName"
+                          class="w-full h-full object-cover"
+                        />
+                        <span v-else class="text-xs font-bold text-gray-400">{{ chapter.chapterName.charAt(0) }}</span>
+                      </div>
+                    </td>
                     <td class="px-3 py-2 whitespace-nowrap text-xs font-medium text-gray-900">
                       {{ chapter.chapterName }}
                     </td>
@@ -200,6 +216,44 @@
                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-sm"
                   placeholder="Enter chapter name"
                 />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                  Chapter Image (optional)
+                </label>
+                <div class="space-y-2">
+                  <input
+                    @change="handleChapterImageFileSelect"
+                    type="file"
+                    accept="image/*"
+                    ref="chapterImageFileInput"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-sm file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
+                  />
+                  <p class="text-xs text-gray-500">Or enter image URL</p>
+                  <input
+                    v-model="form.image"
+                    type="url"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-sm"
+                    placeholder="https://example.com/chapter-image.jpg"
+                  />
+                </div>
+                <div v-if="form.image && !uploadingChapterImage" class="mt-2 flex items-center gap-2">
+                  <img :src="form.image" alt="Preview" class="w-24 h-24 rounded-lg object-cover border border-gray-200" />
+                  <button
+                    type="button"
+                    @click="form.image = ''; if (chapterImageFileInput) chapterImageFileInput.value = ''"
+                    class="text-xs text-red-600 hover:text-red-700"
+                  >
+                    Remove
+                  </button>
+                </div>
+                <div v-if="uploadingChapterImage" class="mt-2 flex items-center gap-2 text-xs text-gray-500">
+                  <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>Processing image...</span>
+                </div>
               </div>
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
@@ -422,8 +476,11 @@ const form = ref({
   region: '',
   province: '',
   municipality: '',
-  membersCount: 0
+  membersCount: 0,
+  image: ''
 })
+const uploadingChapterImage = ref(false)
+const chapterImageFileInput = ref(null)
 
 async function loadChapters() {
   loadingData.value = true
@@ -446,7 +503,8 @@ function handleEdit(chapter) {
     region: chapter.region,
     province: chapter.province,
     municipality: chapter.municipality,
-    membersCount: chapter.membersCount
+    membersCount: chapter.membersCount,
+    image: chapter.image || ''
   }
   showChapterModal.value = true
 }
@@ -458,7 +516,11 @@ function cancelEdit() {
     region: '',
     province: '',
     municipality: '',
-    membersCount: 0
+    membersCount: 0,
+    image: ''
+  }
+  if (chapterImageFileInput.value) {
+    chapterImageFileInput.value.value = ''
   }
   showChapterModal.value = false
 }
@@ -612,6 +674,42 @@ async function saveImageAndClose() {
     showError('Failed to save image')
   } finally {
     loading.value = false
+  }
+}
+
+async function handleChapterImageFileSelect(event) {
+  const file = event.target.files[0]
+  if (!file) return
+
+  if (!file.type.startsWith('image/')) {
+    showError('Please select an image file')
+    return
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    showError('Image size must be less than 5MB')
+    return
+  }
+
+  uploadingChapterImage.value = true
+
+  try {
+    const compressedDataUrl = await compressImage(file, 800, 800, 0.8)
+    const base64Size = compressedDataUrl.length * 0.75
+    if (base64Size > 500000) {
+      const moreCompressed = await compressImage(file, 600, 600, 0.7)
+      form.value.image = moreCompressed
+    } else {
+      form.value.image = compressedDataUrl
+    }
+  } catch (error) {
+    console.error('Error processing image:', error)
+    showError('Failed to process image file')
+    if (chapterImageFileInput.value) {
+      chapterImageFileInput.value.value = ''
+    }
+  } finally {
+    uploadingChapterImage.value = false
   }
 }
 

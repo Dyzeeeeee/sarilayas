@@ -82,7 +82,7 @@ export const aboutUsService = {
 
   // Officers
   async getOfficers() {
-    return await firestoreService.getCollection('officers')
+    return await firestoreService.getCollection('officers', null, 'index', 'asc')
   },
 
   async addOfficer(data) {
@@ -99,7 +99,7 @@ export const aboutUsService = {
 
   // National Council
   async getNationalCouncil() {
-    return await firestoreService.getCollection('nationalCouncil')
+    return await firestoreService.getCollection('nationalCouncil', null, 'index', 'asc')
   },
 
   async addCouncilMember(data) {

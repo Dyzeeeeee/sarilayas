@@ -53,8 +53,14 @@
         >
           <!-- ICON -->
           <div class="shrink-0">
-            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center ring-2 ring-primary-100">
-              <span class="text-white text-lg font-bold">{{ chapter.chapterName.charAt(0) }}</span>
+            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center ring-2 ring-primary-100 overflow-hidden">
+              <img
+                v-if="chapter.image"
+                :src="chapter.image"
+                :alt="chapter.chapterName"
+                class="w-full h-full object-cover"
+              />
+              <span v-else class="text-white text-lg font-bold">{{ chapter.chapterName.charAt(0) }}</span>
             </div>
           </div>
 
@@ -85,8 +91,14 @@
         >
           <!-- ICON -->
           <div class="flex justify-center mb-4">
-            <div class="w-24 h-24 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center ring-4 ring-primary-100">
-              <span class="text-white text-2xl font-bold">{{ chapter.chapterName.charAt(0) }}</span>
+            <div class="w-24 h-24 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center ring-4 ring-primary-100 overflow-hidden">
+              <img
+                v-if="chapter.image"
+                :src="chapter.image"
+                :alt="chapter.chapterName"
+                class="w-full h-full object-cover"
+              />
+              <span v-else class="text-white text-2xl font-bold">{{ chapter.chapterName.charAt(0) }}</span>
             </div>
           </div>
 
@@ -123,6 +135,44 @@
         </p>
         </div>
       </template>
+
+      <!-- Navigation to Officers and National Council -->
+      <div v-if="!loading" class="mt-12 sm:mt-16 pt-8 sm:pt-12 border-t border-gray-200">
+        <div class="text-center mb-6 sm:mb-8">
+          <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Explore More</h3>
+          <p class="text-sm sm:text-base text-gray-600">Discover our Officers and National Council</p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-2xl mx-auto">
+          <router-link
+            to="/about/officers"
+            class="group relative rounded-xl p-6 sm:p-8 text-white overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 h-48 sm:h-56 flex items-end"
+            :style="officersImage ? { backgroundImage: `url(${officersImage})`, backgroundSize: 'cover', backgroundPosition: 'center' } : { background: 'linear-gradient(to bottom right, rgb(139, 92, 246), rgb(124, 58, 237))' }"
+          >
+            <div class="absolute inset-0 bg-gradient-to-t from-primary-900/90 via-primary-700/60 to-primary-500/30"></div>
+            <div class="relative z-10 w-full">
+              <div class="flex items-center justify-between mb-2">
+                <h4 class="text-lg sm:text-xl font-bold">Officers</h4>
+                <ChevronRight class="w-5 h-5 sm:w-6 sm:h-6 transform group-hover:translate-x-1 transition-transform duration-300" />
+              </div>
+              <p class="text-sm sm:text-base text-white/90">Meet our organization officers</p>
+            </div>
+          </router-link>
+          <router-link
+            to="/about/national-council"
+            class="group relative rounded-xl p-6 sm:p-8 text-white overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 h-48 sm:h-56 flex items-end"
+            :style="councilImage ? { backgroundImage: `url(${councilImage})`, backgroundSize: 'cover', backgroundPosition: 'center' } : { background: 'linear-gradient(to bottom right, rgb(139, 92, 246), rgb(124, 58, 237))' }"
+          >
+            <div class="absolute inset-0 bg-gradient-to-t from-primary-900/90 via-primary-700/60 to-primary-500/30"></div>
+            <div class="relative z-10 w-full">
+              <div class="flex items-center justify-between mb-2">
+                <h4 class="text-lg sm:text-xl font-bold">National Council</h4>
+                <ChevronRight class="w-5 h-5 sm:w-6 sm:h-6 transform group-hover:translate-x-1 transition-transform duration-300" />
+              </div>
+              <p class="text-sm sm:text-base text-white/90">Meet our national leadership team</p>
+            </div>
+          </router-link>
+        </div>
+      </div>
     </div>
 
     <!-- CHAPTER MODAL -->
@@ -163,8 +213,14 @@
         
         <!-- Icon Section -->
         <div class="flex-1 overflow-auto flex items-center justify-center bg-gradient-to-br from-primary-500 via-primary-700 to-primary-900 p-8 sm:p-12">
-          <div class="w-48 h-48 rounded-full bg-white flex items-center justify-center">
-            <span class="text-primary-600 text-6xl font-bold">{{ selectedChapter.chapterName.charAt(0) }}</span>
+          <div class="w-48 h-48 rounded-full bg-white flex items-center justify-center overflow-hidden">
+            <img
+              v-if="selectedChapter.image"
+              :src="selectedChapter.image"
+              :alt="selectedChapter.chapterName"
+              class="w-full h-full object-cover"
+            />
+            <span v-else class="text-primary-600 text-6xl font-bold">{{ selectedChapter.chapterName.charAt(0) }}</span>
           </div>
         </div>
         
@@ -201,6 +257,8 @@ const { viewMode } = useViewMode('chapters')
 const chapters = ref([])
 const loading = ref(true)
 const selectedChapter = ref(null)
+const officersImage = ref('')
+const councilImage = ref('')
 
 // Lock body scroll when modal is open
 const { useLock } = useBodyScrollLock()
@@ -237,7 +295,15 @@ function navigateToNextChapter() {
 async function loadChapters() {
   loading.value = true
   try {
-    chapters.value = await aboutUsService.getChapters()
+    const [chaptersData, aboutData] = await Promise.all([
+      aboutUsService.getChapters(),
+      aboutUsService.getAboutUs().catch(() => null)
+    ])
+    chapters.value = chaptersData
+    if (aboutData) {
+      officersImage.value = aboutData.officersImage || ''
+      councilImage.value = aboutData.nationalCouncilImage || ''
+    }
   } catch (error) {
     console.error('Error loading chapters:', error)
   } finally {

@@ -3,7 +3,16 @@
     <div class="flex flex-col max-w-6xl mx-auto px-2 sm:px-4 min-h-[calc(100vh-80px)]">
 
       <!-- TABS (Fixed) -->
-      <div class="fixed top-16 md:top-16 left-0 right-0 bg-gray-50 z-40 px-2 sm:px-4 py-2">
+      <div
+        class="fixed left-0 right-0 bg-gray-50 z-40 px-2 sm:px-4 py-2"
+        :class="[
+          tabsFixedScrolled && isMobile
+            ? 'top-12'
+            : 'top-16',
+          'md:top-16'
+        ]"
+        ref="tabsRef"
+      >
         <div class="max-w-6xl mx-auto">
           <div class="flex items-center gap-1 bg-gray-200 rounded-lg p-1 w-full">
             <button
@@ -361,7 +370,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, computed } from "vue";
+import { ref, onMounted, onUnmounted, watch, computed } from "vue";
+import { useRoute } from "vue-router";
 import PublicLayout from "../layouts/PublicLayout.vue";
 import Card from "../components/Card.vue";
 import Skeleton from "../components/Skeleton.vue";
@@ -376,6 +386,23 @@ const checkMobile = () => {
   isMobile.value = window.innerWidth < 768; // md breakpoint
 };
 
+// Track if the scroll position should trigger top-12 (on scroll, mobile only)
+const tabsFixedScrolled = ref(false);
+let lastScrollTop = 0;
+const tabsScrollThreshold = 12; // px, adjust as needed
+
+const handleScroll = () => {
+  // Only adjust on mobile
+  if (!isMobile.value) {
+    tabsFixedScrolled.value = false;
+    return;
+  }
+  const st = window.scrollY || window.pageYOffset;
+  // If user has scrolled more than ~0px, apply top-12, else use top-16
+  tabsFixedScrolled.value = st > 4;
+  lastScrollTop = st;
+};
+
 // Load active tab from localStorage or default to 'photos'
 const activeTab = ref(localStorage.getItem('mediaActiveTab') || 'photos');
 
@@ -385,6 +412,7 @@ watch(activeTab, (newTab) => {
 });
 
 // Use the composable for view mode
+const route = useRoute()
 const { viewMode } = useViewMode('media');
 const photos = ref([]);
 const videos = ref([]);
@@ -572,13 +600,31 @@ async function loadVideos() {
   }
 }
 
+const handleRefetch = () => {
+  if (route.path === '/media') {
+    Promise.all([loadPhotos(), loadVideos()])
+  }
+}
+
 onMounted(async () => {
   // Check mobile on mount
   checkMobile();
   window.addEventListener('resize', checkMobile);
-  
+
+  // Listen for scroll to adjust tabs pop
+  window.addEventListener('scroll', handleScroll, { passive: true });
+  handleScroll();
+
   // Load both photos and videos on mount
   await Promise.all([loadPhotos(), loadVideos()]);
+  
+  window.addEventListener('refetch-page-data', handleRefetch)
 });
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkMobile)
+  window.removeEventListener('scroll', handleScroll)
+  window.removeEventListener('refetch-page-data', handleRefetch)
+})
 </script>
 

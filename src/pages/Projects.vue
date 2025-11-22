@@ -133,93 +133,23 @@
         </div>
       </template>
     </div>
-
-    <!-- PROJECT MODAL -->
-    <div
-      v-if="selectedProject"
-      class="fixed inset-0 backdrop-blur-sm bg-black/70 flex items-center justify-center z-50 p-3 overflow-y-auto"
-      @click.self="closeProjectModal"
-    >
-      <div class="relative w-full max-w-4xl max-h-[90vh] flex flex-col bg-white rounded-lg overflow-hidden my-8">
-        <!-- Close Button -->
-        <button
-          @click="closeProjectModal"
-          class="absolute top-2 right-2 z-10 bg-gray-800 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-gray-700 transition text-lg leading-none"
-          aria-label="Close"
-        >
-          ×
-        </button>
-        
-        <!-- Previous Button -->
-        <button
-          v-if="getCurrentProjectIndex() > 0"
-          @click.stop="navigateToPreviousProject"
-          class="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-gray-800/80 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-700 transition"
-          aria-label="Previous project"
-        >
-          <ChevronLeft class="w-5 h-5" />
-        </button>
-        
-        <!-- Next Button -->
-        <button
-          v-if="getCurrentProjectIndex() < sortedProjects.length - 1"
-          @click.stop="navigateToNextProject"
-          class="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-gray-800/80 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-700 transition"
-          aria-label="Next project"
-        >
-          <ChevronRight class="w-5 h-5" />
-        </button>
-        
-        <!-- Image Section -->
-        <div v-if="selectedProject.image" class="relative w-full h-64 sm:h-80 overflow-hidden bg-gradient-to-br from-primary-500 via-primary-700 to-primary-900">
-          <img
-            :src="selectedProject.image"
-            :alt="selectedProject.title"
-            class="w-full h-full object-cover"
-          />
-        </div>
-        <div v-else class="relative w-full h-64 sm:h-80 bg-gradient-to-br from-primary-500 via-primary-700 to-primary-900 flex items-center justify-center">
-          <Briefcase class="w-24 h-24 text-white/50" />
-        </div>
-        
-        <!-- Content Section -->
-        <div class="flex-1 overflow-y-auto p-6 sm:p-8">
-          <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-            {{ selectedProject.title }}
-          </h2>
-          <p v-if="selectedProject.tagline" class="text-lg sm:text-xl text-primary-600 font-semibold mb-4">
-            {{ selectedProject.tagline }}
-          </p>
-          <div v-if="selectedProject.createdAt" class="flex items-center gap-2 text-sm text-gray-500 mb-6">
-            <Calendar class="w-4 h-4" />
-            <span>{{ formatDate(selectedProject.createdAt) }}</span>
-          </div>
-          <div v-if="selectedProject.description" class="prose prose-sm sm:prose-base max-w-none mb-6">
-            <p class="text-gray-600 leading-relaxed">
-              {{ selectedProject.description }}
-            </p>
-          </div>
-          <div v-if="selectedProject.content" class="prose prose-sm sm:prose-base max-w-none text-gray-700 whitespace-pre-wrap leading-relaxed">
-            {{ selectedProject.content }}
-          </div>
-        </div>
-      </div>
-    </div>
   </PublicLayout>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import PublicLayout from '../layouts/PublicLayout.vue'
 import Skeleton from '../components/Skeleton.vue'
 import { projectsService } from '../firebase/firestore'
 import { useViewMode } from '../composables/useViewMode'
-import { Briefcase, Calendar, ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { Briefcase, Calendar } from 'lucide-vue-next'
 
 const { viewMode } = useViewMode('projects')
+const route = useRoute()
+const router = useRouter()
 const projects = ref([])
 const loading = ref(true)
-const selectedProject = ref(null)
 
 // Sort projects by newest first
 const sortedProjects = computed(() => {
@@ -231,30 +161,7 @@ const sortedProjects = computed(() => {
 })
 
 function handleProjectClick(project) {
-  selectedProject.value = project
-}
-
-function closeProjectModal() {
-  selectedProject.value = null
-}
-
-function getCurrentProjectIndex() {
-  if (!selectedProject.value) return -1
-  return sortedProjects.value.findIndex(p => p.id === selectedProject.value.id)
-}
-
-function navigateToPreviousProject() {
-  const currentIndex = getCurrentProjectIndex()
-  if (currentIndex > 0) {
-    selectedProject.value = sortedProjects.value[currentIndex - 1]
-  }
-}
-
-function navigateToNextProject() {
-  const currentIndex = getCurrentProjectIndex()
-  if (currentIndex < sortedProjects.value.length - 1) {
-    selectedProject.value = sortedProjects.value[currentIndex + 1]
-  }
+  router.push(`/projects/${project.id}`)
 }
 
 // Format date for display
@@ -305,7 +212,18 @@ async function loadProjects() {
   }
 }
 
+const handleRefetch = () => {
+  if (route.path === '/projects') {
+    loadProjects()
+  }
+}
+
 onMounted(() => {
   loadProjects()
+  window.addEventListener('refetch-page-data', handleRefetch)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('refetch-page-data', handleRefetch)
 })
 </script>

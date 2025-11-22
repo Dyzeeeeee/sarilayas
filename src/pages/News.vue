@@ -106,8 +106,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, computed } from "vue";
-import { useRouter } from "vue-router";
+import { ref, onMounted, onUnmounted, watch, computed } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import PublicLayout from "../layouts/PublicLayout.vue";
 import Card from "../components/Card.vue";
 import Skeleton from "../components/Skeleton.vue";
@@ -116,6 +116,7 @@ import { newsService } from "../firebase/firestore";
 import { useViewMode } from "../composables/useViewMode";
 
 const router = useRouter();
+const route = useRoute();
 
 // Use the composable for view mode
 const { viewMode } = useViewMode('news');
@@ -206,7 +207,8 @@ function formatDate(date) {
   return dateObj.toLocaleString('en-US', options);
 }
 
-onMounted(async () => {
+const loadArticles = async () => {
+  loading.value = true
   try {
     articles.value = await newsService.getNews();
   } catch (err) {
@@ -214,5 +216,20 @@ onMounted(async () => {
   } finally {
     loading.value = false;
   }
-});
+}
+
+const handleRefetch = () => {
+  if (route.path === '/news') {
+    loadArticles()
+  }
+}
+
+onMounted(() => {
+  loadArticles()
+  window.addEventListener('refetch-page-data', handleRefetch)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('refetch-page-data', handleRefetch)
+})
 </script>

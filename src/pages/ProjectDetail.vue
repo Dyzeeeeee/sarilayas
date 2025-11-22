@@ -13,79 +13,87 @@
         </div>
       </div>
 
-      <!-- Article Content -->
-      <article v-else-if="article">
+      <!-- Project Content -->
+      <article v-else-if="project">
         <!-- Header -->
         <header class="mb-6">
           <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-3">
-            {{ article.title || 'Untitled Article' }}
+            {{ project.title || 'Untitled Project' }}
           </h1>
+          <div v-if="project.tagline" class="text-xl sm:text-2xl text-primary-600 font-semibold mb-3">
+            {{ project.tagline }}
+          </div>
           <div class="flex items-center gap-4 text-sm text-gray-500">
-            <span v-if="article.publishDate" class="flex items-center gap-1">
+            <span v-if="project.createdAt" class="flex items-center gap-1">
               <Calendar class="w-4 h-4" />
-              <span class="font-medium">{{ formatDate(article.publishDate) }}</span>
+              <span class="font-medium">{{ formatDate(project.createdAt) }}</span>
             </span>
           </div>
         </header>
 
         <!-- Featured Image -->
-        <div v-if="article.image" class="mb-6 rounded-lg overflow-hidden">
+        <div v-if="project.image" class="mb-6 rounded-lg overflow-hidden">
           <img
-            :src="article.image"
-            :alt="article.title || 'Article image'"
+            :src="project.image"
+            :alt="project.title || 'Project image'"
             class="w-full h-auto object-cover"
           />
         </div>
 
         <!-- Description -->
-        <div v-if="article.description" class="prose prose-lg max-w-none mb-6">
+        <div v-if="project.description" class="prose prose-lg max-w-none mb-6">
           <p class="text-gray-700 text-lg leading-relaxed whitespace-pre-wrap">
-            {{ article.description }}
+            {{ project.description }}
           </p>
         </div>
 
         <!-- Content (if available) -->
-        <div v-if="article.content" class="prose prose-lg max-w-none">
+        <div v-if="project.content" class="prose prose-lg max-w-none">
           <div class="text-gray-700 leading-relaxed whitespace-pre-wrap">
-            {{ article.content }}
+            {{ project.content }}
           </div>
         </div>
 
         <!-- Back Button -->
         <div class="mt-8">
           <router-link
-            to="/news"
+            to="/projects"
             class="inline-flex items-center text-primary-600 hover:text-primary-700 font-medium"
           >
-            ← Back to News
+            ← Back to Projects
           </router-link>
         </div>
       </article>
 
-      <!-- Other News Articles -->
-      <div v-if="!loading && article && otherArticles.length > 0" class="mt-12">
+      <!-- Other Projects -->
+      <div v-if="!loading && project && otherProjects.length > 0" class="mt-12">
         <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-6">
-          Other News
+          Other Projects
         </h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <Card
-            v-for="otherArticle in otherArticles"
-            :key="otherArticle.id"
+            v-for="otherProject in otherProjects"
+            :key="otherProject.id"
             variant="light"
-            :image="otherArticle.image"
-            image-alt="News Image"
-            :title="otherArticle.title || 'Untitled Article'"
+            :image="otherProject.image"
+            image-alt="Project Image"
+            :title="otherProject.title || 'Untitled Project'"
             :title-clamp="2"
-            :description="otherArticle.description || 'No description'"
+            :description="otherProject.description || 'No description'"
             :description-clamp="3"
             card-classes="h-full"
             clickable
-            @click="openArticle(otherArticle)"
+            @click="openProject(otherProject)"
           >
-            <template v-if="otherArticle.publishDate" #footer>
+            <template v-if="otherProject.tagline" #subtitle>
+              <p class="text-primary-600 font-medium text-sm line-clamp-1">
+                {{ otherProject.tagline }}
+              </p>
+            </template>
+            <template v-if="otherProject.createdAt" #footer>
               <p class="text-[10px] sm:text-xs text-gray-500 mt-1 flex items-center gap-1">
                 <Calendar class="w-3 h-3" />
-                <span class="font-medium">{{ formatDate(otherArticle.publishDate) }}</span>
+                <span class="font-medium">{{ formatDate(otherProject.createdAt) }}</span>
               </p>
             </template>
           </Card>
@@ -93,14 +101,14 @@
       </div>
 
       <!-- Not Found -->
-      <div v-if="!loading && !article" class="text-center py-12">
-        <h2 class="text-2xl font-bold text-gray-900 mb-2">Article Not Found</h2>
-        <p class="text-gray-600 mb-6">The article you're looking for doesn't exist.</p>
+      <div v-if="!loading && !project" class="text-center py-12">
+        <h2 class="text-2xl font-bold text-gray-900 mb-2">Project Not Found</h2>
+        <p class="text-gray-600 mb-6">The project you're looking for doesn't exist.</p>
         <router-link
-          to="/news"
+          to="/projects"
           class="inline-flex items-center text-primary-600 hover:text-primary-700 font-medium"
         >
-          ← Back to News
+          ← Back to Projects
         </router-link>
       </div>
     </div>
@@ -113,24 +121,24 @@ import { useRoute, useRouter } from 'vue-router'
 import PublicLayout from '../layouts/PublicLayout.vue'
 import Card from '../components/Card.vue'
 import { Calendar } from 'lucide-vue-next'
-import { newsService } from '../firebase/firestore'
+import { projectsService } from '../firebase/firestore'
 
 const route = useRoute()
 const router = useRouter()
-const article = ref(null)
-const allArticles = ref([])
+const project = ref(null)
+const allProjects = ref([])
 const loading = ref(true)
 
-// Get other articles (excluding current one)
-const otherArticles = computed(() => {
-  if (!article.value) return []
-  return allArticles.value
-    .filter(a => a.id !== article.value.id)
-    .slice(0, 6) // Show up to 6 other articles
+// Get other projects (excluding current one)
+const otherProjects = computed(() => {
+  if (!project.value) return []
+  return allProjects.value
+    .filter(p => p.id !== project.value.id)
+    .slice(0, 6) // Show up to 6 other projects
 })
 
-function openArticle(article) {
-  router.push(`/news/${article.id}`)
+function openProject(project) {
+  router.push(`/projects/${project.id}`)
 }
 
 // Format date for display with relative time
@@ -194,18 +202,18 @@ function formatDate(date) {
 }
 
 onMounted(async () => {
-  const articleId = route.params.id
-  if (!articleId) {
-    router.push('/news')
+  const projectId = route.params.id
+  if (!projectId) {
+    router.push('/projects')
     return
   }
 
   try {
     loading.value = true
-    allArticles.value = await newsService.getNews()
-    article.value = allArticles.value.find(a => a.id === articleId) || null
+    allProjects.value = await projectsService.getProjects()
+    project.value = allProjects.value.find(p => p.id === projectId) || null
   } catch (err) {
-    console.error('Error fetching article:', err)
+    console.error('Error fetching project:', err)
   } finally {
     loading.value = false
   }

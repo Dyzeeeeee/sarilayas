@@ -127,6 +127,44 @@
         </p>
         </div>
       </template>
+
+      <!-- Navigation to Officers and Chapters -->
+      <div v-if="!loading" class="mt-12 sm:mt-16 pt-8 sm:pt-12 border-t border-gray-200">
+        <div class="text-center mb-6 sm:mb-8">
+          <h3 class="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Explore More</h3>
+          <p class="text-sm sm:text-base text-gray-600">Discover our Officers and Chapters</p>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-2xl mx-auto">
+          <router-link
+            to="/about/officers"
+            class="group relative rounded-xl p-6 sm:p-8 text-white overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 h-48 sm:h-56 flex items-end"
+            :style="officersImage ? { backgroundImage: `url(${officersImage})`, backgroundSize: 'cover', backgroundPosition: 'center' } : { background: 'linear-gradient(to bottom right, rgb(139, 92, 246), rgb(124, 58, 237))' }"
+          >
+            <div class="absolute inset-0 bg-gradient-to-t from-primary-900/90 via-primary-700/60 to-primary-500/30"></div>
+            <div class="relative z-10 w-full">
+              <div class="flex items-center justify-between mb-2">
+                <h4 class="text-lg sm:text-xl font-bold">Officers</h4>
+                <ChevronRight class="w-5 h-5 sm:w-6 sm:h-6 transform group-hover:translate-x-1 transition-transform duration-300" />
+              </div>
+              <p class="text-sm sm:text-base text-white/90">Meet our organization officers</p>
+            </div>
+          </router-link>
+          <router-link
+            to="/about/chapters"
+            class="group relative rounded-xl p-6 sm:p-8 text-white overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 h-48 sm:h-56 flex items-end"
+            :style="chaptersImage ? { backgroundImage: `url(${chaptersImage})`, backgroundSize: 'cover', backgroundPosition: 'center' } : { background: 'linear-gradient(to bottom right, rgb(139, 92, 246), rgb(124, 58, 237))' }"
+          >
+            <div class="absolute inset-0 bg-gradient-to-t from-primary-900/90 via-primary-700/60 to-primary-500/30"></div>
+            <div class="relative z-10 w-full">
+              <div class="flex items-center justify-between mb-2">
+                <h4 class="text-lg sm:text-xl font-bold">Chapters</h4>
+                <ChevronRight class="w-5 h-5 sm:w-6 sm:h-6 transform group-hover:translate-x-1 transition-transform duration-300" />
+              </div>
+              <p class="text-sm sm:text-base text-white/90">Explore our regional chapters</p>
+            </div>
+          </router-link>
+        </div>
+      </div>
     </div>
 
     <!-- MEMBER MODAL -->
@@ -205,6 +243,8 @@ const { viewMode } = useViewMode('nationalCouncil')
 const members = ref([])
 const loading = ref(true)
 const selectedMember = ref(null)
+const officersImage = ref('')
+const chaptersImage = ref('')
 
 // Lock body scroll when modal is open
 const { useLock } = useBodyScrollLock()
@@ -241,7 +281,15 @@ function navigateToNextMember() {
 async function loadMembers() {
   loading.value = true
   try {
-    members.value = await aboutUsService.getNationalCouncil()
+    const [membersData, aboutData] = await Promise.all([
+      aboutUsService.getNationalCouncil(),
+      aboutUsService.getAboutUs().catch(() => null)
+    ])
+    members.value = membersData
+    if (aboutData) {
+      officersImage.value = aboutData.officersImage || ''
+      chaptersImage.value = aboutData.chaptersImage || ''
+    }
   } catch (error) {
     console.error('Error loading council members:', error)
   } finally {

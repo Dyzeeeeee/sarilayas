@@ -81,11 +81,29 @@
             </div>
             <div v-else class="space-y-2">
               <div
-                v-for="member in members"
+                v-for="(member, index) in members"
                 :key="member.id"
                 class="border border-gray-200 rounded-lg p-3 hover:border-gray-300 transition-colors"
               >
                 <div class="flex items-center space-x-3">
+                  <div class="flex flex-col gap-1 shrink-0">
+                    <button
+                      @click="moveMember(index, 'up')"
+                      :disabled="index === 0"
+                      class="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      title="Move up"
+                    >
+                      <ChevronUp class="h-4 w-4" />
+                    </button>
+                    <button
+                      @click="moveMember(index, 'down')"
+                      :disabled="index === members.length - 1"
+                      class="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                      title="Move down"
+                    >
+                      <ChevronDown class="h-4 w-4" />
+                    </button>
+                  </div>
                   <div v-if="member.photo" class="shrink-0">
                     <img
                       :src="member.photo"
@@ -392,7 +410,7 @@ import { aboutUsService } from '../../../firebase/firestore'
 import { useToast } from '../../../composables/useToast'
 import { useConfirm } from '../../../composables/useConfirm'
 import { useBodyScrollLock } from '../../../composables/useBodyScrollLock'
-import { Pencil, X, Plus, Edit, Trash2 } from 'lucide-vue-next'
+import { Pencil, X, Plus, Edit, Trash2, ChevronUp, ChevronDown } from 'lucide-vue-next'
 
 const { success: showSuccess, error: showError } = useToast()
 const { confirm } = useConfirm()
@@ -423,7 +441,12 @@ const form = ref({
 async function loadMembers() {
   loadingData.value = true
   try {
-    members.value = await aboutUsService.getNationalCouncil()
+    const membersData = await aboutUsService.getNationalCouncil()
+    // Ensure all members have an index, assign if missing
+    members.value = membersData.map((member, idx) => ({
+      ...member,
+      index: member.index !== undefined ? member.index : idx
+    }))
     const aboutData = await aboutUsService.getAboutUs()
     nationalCouncilImage.value = aboutData?.nationalCouncilImage || ''
   } catch (error) {
@@ -555,7 +578,14 @@ async function handleSubmit() {
       await aboutUsService.updateCouncilMember(editingMember.value.id, form.value)
       showSuccess('Council member updated successfully!')
     } else {
-      await aboutUsService.addCouncilMember(form.value)
+      // Set index to the end when adding new member
+      const maxIndex = members.value.length > 0 
+        ? Math.max(...members.value.map(m => m.index || 0))
+        : -1
+      await aboutUsService.addCouncilMember({
+        ...form.value,
+        index: maxIndex + 1
+      })
       showSuccess('Council member added successfully!')
     }
     cancelEdit()
@@ -563,6 +593,34 @@ async function handleSubmit() {
   } catch (error) {
     console.error('Error saving council member:', error)
     showError('Failed to save council member')
+  } finally {
+    loading.value = false
+  }
+}
+
+async function moveMember(currentIndex, direction) {
+  if (direction === 'up' && currentIndex === 0) return
+  if (direction === 'down' && currentIndex === members.value.length - 1) return
+
+  const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1
+  const currentMember = members.value[currentIndex]
+  const targetMember = members.value[newIndex]
+
+  // Swap indices
+  const tempIndex = currentMember.index
+  const targetIndex = targetMember.index
+
+  loading.value = true
+  try {
+    // Update both members' indices
+    await Promise.all([
+      aboutUsService.updateCouncilMember(currentMember.id, { ...currentMember, index: targetIndex }),
+      aboutUsService.updateCouncilMember(targetMember.id, { ...targetMember, index: tempIndex })
+    ])
+    await loadMembers()
+  } catch (error) {
+    console.error('Error reordering council members:', error)
+    showError('Failed to reorder council members')
   } finally {
     loading.value = false
   }
