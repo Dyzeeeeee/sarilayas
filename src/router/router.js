@@ -5,7 +5,6 @@ import Home from '../pages/Home.vue'
 import News from '../pages/News.vue'
 import NewsDetail from '../pages/NewsDetail.vue'
 import Projects from '../pages/Projects.vue'
-import ProjectDetail from '../pages/ProjectDetail.vue'
 import Media from '../pages/Media.vue'
 import Contact from '../pages/Contact.vue'
 import About from '../pages/about/About.vue'
@@ -29,7 +28,6 @@ const routes = [
   { path: '/news', name: 'News', component: News },
   { path: '/news/:id', name: 'NewsDetail', component: NewsDetail },
   { path: '/projects', name: 'Projects', component: Projects },
-  { path: '/projects/:id', name: 'ProjectDetail', component: ProjectDetail },
   { path: '/media', name: 'Media', component: Media },
   { path: '/contact', name: 'Contact', component: Contact },
   { path: '/about', name: 'About', component: About },

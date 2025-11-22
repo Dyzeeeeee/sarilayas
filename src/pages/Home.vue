@@ -9,41 +9,36 @@
             <!-- Quick Links -->
             <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
               <h3 class="text-lg font-bold text-gray-900 mb-4">Quick Links</h3>
-              <nav class="space-y-2">
+              <nav class="flex flex-wrap gap-2">
                 <router-link
                   to="/news"
-                  class="flex items-center gap-3 p-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors"
+                  class="px-3 py-1.5 rounded-full text-sm font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-primary-100 hover:text-primary-600"
                 >
-                  <Newspaper class="w-5 h-5" />
-                  <span class="font-medium">Latest News</span>
+                  Latest News
                 </router-link>
                 <router-link
                   to="/projects"
-                  class="flex items-center gap-3 p-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors"
+                  class="px-3 py-1.5 rounded-full text-sm font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-primary-100 hover:text-primary-600"
                 >
-                  <FolderOpenDot class="w-5 h-5" />
-                  <span class="font-medium">Projects</span>
+                  Projects
                 </router-link>
                 <router-link
                   to="/media"
-                  class="flex items-center gap-3 p-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors"
+                  class="px-3 py-1.5 rounded-full text-sm font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-primary-100 hover:text-primary-600"
                 >
-                  <Image class="w-5 h-5" />
-                  <span class="font-medium">Media</span>
+                  Media
                 </router-link>
                 <router-link
                   to="/about"
-                  class="flex items-center gap-3 p-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors"
+                  class="px-3 py-1.5 rounded-full text-sm font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-primary-100 hover:text-primary-600"
                 >
-                  <Users class="w-5 h-5" />
-                  <span class="font-medium">About Us</span>
+                  About Us
                 </router-link>
                 <router-link
                   to="/contact"
-                  class="flex items-center gap-3 p-3 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors"
+                  class="px-3 py-1.5 rounded-full text-sm font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-primary-100 hover:text-primary-600"
                 >
-                  <Calendar class="w-5 h-5" />
-                  <span class="font-medium">Contact</span>
+                  Contact
                 </router-link>
               </nav>
             </div>
@@ -52,7 +47,7 @@
             <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
               <h3 class="text-lg font-bold text-gray-900 mb-3">About Sarilaya</h3>
               <p class="text-sm text-gray-600 leading-relaxed mb-4">
-                Connecting communities and fostering growth through meaningful initiatives and shared values.
+                {{ aboutData?.description || 'Connecting communities and fostering growth through meaningful initiatives and shared values.' }}
               </p>
               <router-link
                 to="/about"
@@ -204,47 +199,42 @@
             <!-- Content Types Filter -->
             <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
               <h3 class="text-lg font-bold text-gray-900 mb-4">Content Types</h3>
-              <div class="space-y-2">
-                <div 
+              <div class="flex flex-wrap gap-2">
+                <button
                   @click="setContentTypeFilter('all')"
-                  class="flex items-center gap-3 p-3 rounded-lg transition-colors cursor-pointer"
-                  :class="selectedContentType === 'all' ? 'bg-primary-50 text-primary-600' : 'text-gray-700 hover:bg-gray-50'"
+                  class="px-3 py-1.5 rounded-full text-sm font-medium transition-colors"
+                  :class="selectedContentType === 'all' ? 'bg-primary-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
                 >
-                  <Newspaper class="w-5 h-5" />
-                  <span class="font-medium">All Content</span>
-                </div>
-                <div 
+                  All
+                </button>
+                <button
                   @click="setContentTypeFilter('news')"
-                  class="flex items-center gap-3 p-3 rounded-lg transition-colors cursor-pointer"
-                  :class="selectedContentType === 'news' ? 'bg-primary-50 text-primary-600' : 'text-gray-700 hover:bg-gray-50'"
+                  class="px-3 py-1.5 rounded-full text-sm font-medium transition-colors"
+                  :class="selectedContentType === 'news' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
                 >
-                  <Newspaper class="w-5 h-5 text-blue-600" />
-                  <span>News</span>
-                </div>
-                <div 
+                  News
+                </button>
+                <button
                   @click="setContentTypeFilter('photos')"
-                  class="flex items-center gap-3 p-3 rounded-lg transition-colors cursor-pointer"
-                  :class="selectedContentType === 'photos' ? 'bg-primary-50 text-primary-600' : 'text-gray-700 hover:bg-gray-50'"
+                  class="px-3 py-1.5 rounded-full text-sm font-medium transition-colors"
+                  :class="selectedContentType === 'photos' ? 'bg-green-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
                 >
-                  <Image class="w-5 h-5 text-green-600" />
-                  <span>Photos</span>
-                </div>
-                <div 
+                  Photos
+                </button>
+                <button
                   @click="setContentTypeFilter('videos')"
-                  class="flex items-center gap-3 p-3 rounded-lg transition-colors cursor-pointer"
-                  :class="selectedContentType === 'videos' ? 'bg-primary-50 text-primary-600' : 'text-gray-700 hover:bg-gray-50'"
+                  class="px-3 py-1.5 rounded-full text-sm font-medium transition-colors"
+                  :class="selectedContentType === 'videos' ? 'bg-red-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
                 >
-                  <Video class="w-5 h-5 text-red-600" />
-                  <span>Videos</span>
-                </div>
-                <div 
+                  Videos
+                </button>
+                <button
                   @click="setContentTypeFilter('projects')"
-                  class="flex items-center gap-3 p-3 rounded-lg transition-colors cursor-pointer"
-                  :class="selectedContentType === 'projects' ? 'bg-primary-50 text-primary-600' : 'text-gray-700 hover:bg-gray-50'"
+                  class="px-3 py-1.5 rounded-full text-sm font-medium transition-colors"
+                  :class="selectedContentType === 'projects' ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
                 >
-                  <FolderOpenDot class="w-5 h-5 text-purple-600" />
-                  <span>Projects</span>
-                </div>
+                  Projects
+                </button>
               </div>
             </div>
 
@@ -403,6 +393,7 @@ const rightSidebar = ref(null)
 const selectedContentType = ref('all')
 const seenItemsKey = 'sarilaya_seen_items'
 const itemRefs = ref(new Map())
+const aboutData = ref(null)
 
 // Computed stats for display
 const stats = computed(() => {
@@ -725,7 +716,7 @@ function formatDate(date) {
 async function loadFeed() {
   loading.value = true
   try {
-    const [news, photos, videos, projects, aboutData] = await Promise.all([
+    const [news, photos, videos, projects, aboutDataResult] = await Promise.all([
       newsService.getNews(),
       mediaService.getPhotos(),
       mediaService.getVideos(),
@@ -735,13 +726,16 @@ async function loadFeed() {
     
     feedItems.value = createUnifiedFeed(news, photos, videos, projects)
     
+    // Store about data
+    aboutData.value = aboutDataResult
+    
     // Load Where We Are stats if available
-    if (aboutData && aboutData.stats) {
+    if (aboutDataResult && aboutDataResult.stats) {
       whereWeAreStats.value = {
-        regions: aboutData.stats.regions || 9,
-        provinces: aboutData.stats.provinces || 14,
-        municipalities: aboutData.stats.municipalities || 32,
-        members: formatWhereWeAreNumber(aboutData.stats.members || 2000)
+        regions: aboutDataResult.stats.regions || 9,
+        provinces: aboutDataResult.stats.provinces || 14,
+        municipalities: aboutDataResult.stats.municipalities || 32,
+        members: formatWhereWeAreNumber(aboutDataResult.stats.members || 2000)
       }
     }
     
