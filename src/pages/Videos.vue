@@ -89,15 +89,21 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import PublicLayout from "../layouts/PublicLayout.vue";
 import Card from "../components/Card.vue";
 import Skeleton from "../components/Skeleton.vue";
 import { mediaService } from "../firebase/firestore";
+import { useBodyScrollLock } from "../composables/useBodyScrollLock";
 
 const videos = ref([]);
 const loading = ref(true);
 const modalVideo = ref(null);
+
+// Lock body scroll when modal is open
+const { useLock } = useBodyScrollLock();
+const isModalOpen = computed(() => !!modalVideo.value);
+useLock(isModalOpen);
 
 // Extract YouTube video ID
 function getYouTubeVideoId(url) {

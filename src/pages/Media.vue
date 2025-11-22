@@ -2,36 +2,38 @@
   <PublicLayout>
     <div class="flex flex-col max-w-6xl mx-auto px-2 sm:px-4 min-h-[calc(100vh-80px)]">
 
-      <!-- TABS -->
-      <div class="shrink-0 bg-gray-50 z-10 px-2 py-2">
-        <div class="flex items-center gap-1 bg-gray-200 rounded-lg p-1 w-full">
-          <button
-            @click="activeTab = 'photos'"
-            :class="[
-              'flex-1 px-4 py-1.5 text-sm font-medium transition-colors rounded-md',
-              activeTab === 'photos'
-                ? 'bg-white text-primary-600 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
-            ]"
-          >
-            Photos
-          </button>
-          <button
-            @click="activeTab = 'videos'"
-            :class="[
-              'flex-1 px-4 py-1.5 text-sm font-medium transition-colors rounded-md',
-              activeTab === 'videos'
-                ? 'bg-white text-primary-600 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
-            ]"
-          >
-            Videos
-          </button>
+      <!-- TABS (Fixed) -->
+      <div class="fixed top-16 md:top-16 left-0 right-0 bg-gray-50 z-40 px-2 sm:px-4 py-2">
+        <div class="max-w-6xl mx-auto">
+          <div class="flex items-center gap-1 bg-gray-200 rounded-lg p-1 w-full">
+            <button
+              @click="activeTab = 'photos'"
+              :class="[
+                'flex-1 px-4 py-1.5 text-sm font-medium transition-colors rounded-md cursor-pointer',
+                activeTab === 'photos'
+                  ? 'bg-white text-primary-600 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              ]"
+            >
+              Photos
+            </button>
+            <button
+              @click="activeTab = 'videos'"
+              :class="[
+                'flex-1 px-4 py-1.5 text-sm font-medium transition-colors rounded-md cursor-pointer',
+                activeTab === 'videos'
+                  ? 'bg-white text-primary-600 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              ]"
+            >
+              Videos
+            </button>
+          </div>
         </div>
       </div>
 
       <!-- CONTENT AREA (Scrollable) -->
-      <div class="flex-1 overflow-y-auto min-h-0">
+      <div class="flex-1 pt-10 md:pt-10">
         <!-- PHOTOS TAB -->
         <div v-show="activeTab === 'photos'">
           <div :class="[
@@ -225,7 +227,7 @@
       <!-- IMAGE MODAL FULLSCREEN -->
       <div
         v-if="modalImage"
-        class="fixed inset-0 backdrop-blur-sm bg-black/70 flex items-center justify-center z-50 p-3"
+        class="fixed inset-0 backdrop-blur-sm bg-black/70 flex items-center justify-center z-[60] p-3"
         @click.self="closeImageModal"
       >
         <div class="relative w-full max-w-4xl max-h-[90vh] flex flex-col bg-white rounded-lg overflow-hidden">
@@ -288,7 +290,7 @@
       <!-- VIDEO MODAL FULLSCREEN -->
       <div
         v-if="modalVideo"
-        class="fixed inset-0 backdrop-blur-sm bg-black/70 flex items-center justify-center z-50 p-3"
+        class="fixed inset-0 backdrop-blur-sm bg-black/70 flex items-center justify-center z-[60] p-3"
         @click.self="closeVideoModal"
       >
         <div class="relative w-full max-w-4xl flex flex-col bg-white rounded-lg overflow-hidden">
@@ -366,6 +368,7 @@ import Skeleton from "../components/Skeleton.vue";
 import { mediaService } from "../firebase/firestore";
 import { Play, ChevronLeft, ChevronRight, Calendar } from "lucide-vue-next";
 import { useViewMode } from "../composables/useViewMode";
+import { useBodyScrollLock } from "../composables/useBodyScrollLock";
 
 // Check if mobile view
 const isMobile = ref(false);
@@ -391,6 +394,11 @@ const modalImage = ref(null);
 const modalVideo = ref(null);
 const selectedPhoto = ref(null);
 const selectedVideo = ref(null);
+
+// Lock body scroll when modals are open
+const { useLock } = useBodyScrollLock();
+const isModalOpen = computed(() => !!modalImage.value || !!modalVideo.value);
+useLock(isModalOpen);
 
 // Sort photos and videos by newest first
 const sortedPhotos = computed(() => {

@@ -74,15 +74,21 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import PublicLayout from "../layouts/PublicLayout.vue";
 import Card from "../components/Card.vue";
 import Skeleton from "../components/Skeleton.vue";
 import { mediaService } from "../firebase/firestore";
+import { useBodyScrollLock } from "../composables/useBodyScrollLock";
 
 const photos = ref([]);
 const loading = ref(true);
 const modalImage = ref(null);
+
+// Lock body scroll when modal is open
+const { useLock } = useBodyScrollLock();
+const isModalOpen = computed(() => !!modalImage.value);
+useLock(isModalOpen);
 
 function openModal(url) {
   modalImage.value = url;

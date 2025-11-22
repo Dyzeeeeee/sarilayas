@@ -128,7 +128,7 @@
     <!-- CHAPTER MODAL -->
     <div
       v-if="selectedChapter"
-      class="fixed inset-0 backdrop-blur-sm bg-black/70 flex items-center justify-center z-50 p-3"
+      class="fixed inset-0 backdrop-blur-sm bg-black/70 flex items-center justify-center z-[60] p-3"
       @click.self="closeChapterModal"
     >
       <div class="relative w-full max-w-2xl max-h-[90vh] flex flex-col bg-white rounded-lg overflow-hidden">
@@ -190,16 +190,22 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import PublicLayout from '../../layouts/PublicLayout.vue'
 import { aboutUsService } from '../../firebase/firestore'
 import { useViewMode } from '../../composables/useViewMode'
+import { useBodyScrollLock } from '../../composables/useBodyScrollLock'
 import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
 
 const { viewMode } = useViewMode('chapters')
 const chapters = ref([])
 const loading = ref(true)
 const selectedChapter = ref(null)
+
+// Lock body scroll when modal is open
+const { useLock } = useBodyScrollLock()
+const isModalOpen = computed(() => !!selectedChapter.value)
+useLock(isModalOpen)
 
 function handleChapterClick(chapter) {
   selectedChapter.value = chapter

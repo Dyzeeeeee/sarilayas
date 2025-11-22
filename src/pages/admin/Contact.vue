@@ -1,129 +1,302 @@
 <template>
   <AdminLayout>
-    <div class="space-y-4">
+    <div class="space-y-4 md:space-y-6">
       <!-- Header -->
       <div>
-        <h1 class="text-xl font-semibold text-gray-900 tracking-tight">Contact Information</h1>
-        <p class="text-xs text-gray-500 mt-1">Manage contact details and social media links</p>
+        <h1 class="text-xl md:text-2xl font-semibold text-gray-900 tracking-tight">Contact Information</h1>
+        <p class="text-xs md:text-sm text-gray-500 mt-1">Manage contact details and social media links</p>
       </div>
 
-      <div v-if="loadingData" class="bg-white rounded-lg border border-gray-200/80 p-4 space-y-4">
-        <div class="space-y-3 animate-pulse">
-          <div class="h-4 bg-gray-200 rounded w-20"></div>
-          <div class="h-10 bg-gray-200 rounded"></div>
-          <div class="h-4 bg-gray-200 rounded w-24"></div>
-          <div class="h-10 bg-gray-200 rounded"></div>
-          <div class="h-4 bg-gray-200 rounded w-20"></div>
-          <div class="h-10 bg-gray-200 rounded"></div>
-          <div class="h-4 bg-gray-200 rounded w-16"></div>
-          <div class="h-24 bg-gray-200 rounded"></div>
-          <div class="h-4 bg-gray-200 rounded w-14"></div>
-          <div class="h-10 bg-gray-200 rounded"></div>
+      <!-- Contact Information Card -->
+      <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
+        <div class="px-4 md:px-6 py-3 md:py-4 border-b border-gray-200 flex items-center justify-between">
+          <div>
+            <h2 class="text-base md:text-lg font-semibold text-gray-900">Contact Information</h2>
+            <p class="text-xs text-gray-500 mt-0.5">Preview of how contact information appears on the public page</p>
+          </div>
+          <button
+            @click="showModal = true"
+            class="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            <Pencil class="h-4 w-4 text-gray-500" />
+          </button>
+        </div>
+        <div class="p-4 md:p-6">
+          <div v-if="loadingData" class="space-y-4">
+            <div class="h-16 bg-gray-200 rounded-lg animate-pulse"></div>
+            <div class="h-16 bg-gray-200 rounded-lg animate-pulse"></div>
+            <div class="h-16 bg-gray-200 rounded-lg animate-pulse"></div>
+          </div>
+          <div v-else class="space-y-6">
+            <!-- Email -->
+            <div class="flex items-start gap-4">
+              <div class="bg-primary-100 rounded-lg p-3 shrink-0">
+                <Mail class="w-6 h-6 text-primary-600" />
+              </div>
+              <div class="flex-1 min-w-0">
+                <h3 class="font-semibold text-gray-900 mb-1">Email</h3>
+                <p v-if="form.email" class="text-primary-600 break-words">{{ form.email }}</p>
+                <p v-else class="text-gray-400 italic text-sm">No email set</p>
+              </div>
+            </div>
+
+            <!-- Phone -->
+            <div class="flex items-start gap-4">
+              <div class="bg-primary-100 rounded-lg p-3 shrink-0">
+                <Phone class="w-6 h-6 text-primary-600" />
+              </div>
+              <div class="flex-1 min-w-0">
+                <h3 class="font-semibold text-gray-900 mb-1">Phone</h3>
+                <p v-if="form.phone" class="text-primary-600 break-words">{{ form.phone }}</p>
+                <p v-else class="text-gray-400 italic text-sm">No phone set</p>
+              </div>
+            </div>
+
+            <!-- Address -->
+            <div class="flex items-start gap-4">
+              <div class="bg-primary-100 rounded-lg p-3 shrink-0">
+                <MapPin class="w-6 h-6 text-primary-600" />
+              </div>
+              <div class="flex-1 min-w-0">
+                <h3 class="font-semibold text-gray-900 mb-1">Address</h3>
+                <p v-if="form.address" class="text-gray-600 leading-relaxed break-words">{{ form.address }}</p>
+                <p v-else class="text-gray-400 italic text-sm">No address set</p>
+              </div>
+            </div>
+
+            <!-- Social Media -->
+            <div class="pt-4 border-t border-gray-200">
+              <h3 class="font-semibold text-gray-900 mb-4">Follow Us</h3>
+              <div class="flex gap-4">
+                <a
+                  v-if="form.facebook"
+                  :href="form.facebook"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="bg-primary-100 hover:bg-primary-200 rounded-lg p-3 transition-colors"
+                >
+                  <Facebook class="w-6 h-6 text-primary-600" />
+                </a>
+                <a
+                  v-if="form.youtube"
+                  :href="form.youtube"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="bg-primary-100 hover:bg-primary-200 rounded-lg p-3 transition-colors"
+                >
+                  <Youtube class="w-6 h-6 text-primary-600" />
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <form v-else @submit.prevent="handleSubmit" class="bg-white rounded-lg border border-gray-200/80 p-4 space-y-4">
-        <!-- Email -->
-        <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1.5">
-            Email *
-          </label>
-          <input
-            v-model="form.email"
-            type="email"
-            required
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-sm"
-            placeholder="contact@example.com"
-          />
-        </div>
-
-        <!-- Phone Number -->
-        <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1.5">
-            Phone Number
-          </label>
-          <input
-            v-model="form.phone"
-            type="tel"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-sm"
-            placeholder="+63 123 456 7890"
-          />
-        </div>
-
-        <!-- Address -->
-        <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1.5">
-            Address
-          </label>
-          <textarea
-            v-model="form.address"
-            rows="3"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-sm"
-            placeholder="Enter full address"
-          ></textarea>
-        </div>
-
-        <!-- Facebook -->
-        <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1.5">
-            Facebook URL
-          </label>
-          <input
-            v-model="form.facebook"
-            type="url"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-sm"
-            placeholder="https://facebook.com/yourpage"
-          />
-        </div>
-
-        <!-- YouTube -->
-        <div>
-          <label class="block text-xs font-semibold text-gray-700 mb-1.5">
-            YouTube URL
-          </label>
-          <input
-            v-model="form.youtube"
-            type="url"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-sm"
-            placeholder="https://youtube.com/@yourchannel"
-          />
-        </div>
-
-        <!-- Actions -->
-        <div class="flex justify-end space-x-3 pt-2">
-          <button
-            type="button"
-            @click="loadData"
-            class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors text-xs font-medium"
-          >
-            Reset
-          </button>
-          <button
-            type="submit"
-            :disabled="loading"
-            class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-xs font-semibold flex items-center space-x-2"
-          >
-            <svg v-if="loading" class="animate-spin h-3 w-3" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <span>{{ loading ? 'Saving...' : 'Save Changes' }}</span>
-          </button>
-        </div>
-      </form>
     </div>
+
+    <!-- Edit Modal -->
+    <Teleport to="body">
+      <div
+        v-if="showModal"
+        class="fixed inset-0 z-60 flex items-center justify-center p-4"
+        @click.self="showModal = false"
+        @keydown.esc="showModal = false"
+      >
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+        
+        <!-- Modal Content -->
+        <div class="relative bg-white rounded-xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden flex flex-col">
+          <!-- Header -->
+          <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between shrink-0">
+            <h2 class="text-lg font-semibold text-gray-900">Edit Contact Information</h2>
+            <button
+              @click="showModal = false"
+              class="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <X class="h-5 w-5 text-gray-500" />
+            </button>
+          </div>
+
+          <!-- Modal Body (Two Columns) -->
+          <div class="flex-1 overflow-hidden flex">
+            <!-- Preview Column -->
+            <div class="w-1/2 border-r border-gray-200 overflow-y-auto p-6 bg-gray-50">
+              <p class="text-sm font-semibold text-gray-700 mb-4">Preview</p>
+              <div class="bg-white rounded-lg border border-gray-200 p-6 space-y-6">
+                <!-- Email -->
+                <div class="flex items-start gap-4">
+                  <div class="bg-primary-100 rounded-lg p-3 shrink-0">
+                    <Mail class="w-6 h-6 text-primary-600" />
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <h3 class="font-semibold text-gray-900 mb-1">Email</h3>
+                    <p v-if="tempForm.email" class="text-primary-600 break-words">{{ tempForm.email }}</p>
+                    <p v-else class="text-gray-400 italic text-sm">No email set</p>
+                  </div>
+                </div>
+
+                <!-- Phone -->
+                <div class="flex items-start gap-4">
+                  <div class="bg-primary-100 rounded-lg p-3 shrink-0">
+                    <Phone class="w-6 h-6 text-primary-600" />
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <h3 class="font-semibold text-gray-900 mb-1">Phone</h3>
+                    <p v-if="tempForm.phone" class="text-primary-600 break-words">{{ tempForm.phone }}</p>
+                    <p v-else class="text-gray-400 italic text-sm">No phone set</p>
+                  </div>
+                </div>
+
+                <!-- Address -->
+                <div class="flex items-start gap-4">
+                  <div class="bg-primary-100 rounded-lg p-3 shrink-0">
+                    <MapPin class="w-6 h-6 text-primary-600" />
+                  </div>
+                  <div class="flex-1 min-w-0">
+                    <h3 class="font-semibold text-gray-900 mb-1">Address</h3>
+                    <p v-if="tempForm.address" class="text-gray-600 leading-relaxed break-words">{{ tempForm.address }}</p>
+                    <p v-else class="text-gray-400 italic text-sm">No address set</p>
+                  </div>
+                </div>
+
+                <!-- Social Media -->
+                <div class="pt-4 border-t border-gray-200">
+                  <h3 class="font-semibold text-gray-900 mb-4">Follow Us</h3>
+                  <div class="flex gap-4">
+                    <a
+                      v-if="tempForm.facebook"
+                      :href="tempForm.facebook"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="bg-primary-100 hover:bg-primary-200 rounded-lg p-3 transition-colors"
+                    >
+                      <Facebook class="w-6 h-6 text-primary-600" />
+                    </a>
+                    <a
+                      v-if="tempForm.youtube"
+                      :href="tempForm.youtube"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="bg-primary-100 hover:bg-primary-200 rounded-lg p-3 transition-colors"
+                    >
+                      <Youtube class="w-6 h-6 text-primary-600" />
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Editor Column -->
+            <div class="w-1/2 overflow-y-auto p-6 space-y-4">
+              <form @submit.prevent="saveContact" class="space-y-4">
+                <!-- Email -->
+                <div>
+                  <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    Email *
+                  </label>
+                  <input
+                    v-model="tempForm.email"
+                    type="email"
+                    required
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-sm"
+                    placeholder="contact@example.com"
+                  />
+                </div>
+
+                <!-- Phone -->
+                <div>
+                  <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    Phone Number
+                  </label>
+                  <input
+                    v-model="tempForm.phone"
+                    type="tel"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-sm"
+                    placeholder="+63 123 456 7890"
+                  />
+                </div>
+
+                <!-- Address -->
+                <div>
+                  <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    Address
+                  </label>
+                  <textarea
+                    v-model="tempForm.address"
+                    rows="4"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-sm resize-none"
+                    placeholder="Enter full address"
+                  ></textarea>
+                </div>
+
+                <!-- Facebook -->
+                <div>
+                  <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    Facebook URL
+                  </label>
+                  <input
+                    v-model="tempForm.facebook"
+                    type="url"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-sm"
+                    placeholder="https://facebook.com/yourpage"
+                  />
+                </div>
+
+                <!-- YouTube -->
+                <div>
+                  <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    YouTube URL
+                  </label>
+                  <input
+                    v-model="tempForm.youtube"
+                    type="url"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors text-sm"
+                    placeholder="https://youtube.com/@yourchannel"
+                  />
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3 shrink-0">
+            <button
+              @click="showModal = false"
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              @click="saveContact"
+              :disabled="loading"
+              class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {{ loading ? 'Saving...' : 'Save Changes' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </AdminLayout>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, Teleport, watch } from 'vue'
 import AdminLayout from '../../layouts/AdminLayout.vue'
 import { contactService } from '../../firebase/firestore'
 import { useToast } from '../../composables/useToast'
+import { useBodyScrollLock } from '../../composables/useBodyScrollLock'
+import { Pencil, X, Mail, Phone, MapPin, Facebook, Youtube } from 'lucide-vue-next'
 
 const { success: showSuccess, error: showError } = useToast()
+const { useLock } = useBodyScrollLock()
 
 const loading = ref(false)
 const loadingData = ref(true)
+const showModal = ref(false)
+
+// Lock body scroll when modal is open
+useLock(showModal)
 
 const form = ref({
   email: '',
@@ -131,6 +304,27 @@ const form = ref({
   address: '',
   facebook: '',
   youtube: ''
+})
+
+const tempForm = ref({
+  email: '',
+  phone: '',
+  address: '',
+  facebook: '',
+  youtube: ''
+})
+
+// Watch for modal opening to set tempForm
+watch(showModal, (isOpen) => {
+  if (isOpen) {
+    tempForm.value = {
+      email: form.value.email || '',
+      phone: form.value.phone || '',
+      address: form.value.address || '',
+      facebook: form.value.facebook || '',
+      youtube: form.value.youtube || ''
+    }
+  }
 })
 
 async function loadData() {
@@ -154,12 +348,14 @@ async function loadData() {
   }
 }
 
-async function handleSubmit() {
+async function saveContact() {
   loading.value = true
 
   try {
+    form.value = { ...tempForm.value }
     await contactService.updateContact(form.value)
-    showSuccess('Contact information saved successfully!')
+    showSuccess('Contact information updated successfully!')
+    showModal.value = false
   } catch (error) {
     console.error('Error saving contact data:', error)
     showError('Failed to save contact information')
@@ -172,4 +368,3 @@ onMounted(() => {
   loadData()
 })
 </script>
-

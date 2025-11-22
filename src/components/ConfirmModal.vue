@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
     <Transition name="modal">
-      <div v-if="isOpen" class="fixed inset-0 z-50 overflow-y-auto">
+      <div v-if="isOpen" class="fixed inset-0 z-[60] overflow-y-auto">
         <!-- Backdrop -->
         <div
           class="fixed inset-0 transition-opacity backdrop-overlay"
@@ -53,8 +53,9 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import Button from './Button.vue'
+import { useBodyScrollLock } from '../composables/useBodyScrollLock'
 
 const props = defineProps({
   isOpen: {
@@ -80,6 +81,12 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['confirm', 'cancel', 'update:isOpen'])
+
+const { useLock } = useBodyScrollLock()
+const isOpenRef = computed(() => props.isOpen)
+
+// Lock body scroll when modal is open
+useLock(isOpenRef)
 
 const handleConfirm = () => {
   emit('confirm')

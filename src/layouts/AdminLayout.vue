@@ -3,37 +3,37 @@
     <!-- Sidebar -->
     <aside
       :class="[
-        'fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 text-white transform transition-transform duration-300 ease-in-out lg:translate-x-0',
+        'fixed inset-y-0 left-0 z-50 w-72 md:w-64 bg-white lg:bg-gray-900 text-gray-900 lg:text-white transform transition-transform duration-300 ease-in-out lg:translate-x-0 shadow-2xl lg:shadow-none rounded-r-2xl lg:rounded-none',
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       ]"
     >
       <!-- Sidebar Header -->
-      <div class="flex items-center justify-between h-16 px-6 border-b border-gray-800/50">
+      <div class="flex items-center justify-between h-14 md:h-16 px-4 md:px-6 border-b border-gray-200 lg:border-gray-800/50">
         <router-link to="/admin" class="flex items-center space-x-2 group">
-          <span class="text-xl font-semibold tracking-tight">Admin Panel</span>
-          <span class="text-xs bg-primary-600 px-2 py-0.5 rounded font-medium">ADMIN</span>
+          <span class="text-lg md:text-xl font-semibold tracking-tight">Admin Panel</span>
+          <span class="text-[10px] md:text-xs bg-primary-600 px-1.5 md:px-2 py-0.5 rounded font-medium">ADMIN</span>
         </router-link>
         <button
           @click="sidebarOpen = false"
-          class="lg:hidden p-1.5 rounded-lg hover:bg-gray-800/50 transition-colors"
+          class="lg:hidden p-1.5 rounded-lg hover:bg-gray-100 lg:hover:bg-gray-800/50 transition-colors"
         >
-          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="h-5 w-5 text-gray-600 lg:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
 
       <!-- Sidebar Navigation -->
-      <nav class="flex-1 px-4 py-6 overflow-y-auto">
-        <div class="space-y-1">
+      <nav class="flex-1 px-3 md:px-4 py-4 md:py-6 overflow-y-auto">
+        <div class="space-y-0.5 md:space-y-1">
           <!-- Dashboard -->
           <router-link
             to="/admin"
             @click="sidebarOpen = false"
-            class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200"
-            :class="route.path === '/admin' ? 'bg-primary-600/20 text-white border-l-2 border-primary-500' : 'text-gray-300 hover:bg-gray-800/50 hover:text-white'"
+            class="flex items-center px-3 md:px-4 py-2 md:py-2.5 text-sm font-medium rounded-lg transition-all duration-200"
+            :class="route.path === '/admin' ? 'bg-primary-50 lg:bg-primary-600/20 text-primary-600 lg:text-white border-l-2 border-primary-500' : 'text-gray-700 lg:text-gray-300 hover:bg-gray-100 lg:hover:bg-gray-800/50 hover:text-primary-600 lg:hover:text-white'"
           >
-            <svg class="mr-3 h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="mr-3 h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
             </svg>
             Dashboard
@@ -43,17 +43,17 @@
           <div>
             <button
               @click="aboutUsExpanded = !aboutUsExpanded"
-              class="w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200"
-              :class="isAboutUsActive ? 'bg-primary-600/20 text-white border-l-2 border-primary-500' : 'text-gray-300 hover:bg-gray-800/50 hover:text-white'"
+              class="w-full flex items-center justify-between px-3 md:px-4 py-2 md:py-2.5 text-sm font-medium rounded-lg transition-all duration-200"
+              :class="isAboutUsActive ? 'bg-primary-50 lg:bg-primary-600/20 text-primary-600 lg:text-white border-l-2 border-primary-500' : 'text-gray-700 lg:text-gray-300 hover:bg-gray-100 lg:hover:bg-gray-800/50 hover:text-primary-600 lg:hover:text-white'"
             >
               <div class="flex items-center">
-                <svg class="mr-3 h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="mr-3 h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 About Us
               </div>
               <svg
-                class="h-4 w-4 transition-transform duration-200 flex-shrink-0"
+                class="h-4 w-4 transition-transform duration-200 shrink-0"
                 :class="{ 'rotate-180': aboutUsExpanded }"
                 fill="none"
                 stroke="currentColor"
@@ -62,14 +62,14 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
               </svg>
             </button>
-            <div v-show="aboutUsExpanded" class="mt-1.5 ml-4 space-y-0.5 border-l border-gray-800/50 pl-2">
+            <div v-show="aboutUsExpanded" class="mt-1 md:mt-1.5 ml-3 md:ml-4 space-y-0.5 border-l border-gray-200 lg:border-gray-800/50 pl-2">
               <router-link
                 v-for="item in aboutUsItems"
                 :key="item.path"
                 :to="item.path"
                 @click="sidebarOpen = false"
-                class="flex items-center px-3 py-2 text-sm rounded-md transition-all duration-200"
-                :class="route.path === item.path ? 'bg-primary-600/20 text-white border-l-2 border-primary-500' : 'text-gray-400 hover:bg-gray-800/50 hover:text-white'"
+                class="flex items-center px-2 md:px-3 py-1.5 md:py-2 text-xs md:text-sm rounded-md transition-all duration-200"
+                :class="route.path === item.path ? 'bg-primary-50 lg:bg-primary-600/20 text-primary-600 lg:text-white border-l-2 border-primary-500' : 'text-gray-600 lg:text-gray-400 hover:bg-gray-100 lg:hover:bg-gray-800/50 hover:text-primary-600 lg:hover:text-white'"
               >
                 <span class="ml-6">{{ item.label }}</span>
               </router-link>
@@ -80,10 +80,10 @@
           <router-link
             to="/admin/contact"
             @click="sidebarOpen = false"
-            class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200"
-            :class="route.path === '/admin/contact' ? 'bg-primary-600/20 text-white border-l-2 border-primary-500' : 'text-gray-300 hover:bg-gray-800/50 hover:text-white'"
+            class="flex items-center px-3 md:px-4 py-2 md:py-2.5 text-sm font-medium rounded-lg transition-all duration-200"
+            :class="route.path === '/admin/contact' ? 'bg-primary-50 lg:bg-primary-600/20 text-primary-600 lg:text-white border-l-2 border-primary-500' : 'text-gray-700 lg:text-gray-300 hover:bg-gray-100 lg:hover:bg-gray-800/50 hover:text-primary-600 lg:hover:text-white'"
           >
-            <svg class="mr-3 h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="mr-3 h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
             Contact
@@ -93,23 +93,31 @@
           <router-link
             to="/admin/messages"
             @click="sidebarOpen = false"
-            class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200"
-            :class="route.path === '/admin/messages' ? 'bg-primary-600/20 text-white border-l-2 border-primary-500' : 'text-gray-300 hover:bg-gray-800/50 hover:text-white'"
+            class="flex items-center justify-between px-3 md:px-4 py-2 md:py-2.5 text-sm font-medium rounded-lg transition-all duration-200"
+            :class="route.path === '/admin/messages' ? 'bg-primary-50 lg:bg-primary-600/20 text-primary-600 lg:text-white border-l-2 border-primary-500' : 'text-gray-700 lg:text-gray-300 hover:bg-gray-100 lg:hover:bg-gray-800/50 hover:text-primary-600 lg:hover:text-white'"
           >
-            <svg class="mr-3 h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-            </svg>
-            Messages
+            <div class="flex items-center">
+              <svg class="mr-3 h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+              </svg>
+              Messages
+            </div>
+            <span
+              v-if="unreadMessagesCount > 0"
+              class="px-2 py-0.5 text-[10px] font-semibold bg-primary-600 text-white rounded-full min-w-[20px] text-center"
+            >
+              {{ unreadMessagesCount > 99 ? '99+' : unreadMessagesCount }}
+            </span>
           </router-link>
 
           <!-- News -->
           <router-link
             to="/admin/news"
             @click="sidebarOpen = false"
-            class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200"
-            :class="route.path === '/admin/news' ? 'bg-primary-600/20 text-white border-l-2 border-primary-500' : 'text-gray-300 hover:bg-gray-800/50 hover:text-white'"
+            class="flex items-center px-3 md:px-4 py-2 md:py-2.5 text-sm font-medium rounded-lg transition-all duration-200"
+            :class="route.path === '/admin/news' ? 'bg-primary-50 lg:bg-primary-600/20 text-primary-600 lg:text-white border-l-2 border-primary-500' : 'text-gray-700 lg:text-gray-300 hover:bg-gray-100 lg:hover:bg-gray-800/50 hover:text-primary-600 lg:hover:text-white'"
           >
-            <svg class="mr-3 h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="mr-3 h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
             </svg>
             News
@@ -119,10 +127,10 @@
           <router-link
             to="/admin/projects"
             @click="sidebarOpen = false"
-            class="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200"
-            :class="route.path === '/admin/projects' ? 'bg-primary-600/20 text-white border-l-2 border-primary-500' : 'text-gray-300 hover:bg-gray-800/50 hover:text-white'"
+            class="flex items-center px-3 md:px-4 py-2 md:py-2.5 text-sm font-medium rounded-lg transition-all duration-200"
+            :class="route.path === '/admin/projects' ? 'bg-primary-50 lg:bg-primary-600/20 text-primary-600 lg:text-white border-l-2 border-primary-500' : 'text-gray-700 lg:text-gray-300 hover:bg-gray-100 lg:hover:bg-gray-800/50 hover:text-primary-600 lg:hover:text-white'"
           >
-            <svg class="mr-3 h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="mr-3 h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
             </svg>
             Projects
@@ -132,17 +140,17 @@
           <div>
             <button
               @click="mediaExpanded = !mediaExpanded"
-              class="w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200"
-              :class="isMediaActive ? 'bg-primary-600/20 text-white border-l-2 border-primary-500' : 'text-gray-300 hover:bg-gray-800/50 hover:text-white'"
+              class="w-full flex items-center justify-between px-3 md:px-4 py-2 md:py-2.5 text-sm font-medium rounded-lg transition-all duration-200"
+              :class="isMediaActive ? 'bg-primary-50 lg:bg-primary-600/20 text-primary-600 lg:text-white border-l-2 border-primary-500' : 'text-gray-700 lg:text-gray-300 hover:bg-gray-100 lg:hover:bg-gray-800/50 hover:text-primary-600 lg:hover:text-white'"
             >
               <div class="flex items-center">
-                <svg class="mr-3 h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="mr-3 h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
                 Media
               </div>
               <svg
-                class="h-4 w-4 transition-transform duration-200 flex-shrink-0"
+                class="h-4 w-4 transition-transform duration-200 shrink-0"
                 :class="{ 'rotate-180': mediaExpanded }"
                 fill="none"
                 stroke="currentColor"
@@ -151,14 +159,14 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
               </svg>
             </button>
-            <div v-show="mediaExpanded" class="mt-1.5 ml-4 space-y-0.5 border-l border-gray-800/50 pl-2">
+            <div v-show="mediaExpanded" class="mt-1 md:mt-1.5 ml-3 md:ml-4 space-y-0.5 border-l border-gray-200 lg:border-gray-800/50 pl-2">
               <router-link
                 v-for="item in mediaItems"
                 :key="item.path"
                 :to="item.path"
                 @click="sidebarOpen = false"
-                class="flex items-center px-3 py-2 text-sm rounded-md transition-all duration-200"
-                :class="route.path === item.path ? 'bg-primary-600/20 text-white border-l-2 border-primary-500' : 'text-gray-400 hover:bg-gray-800/50 hover:text-white'"
+                class="flex items-center px-2 md:px-3 py-1.5 md:py-2 text-xs md:text-sm rounded-md transition-all duration-200"
+                :class="route.path === item.path ? 'bg-primary-50 lg:bg-primary-600/20 text-primary-600 lg:text-white border-l-2 border-primary-500' : 'text-gray-600 lg:text-gray-400 hover:bg-gray-100 lg:hover:bg-gray-800/50 hover:text-primary-600 lg:hover:text-white'"
               >
                 <span class="ml-6">{{ item.label }}</span>
               </router-link>
@@ -168,12 +176,12 @@
       </nav>
 
       <!-- Sidebar Footer -->
-      <div class="p-4 border-t border-gray-800/50">
+      <div class="p-3 md:p-4 border-t border-gray-200 lg:border-gray-800/50">
         <button
           @click="handleLogout"
-          class="w-full flex items-center px-4 py-2.5 text-sm font-medium text-gray-300 rounded-lg hover:bg-gray-800/50 hover:text-white transition-all duration-200"
+          class="w-full flex items-center px-3 md:px-4 py-2 md:py-2.5 text-sm font-medium text-gray-700 lg:text-gray-300 rounded-lg hover:bg-gray-100 lg:hover:bg-gray-800/50 hover:text-primary-600 lg:hover:text-white transition-all duration-200"
         >
-          <svg class="mr-3 h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="mr-3 h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
           </svg>
           Logout
@@ -185,13 +193,13 @@
     <div
       v-if="sidebarOpen"
       @click="sidebarOpen = false"
-      class="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+      class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300"
     ></div>
 
     <!-- Main Content Area -->
     <div class="flex-1 flex flex-col lg:pl-64">
       <!-- Top Header -->
-      <header class="bg-white border-b border-gray-200/80 sticky top-0 z-30 backdrop-blur-sm bg-white/95">
+      <header class="bg-white/95 border-b border-gray-200/80 sticky top-0 z-30 backdrop-blur-sm">
         <div class="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
           <button
             @click="sidebarOpen = true"
@@ -202,11 +210,44 @@
             </svg>
           </button>
           <div class="flex-1"></div>
-          <div class="flex items-center space-x-3">
-            <div class="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center">
+          <div class="relative user-menu-container">
+            <!-- Avatar Button -->
+            <button
+              @click.stop="userMenuOpen = !userMenuOpen"
+              class="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center hover:bg-primary-200 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 cursor-pointer"
+            >
               <span class="text-primary-600 text-sm font-medium">{{ userInitial }}</span>
-            </div>
-            <span class="text-sm font-medium text-gray-700 hidden sm:block">{{ userName }}</span>
+            </button>
+
+            <!-- User Menu Dropdown -->
+            <Transition
+              enter-active-class="transition ease-out duration-100"
+              enter-from-class="transform opacity-0 scale-95"
+              enter-to-class="transform opacity-100 scale-100"
+              leave-active-class="transition ease-in duration-75"
+              leave-from-class="transform opacity-100 scale-100"
+              leave-to-class="transform opacity-0 scale-95"
+            >
+              <div
+                v-if="userMenuOpen"
+                class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50"
+                @click.stop
+              >
+                <div class="px-4 py-3 border-b border-gray-200">
+                  <p class="text-sm font-semibold text-gray-900">{{ userName }}</p>
+                  <p class="text-xs text-gray-500 mt-0.5">{{ userEmail }}</p>
+                </div>
+                <button
+                  @click="handleLogout"
+                  class="w-full flex items-center px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+                >
+                  <svg class="mr-3 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                  Logout
+                </button>
+              </div>
+            </Transition>
           </div>
         </div>
       </header>
@@ -242,12 +283,14 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import ToastContainer from '../components/ToastContainer.vue'
 import ConfirmModal from '../components/ConfirmModal.vue'
 import { useConfirm } from '../composables/useConfirm'
 import { useAuth } from '../composables/useAuth'
+import { useBodyScrollLock } from '../composables/useBodyScrollLock'
+import { contactService } from '../firebase/firestore'
 
 const router = useRouter()
 const route = useRoute()
@@ -255,6 +298,48 @@ const { user, userData, logout, init } = useAuth()
 const sidebarOpen = ref(false)
 const aboutUsExpanded = ref(false)
 const mediaExpanded = ref(false)
+const userMenuOpen = ref(false)
+const unreadMessagesCount = ref(0)
+
+// Lock body scroll when sidebar is open on mobile
+const { lock, unlock } = useBodyScrollLock()
+const windowWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 1024)
+
+// Update window width on resize
+let updateWidth = null
+if (typeof window !== 'undefined') {
+  updateWidth = () => {
+    windowWidth.value = window.innerWidth
+  }
+  window.addEventListener('resize', updateWidth)
+  onMounted(() => {
+    updateWidth()
+  })
+  onUnmounted(() => {
+    if (updateWidth) {
+      window.removeEventListener('resize', updateWidth)
+    }
+    // Ensure unlock on unmount
+    unlock()
+  })
+}
+
+// Watch sidebar state and lock/unlock scroll on mobile
+watch([sidebarOpen, windowWidth], ([isOpen, width]) => {
+  // Only lock on mobile (below lg breakpoint - 1024px)
+  if (width < 1024) {
+    if (isOpen) {
+      lock()
+    } else {
+      unlock()
+    }
+  } else {
+    // Ensure unlock on desktop
+    if (!isOpen) {
+      unlock()
+    }
+  }
+}, { immediate: true })
 
 const currentYear = computed(() => new Date().getFullYear())
 
@@ -267,10 +352,13 @@ const userInitial = computed(() => {
   return name.charAt(0).toUpperCase()
 })
 
+const userEmail = computed(() => {
+  return user.value?.email || userData.value?.email || 'No email'
+})
+
 // About Us submenu items
 const aboutUsItems = [
   { path: '/admin/about', label: 'General Info' },
-  { path: '/admin/about/values', label: 'Values' },
   { path: '/admin/about/officers', label: 'Officers' },
   { path: '/admin/about/council', label: 'Council' },
   { path: '/admin/about/chapters', label: 'Chapters' },
@@ -305,6 +393,7 @@ watch(() => route.path, (newPath) => {
 const { confirmState, handleConfirm, handleCancel, confirm } = useConfirm()
 
 async function handleLogout() {
+  userMenuOpen.value = false
   const confirmed = await confirm('Are you sure you want to logout?', {
     title: 'Logout',
     confirmText: 'Logout'
@@ -315,8 +404,58 @@ async function handleLogout() {
   }
 }
 
+// Close user menu when clicking outside
+const handleClickOutside = (event) => {
+  if (userMenuOpen.value && !event.target.closest('.user-menu-container')) {
+    userMenuOpen.value = false
+  }
+}
+
+async function loadUnreadMessagesCount() {
+  try {
+    const messages = await contactService.getMessages()
+    unreadMessagesCount.value = messages ? messages.filter(m => !m.read).length : 0
+  } catch (error) {
+    console.error('Error loading unread messages count:', error)
+  }
+}
+
+// Refresh unread count when route changes to messages page
+watch(() => route.path, (newPath) => {
+  if (newPath === '/admin/messages') {
+    loadUnreadMessagesCount()
+  }
+})
+
+// Listen for messages updated event
+const handleMessagesUpdated = () => {
+  loadUnreadMessagesCount()
+}
+
+// Refresh unread count periodically
+let refreshInterval = null
+
 onMounted(() => {
   init()
+  document.addEventListener('click', handleClickOutside)
+  window.addEventListener('messages-updated', handleMessagesUpdated)
+  loadUnreadMessagesCount()
+  
+  // Refresh every 30 seconds
+  refreshInterval = setInterval(() => {
+    loadUnreadMessagesCount()
+  }, 30000)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('messages-updated', handleMessagesUpdated)
+  if (refreshInterval) {
+    clearInterval(refreshInterval)
+  }
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
 })
 </script>
 
