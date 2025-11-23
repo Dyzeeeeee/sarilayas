@@ -713,18 +713,45 @@ function formatDate(date) {
   return dateObj.toLocaleDateString('en-US', options)
 }
 
+// Real-time data refs
+const newsData = ref([])
+const photosData = ref([])
+const videosData = ref([])
+const projectsData = ref([])
+let unsubscribeNews = null
+let unsubscribePhotos = null
+let unsubscribeVideos = null
+let unsubscribeProjects = null
+
+// Update feed when data changes
+function updateFeed() {
+  feedItems.value = createUnifiedFeed(
+    newsData.value,
+    photosData.value,
+    videosData.value,
+    projectsData.value
+  )
+  
+  // Setup Intersection Observer after items are loaded
+  nextTick(() => {
+    setTimeout(() => {
+      setupIntersectionObserver()
+    }, 200)
+  })
+}
+
+// Watch for data changes and update feed
+watch([newsData, photosData, videosData, projectsData], () => {
+  updateFeed()
+}, { deep: true })
+
 async function loadFeed() {
   loading.value = true
+  let initialLoadComplete = false
+  
   try {
-    const [news, photos, videos, projects, aboutDataResult] = await Promise.all([
-      newsService.getNews(),
-      mediaService.getPhotos(),
-      mediaService.getVideos(),
-      projectsService.getProjects(),
-      aboutUsService.getAboutUs().catch(() => null)
-    ])
-    
-    feedItems.value = createUnifiedFeed(news, photos, videos, projects)
+    // Load about data once (not real-time)
+    const aboutDataResult = await aboutUsService.getAboutUs().catch(() => null)
     
     // Store about data
     aboutData.value = aboutDataResult
@@ -739,15 +766,41 @@ async function loadFeed() {
       }
     }
     
-    // Setup Intersection Observer after items are loaded
-    await nextTick()
-    // Wait a bit for DOM to render
-    setTimeout(() => {
-      setupIntersectionObserver()
-    }, 200)
+    // Set up real-time listeners
+    // Each listener will fire immediately with current data, then on updates
+    let loadedCount = 0
+    const totalListeners = 4
+    
+    const checkInitialLoad = () => {
+      loadedCount++
+      if (loadedCount >= totalListeners && !initialLoadComplete) {
+        initialLoadComplete = true
+        loading.value = false
+      }
+    }
+    
+    unsubscribeNews = newsService.subscribeToNews((news) => {
+      newsData.value = news
+      checkInitialLoad()
+    })
+    
+    unsubscribePhotos = mediaService.subscribeToPhotos((photos) => {
+      photosData.value = photos
+      checkInitialLoad()
+    })
+    
+    unsubscribeVideos = mediaService.subscribeToVideos((videos) => {
+      videosData.value = videos
+      checkInitialLoad()
+    })
+    
+    unsubscribeProjects = projectsService.subscribeToProjects((projects) => {
+      projectsData.value = projects
+      checkInitialLoad()
+    })
+    
   } catch (error) {
     console.error('Error loading feed:', error)
-  } finally {
     loading.value = false
   }
 }
@@ -855,5 +908,11 @@ onUnmounted(() => {
   if (intersectionObserver) {
     intersectionObserver.disconnect()
   }
+  
+  // Unsubscribe from real-time listeners
+  if (unsubscribeNews) unsubscribeNews()
+  if (unsubscribePhotos) unsubscribePhotos()
+  if (unsubscribeVideos) unsubscribeVideos()
+  if (unsubscribeProjects) unsubscribeProjects()
 })
 </script>

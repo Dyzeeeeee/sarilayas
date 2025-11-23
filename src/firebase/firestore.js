@@ -1,4 +1,4 @@
-import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, addDoc, query, orderBy, limit as firestoreLimit } from 'firebase/firestore'
+import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, addDoc, query, orderBy, limit as firestoreLimit, onSnapshot } from 'firebase/firestore'
 import { app } from './config'
 
 const db = getFirestore(app)
@@ -191,6 +191,40 @@ export const mediaService = {
     return await this.getMedia('video')
   },
 
+  // Subscribe to real-time media updates
+  subscribeToMedia(callback, type = null) {
+    const q = query(collection(db, 'media'))
+    return onSnapshot(q, (snapshot) => {
+      let media = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }))
+      if (type) {
+        media = media.filter(item => item.type === type)
+      }
+      callback(media)
+    }, (error) => {
+      console.error('Error subscribing to media:', error)
+      callback([])
+    })
+  },
+
+  // Subscribe to real-time photos updates
+  subscribeToPhotos(callback) {
+    return this.subscribeToMedia((media) => {
+      const photos = media.filter(item => item.type === 'photo')
+      callback(photos)
+    })
+  },
+
+  // Subscribe to real-time videos updates
+  subscribeToVideos(callback) {
+    return this.subscribeToMedia((media) => {
+      const videos = media.filter(item => item.type === 'video')
+      callback(videos)
+    })
+  },
+
   // Add media item
   async addMedia(data) {
     // Ensure type is set
@@ -252,6 +286,21 @@ export const newsService = {
     return await firestoreService.getCollection('news')
   },
 
+  // Subscribe to real-time news updates
+  subscribeToNews(callback) {
+    const q = query(collection(db, 'news'))
+    return onSnapshot(q, (snapshot) => {
+      const news = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }))
+      callback(news)
+    }, (error) => {
+      console.error('Error subscribing to news:', error)
+      callback([])
+    })
+  },
+
   // Add news article
   async addArticle(data) {
     return await firestoreService.addDocument('news', data)
@@ -273,6 +322,21 @@ export const projectsService = {
   // Get all projects
   async getProjects() {
     return await firestoreService.getCollection('projects')
+  },
+
+  // Subscribe to real-time projects updates
+  subscribeToProjects(callback) {
+    const q = query(collection(db, 'projects'))
+    return onSnapshot(q, (snapshot) => {
+      const projects = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }))
+      callback(projects)
+    }, (error) => {
+      console.error('Error subscribing to projects:', error)
+      callback([])
+    })
   },
 
   // Add project

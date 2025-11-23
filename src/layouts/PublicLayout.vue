@@ -79,7 +79,193 @@
             >
               Contact
             </router-link>
+            
+            <!-- Notifications -->
+            <div class="relative ml-2">
+              <button
+                ref="notificationButton"
+                @click="showNotificationsDropdown = !showNotificationsDropdown"
+                class="relative text-white/90 hover:text-white px-3 py-2 transition-colors cursor-pointer"
+              >
+                <Bell class="w-5 h-5" />
+                <span
+                  v-if="unreadCount > 0"
+                  class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center"
+                >
+                  {{ unreadCount > 9 ? '9+' : unreadCount }}
+                </span>
+              </button>
+              
+              <!-- Notifications Dropdown -->
+              <div
+                v-if="showNotificationsDropdown"
+                ref="notificationsDropdown"
+                class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 z-50 max-h-96 overflow-hidden flex flex-col"
+              >
+                <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                  <h3 class="font-bold text-gray-900">Notifications</h3>
+                  <button
+                    v-if="unreadCount > 0"
+                    @click="markAllAsRead"
+                    class="text-sm text-primary-600 hover:text-primary-700 font-medium"
+                  >
+                    Mark all as read
+                  </button>
+                </div>
+                
+                <div class="overflow-y-auto flex-1">
+                  <div v-if="isLoading" class="p-4 text-center text-gray-500 text-sm">
+                    Loading...
+                  </div>
+                  <div v-else-if="notifications.length === 0" class="p-4 text-center text-gray-500 text-sm">
+                    No notifications
+                  </div>
+                  <div v-else class="divide-y divide-gray-100">
+                    <button
+                      v-for="notification in notifications"
+                      :key="notification.id"
+                      @click="handleNotificationClick(notification)"
+                      class="w-full text-left hover:bg-gray-50 transition-colors cursor-pointer"
+                      :class="{ 'bg-primary-50': !isNotificationRead(notification.id) }"
+                    >
+                      <div class="flex items-start gap-3 p-4">
+                        <!-- Image Preview -->
+                        <div v-if="notification.image" class="w-16 h-16 shrink-0 rounded-lg overflow-hidden bg-gray-100">
+                          <img
+                            :src="notification.image"
+                            :alt="notification.title"
+                            class="w-full h-full object-cover"
+                          />
+                        </div>
+                        <!-- Icon fallback if no image -->
+                        <div v-else :class="getNotificationIconBgClass(notification.type)" class="w-16 h-16 rounded-lg flex items-center justify-center shrink-0">
+                          <component
+                            :is="getNotificationIconComponent(notification.type)"
+                            :class="getNotificationIconClass(notification.type)"
+                            class="w-6 h-6"
+                          />
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <div class="flex items-center gap-2 mb-1">
+                            <span class="text-xs font-medium text-primary-600">
+                              {{ getNotificationTypeLabel(notification.type) }}
+                            </span>
+                            <span v-if="!isNotificationRead(notification.id)" class="w-2 h-2 bg-primary-600 rounded-full"></span>
+                          </div>
+                          <p class="text-sm font-medium text-gray-900 line-clamp-2">
+                            {{ notification.title }}
+                          </p>
+                          <p class="text-xs text-gray-500 mt-1">
+                            {{ formatNotificationDate(notification.date) }}
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </nav>
+          
+          <!-- Mobile Notifications -->
+          <div class="md:hidden relative">
+            <button
+              ref="mobileNotificationButton"
+              @click="showNotificationsDropdown = !showNotificationsDropdown"
+              class="relative text-white p-2 cursor-pointer"
+            >
+              <Bell class="w-5 h-5" />
+              <span
+                v-if="unreadCount > 0"
+                class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center"
+              >
+                {{ unreadCount > 9 ? '9+' : unreadCount }}
+              </span>
+            </button>
+            
+            <!-- Mobile Notifications Dropdown -->
+            <div
+              v-if="showNotificationsDropdown"
+              ref="mobileNotificationsDropdown"
+              class="fixed top-16 left-0 right-0 bg-white border-b border-gray-200 z-50 max-h-96 overflow-y-auto"
+            >
+              <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="font-bold text-gray-900">Notifications</h3>
+                <button
+                  v-if="unreadCount > 0"
+                  @click="markAllAsRead"
+                  class="text-sm text-primary-600 hover:text-primary-700 font-medium"
+                >
+                  Mark all as read
+                </button>
+              </div>
+              
+              <div v-if="isLoading" class="p-4 text-center text-gray-500 text-sm">
+                Loading...
+              </div>
+              <div v-else-if="notifications.length === 0" class="p-4 text-center text-gray-500 text-sm">
+                No notifications
+              </div>
+              <div v-else class="divide-y divide-gray-100">
+                <button
+                  v-for="notification in notifications"
+                  :key="notification.id"
+                  @click="!notification.deleted && handleNotificationClick(notification)"
+                  class="w-full text-left transition-colors"
+                  :class="{
+                    'bg-primary-50 hover:bg-gray-50': !isNotificationRead(notification.id) && !notification.deleted,
+                    'hover:bg-gray-50': isNotificationRead(notification.id) && !notification.deleted,
+                    'opacity-60 cursor-not-allowed': notification.deleted
+                  }"
+                >
+                  <div class="flex items-start gap-3 p-4">
+                    <!-- Image Preview -->
+                    <div v-if="notification.image" class="w-16 h-16 shrink-0 rounded-lg overflow-hidden bg-gray-100 relative">
+                      <img
+                        :src="notification.image"
+                        :alt="notification.title"
+                        class="w-full h-full object-cover"
+                        :class="{ 'opacity-50 grayscale': notification.deleted }"
+                      />
+                      <div v-if="notification.deleted" class="absolute inset-0 bg-red-500/20 flex items-center justify-center">
+                        <span class="text-xs font-bold text-red-600">DELETED</span>
+                      </div>
+                    </div>
+                    <!-- Icon fallback if no image -->
+                    <div v-else :class="[getNotificationIconBgClass(notification.type), 'w-16 h-16 rounded-lg flex items-center justify-center shrink-0 relative', { 'opacity-50': notification.deleted }]">
+                      <component
+                        :is="getNotificationIconComponent(notification.type)"
+                        :class="getNotificationIconClass(notification.type)"
+                        class="w-6 h-6"
+                      />
+                      <div v-if="notification.deleted" class="absolute inset-0 bg-red-500/20 rounded-lg flex items-center justify-center">
+                        <span class="text-[8px] font-bold text-red-600">DEL</span>
+                      </div>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center gap-2 mb-1">
+                        <span class="text-xs font-medium"
+                              :class="notification.deleted ? 'text-gray-400' : 'text-primary-600'">
+                          {{ getNotificationTypeLabel(notification.type) }}
+                        </span>
+                        <span v-if="notification.deleted" class="px-1.5 py-0.5 bg-red-100 text-red-600 text-[10px] font-bold rounded">
+                          DELETED
+                        </span>
+                        <span v-else-if="!isNotificationRead(notification.id)" class="w-2 h-2 bg-primary-600 rounded-full"></span>
+                      </div>
+                      <p class="text-sm font-medium line-clamp-2"
+                         :class="notification.deleted ? 'text-gray-400 line-through' : 'text-gray-900'">
+                        {{ notification.title }}
+                      </p>
+                      <p class="text-xs text-gray-500 mt-1">
+                        {{ formatNotificationDate(notification.date) }}
+                      </p>
+                    </div>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </header>
@@ -181,32 +367,194 @@
         </div>
       </div>
     </nav>
+    
+    <!-- Toast Container -->
+    <ToastContainer />
   </div>
 </template>
 
 <script setup>
 import { ref, computed, provide, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { Newspaper, Briefcase, Users, Video, Image, Home, FolderOpenDot, BadgeInfo, Mail } from 'lucide-vue-next'
+import { Newspaper, Briefcase, Users, Video, Image, Home, FolderOpenDot, BadgeInfo, Mail, Bell } from 'lucide-vue-next'
 import ViewToggler from '../components/ViewToggler.vue'
+import ToastContainer from '../components/ToastContainer.vue'
+import { useNotifications } from '../composables/useNotifications'
 
 const route = useRoute()
 const router = useRouter()
 const isScrolledToTop = ref(true)
 
-// Scroll detection
-const handleScroll = () => {
-  isScrolledToTop.value = window.scrollY < 10
+// Notifications
+const {
+  notifications,
+  unreadCount,
+  isLoading,
+  markAsRead,
+  markAllAsRead: markAllNotificationsAsRead,
+  getNotificationTypeLabel,
+  initialize: initializeNotifications,
+  cleanup: cleanupNotifications
+} = useNotifications()
+
+const showNotificationsDropdown = ref(false)
+const readNotifications = ref(new Set())
+const notificationsDropdown = ref(null)
+const mobileNotificationsDropdown = ref(null)
+const notificationButton = ref(null)
+const mobileNotificationButton = ref(null)
+
+// Handle click outside to close dropdown
+function handleClickOutside(event) {
+  if (showNotificationsDropdown.value) {
+    const dropdown = notificationsDropdown.value || mobileNotificationsDropdown.value
+    const button = notificationButton.value || mobileNotificationButton.value
+    
+    if (dropdown && !dropdown.contains(event.target) && 
+        button && !button.contains(event.target)) {
+      showNotificationsDropdown.value = false
+    }
+  }
 }
 
+// Initialize notifications on mount
 onMounted(() => {
+  initializeNotifications()
+  loadReadNotifications()
+  
+  // Add click outside listener
+  document.addEventListener('click', handleClickOutside)
+  
+  // Scroll detection
   window.addEventListener('scroll', handleScroll)
   handleScroll() // Check initial scroll position
 })
 
 onUnmounted(() => {
+  cleanupNotifications()
+  document.removeEventListener('click', handleClickOutside)
   window.removeEventListener('scroll', handleScroll)
 })
+
+// Load read notifications from localStorage
+function loadReadNotifications() {
+  try {
+    const read = localStorage.getItem('sarilaya_notifications_read')
+    if (read) {
+      readNotifications.value = new Set(JSON.parse(read))
+    }
+  } catch (error) {
+    console.error('Error loading read notifications:', error)
+  }
+}
+
+// Check if notification is read
+function isNotificationRead(notificationId) {
+  return readNotifications.value.has(notificationId)
+}
+
+// Handle notification click
+function handleNotificationClick(notification) {
+  // Don't navigate if deleted
+  if (notification.deleted) {
+    return
+  }
+  
+  markAsRead(notification.id)
+  readNotifications.value.add(notification.id)
+  showNotificationsDropdown.value = false
+  
+  // Navigate to the item
+  if (notification.type === 'news') {
+    router.push(`/news/${notification.itemId}`)
+  } else if (notification.type === 'project') {
+    router.push(`/projects/${notification.itemId}`)
+  } else if (notification.type === 'photo') {
+    router.push('/media')
+  } else if (notification.type === 'video') {
+    router.push('/media')
+  }
+}
+
+// Mark all as read
+function markAllAsRead() {
+  markAllNotificationsAsRead()
+  notifications.value.forEach(n => readNotifications.value.add(n.id))
+}
+
+// Get notification icon component
+function getNotificationIconComponent(type) {
+  const icons = {
+    'news': Newspaper,
+    'photo': Image,
+    'video': Video,
+    'project': FolderOpenDot
+  }
+  return icons[type] || Bell
+}
+
+// Get notification icon background class
+function getNotificationIconBgClass(type) {
+  const classes = {
+    'news': 'bg-blue-100',
+    'photo': 'bg-green-100',
+    'video': 'bg-red-100',
+    'project': 'bg-purple-100'
+  }
+  return classes[type] || 'bg-gray-100'
+}
+
+// Get notification icon color class
+function getNotificationIconClass(type) {
+  const classes = {
+    'news': 'text-blue-600',
+    'photo': 'text-green-600',
+    'video': 'text-red-600',
+    'project': 'text-purple-600'
+  }
+  return classes[type] || 'text-gray-600'
+}
+
+// Format notification date
+function formatNotificationDate(date) {
+  if (!date) return 'Recently'
+  
+  let dateObj
+  if (date.toDate) {
+    dateObj = date.toDate()
+  } else if (date instanceof Date) {
+    dateObj = date
+  } else if (typeof date === 'string' || typeof date === 'number') {
+    dateObj = new Date(date)
+  } else {
+    return 'Recently'
+  }
+  
+  const now = new Date()
+  const diffMs = now - dateObj
+  const diffSeconds = Math.floor(diffMs / 1000)
+  const diffMinutes = Math.floor(diffSeconds / 60)
+  const diffHours = Math.floor(diffMinutes / 60)
+  const diffDays = Math.floor(diffHours / 24)
+  
+  if (diffSeconds < 60) {
+    return 'Just now'
+  } else if (diffMinutes < 60) {
+    return `${diffMinutes}m ago`
+  } else if (diffHours < 24) {
+    return `${diffHours}h ago`
+  } else if (diffDays < 7) {
+    return `${diffDays}d ago`
+  }
+  
+  const options = { month: 'short', day: 'numeric' }
+  return dateObj.toLocaleDateString('en-US', options)
+}
+
+// Scroll detection
+const handleScroll = () => {
+  isScrolledToTop.value = window.scrollY < 10
+}
 
 // View toggler state
 const showViewToggler = computed(() => {

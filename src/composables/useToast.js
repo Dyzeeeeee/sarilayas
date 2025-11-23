@@ -3,13 +3,15 @@ import { ref } from 'vue'
 const toasts = ref([])
 
 export function useToast() {
-  const showToast = (message, type = 'success', duration = 3000) => {
+  const showToast = (message, type = 'success', duration = 3000, options = {}) => {
     const id = Date.now() + Math.random()
     const toast = {
       id,
       message,
       type, // 'success', 'error', 'info', 'warning'
-      duration
+      duration,
+      image: options.image || null,
+      notificationType: options.type || null
     }
     
     toasts.value.push(toast)
@@ -28,10 +30,10 @@ export function useToast() {
     }
   }
   
-  const success = (message, duration) => showToast(message, 'success', duration)
-  const error = (message, duration) => showToast(message, 'error', duration)
-  const info = (message, duration) => showToast(message, 'info', duration)
-  const warning = (message, duration) => showToast(message, 'warning', duration)
+  const success = (message, duration, options) => showToast(message, 'success', duration, options)
+  const error = (message, duration, options) => showToast(message, 'error', duration, options)
+  const info = (message, duration, options) => showToast(message, 'info', duration, options)
+  const warning = (message, duration, options) => showToast(message, 'warning', duration, options)
   
   return {
     toasts,
