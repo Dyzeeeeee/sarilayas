@@ -545,7 +545,9 @@ import AdminLayout from '../../layouts/AdminLayout.vue'
 import { aboutUsService, newsService, projectsService, mediaService, contactService } from '../../firebase/firestore'
 import { Users, Building2, MapPin, Newspaper, FolderOpen, Image, Video, Mail, RefreshCw, ChevronRight, Plus } from 'lucide-vue-next'
 import VueApexCharts from 'vue3-apexcharts'
+import { useToast } from '../../composables/useToast'
 
+const { success: showSuccess, error: showError } = useToast()
 const loading = ref(true)
 const loadingMessages = ref(true)
 const loadingChart = ref(true)

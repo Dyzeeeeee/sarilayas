@@ -389,3 +389,43 @@ export const projectsService = {
   }
 }
 
+// Settings service
+export const settingsService = {
+  // Get site settings
+  async getSettings() {
+    const settings = await firestoreService.getDocument('settings', 'site')
+    // Default to enabled if no settings exist
+    if (!settings) {
+      return { siteEnabled: true, pageLoaderEnabled: true }
+    }
+    // Return settings with defaults for undefined values
+    return {
+      ...settings,
+      siteEnabled: settings.siteEnabled !== undefined ? settings.siteEnabled : true,
+      pageLoaderEnabled: settings.pageLoaderEnabled !== undefined ? settings.pageLoaderEnabled : true
+    }
+  },
+
+  // Update site settings
+  async updateSettings(data) {
+    return await firestoreService.setDocument('settings', 'site', data)
+  },
+
+  // Subscribe to real-time settings updates
+  subscribeToSettings(callback) {
+    const docRef = doc(db, 'settings', 'site')
+    return onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        callback({ id: docSnap.id, ...docSnap.data() })
+      } else {
+        // Default to enabled if no settings exist
+        callback({ siteEnabled: true })
+      }
+    }, (error) => {
+      console.error('Error subscribing to settings:', error)
+      // Default to enabled on error
+      callback({ siteEnabled: true })
+    })
+  }
+}
+

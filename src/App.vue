@@ -1,15 +1,40 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from './composables/useAuth'
 import PageLoader from './components/PageLoader.vue'
+import { settingsService } from './firebase/firestore'
 
 const router = useRouter()
 const auth = useAuth()
-const isInitialLoad = ref(true)
+const isInitialLoad = ref(false) // Start as false, only show if loader is enabled
+const showPageLoader = ref(false) // Start as false, will be set based on setting
 
 onMounted(async () => {
   try {
+    // Check if page loader is enabled FIRST
+    try {
+      const settings = await settingsService.getSettings()
+      showPageLoader.value = settings.pageLoaderEnabled !== false // Default to true if undefined
+    } catch (error) {
+      console.error('Error loading page loader setting:', error)
+      showPageLoader.value = true // Default to enabled on error
+    }
+
+    // If page loader is disabled, skip loading state entirely
+    if (!showPageLoader.value) {
+      // Still need to initialize auth and router, but don't show loader
+      auth.init()
+      await Promise.all([
+        router.isReady(),
+        auth.waitForAuth()
+      ])
+      return
+    }
+
+    // Page loader is enabled, show it
+    isInitialLoad.value = true
+
     // Initialize auth
     auth.init()
     
@@ -19,23 +44,22 @@ onMounted(async () => {
       auth.waitForAuth()
     ])
     
-    // Small delay to ensure smooth transition
+    // Wait for next tick to ensure router-view is ready, then add small delay for smooth transition
+    await nextTick()
     setTimeout(() => {
       isInitialLoad.value = false
-    }, 300)
+    }, 100)
   } catch (error) {
     console.error('Error during initial load:', error)
     // Hide loader even on error
-    setTimeout(() => {
-      isInitialLoad.value = false
-    }, 500)
+    isInitialLoad.value = false
   }
 })
 </script>
 
 <template>
-  <PageLoader v-if="isInitialLoad" />
-  <router-view v-show="!isInitialLoad" />
+  <PageLoader v-if="isInitialLoad && showPageLoader" />
+  <router-view v-if="!isInitialLoad" />
 </template>
 
 <!-- <style scoped>

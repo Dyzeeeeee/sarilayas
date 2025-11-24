@@ -22,6 +22,9 @@ import AdminVideos from '../pages/admin/Videos.vue'
 import AdminPhotos from '../pages/admin/Photos.vue'
 import AdminNews from '../pages/admin/News.vue'
 import AdminProjects from '../pages/admin/Projects.vue'
+import AdminSettings from '../pages/admin/Settings.vue'
+import SiteDown from '../components/SiteDown.vue'
+import NotFound from '../pages/NotFound.vue'
 
 const routes = [
   { path: '/', name: 'Home', component: Home },
@@ -48,6 +51,10 @@ const routes = [
   { path: '/admin/news', name: 'AdminNews', component: AdminNews, meta: { requiresAuth: true } },
   { path: '/admin/projects', name: 'AdminProjects', component: AdminProjects, meta: { requiresAuth: true } },
   { path: '/admin/messages', name: 'AdminMessages', component: () => import('../pages/admin/Messages.vue'), meta: { requiresAuth: true } },
+  { path: '/admin/settings', name: 'AdminSettings', component: AdminSettings, meta: { requiresAuth: true } },
+  { path: '/site-down', name: 'SiteDown', component: SiteDown },
+  // Catch-all route for 404 - must be last
+  { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
 ]
 
 const router = createRouter({
@@ -74,13 +81,57 @@ router.beforeEach(async (to, from, next) => {
     
     const isAuthenticated = !!auth.user.value
     
+    // Check if route requires auth
     if (to.meta.requiresAuth && !isAuthenticated) {
       next('/login')
-    } else if (to.meta.requiresGuest && isAuthenticated) {
-      next('/admin')
-    } else {
-      next()
+      return
     }
+    
+    // Check if route requires guest (login page)
+    if (to.meta.requiresGuest && isAuthenticated) {
+      next('/admin')
+      return
+    }
+    
+    // If trying to access site-down page but site is enabled, redirect to home
+    if (to.path === '/site-down') {
+      try {
+        const { settingsService } = await import('../firebase/firestore')
+        const settings = await settingsService.getSettings()
+        
+        // If site is enabled, redirect to home
+        if (settings && settings.siteEnabled !== false) {
+          next('/')
+          return
+        }
+      } catch (error) {
+        console.error('Error checking site status:', error)
+        // On error, allow access to site-down page
+      }
+    }
+    
+    // Check site status for public routes (not admin routes and not site-down page)
+    if (!to.meta.requiresAuth && to.path !== '/site-down' && to.path !== '/login') {
+      try {
+        const { settingsService } = await import('../firebase/firestore')
+        const settings = await settingsService.getSettings()
+        
+        // Check if site is explicitly disabled
+        // siteEnabled can be: true (enabled), false (disabled), or undefined (defaults to enabled)
+        // Only allow authenticated admins to access public routes when site is disabled
+        const isSiteDisabled = settings && settings.siteEnabled === false
+        
+        if (isSiteDisabled && !isAuthenticated) {
+          next('/site-down')
+          return
+        }
+      } catch (error) {
+        console.error('Error checking site status:', error)
+        // On error, default to enabled (allow navigation)
+      }
+    }
+    
+    next()
   } catch (error) {
     console.error('Router guard error:', error)
     // On error, allow navigation to proceed
