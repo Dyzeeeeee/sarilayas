@@ -1,4 +1,4 @@
-import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, addDoc, query, orderBy, limit as firestoreLimit, onSnapshot } from 'firebase/firestore'
+import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, addDoc, query, orderBy, limit as firestoreLimit, where, onSnapshot } from 'firebase/firestore'
 import { app } from './config'
 
 const db = getFirestore(app)
@@ -192,16 +192,44 @@ export const mediaService = {
   },
 
   // Subscribe to real-time media updates
-  subscribeToMedia(callback, type = null) {
-    const q = query(collection(db, 'media'))
+  subscribeToMedia(callback, type = null, limitCount = null) {
+    let q = query(collection(db, 'media'))
+    
+    // Filter by type if specified
+    if (type) {
+      q = query(q, where('type', '==', type))
+      // When using where clause, we can't use orderBy without a composite index
+      // So we'll fetch more items and sort client-side
+      const fetchLimit = limitCount ? limitCount * 3 : null // Fetch more to ensure we have enough after sorting
+      if (fetchLimit) {
+        q = query(q, firestoreLimit(fetchLimit))
+      }
+    } else {
+      // If no type filter, we can safely order by createdAt
+      q = query(q, orderBy('createdAt', 'desc'))
+      if (limitCount) {
+        q = query(q, firestoreLimit(limitCount))
+      }
+    }
+    
     return onSnapshot(q, (snapshot) => {
       let media = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }))
-      if (type) {
-        media = media.filter(item => item.type === type)
+      
+      // Always sort client-side for consistency (especially when using where clause)
+      media.sort((a, b) => {
+        const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : (a.createdAt ? new Date(a.createdAt) : new Date(0))
+        const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : (b.createdAt ? new Date(b.createdAt) : new Date(0))
+        return dateB - dateA
+      })
+      
+      // Apply limit client-side (especially important when using where clause)
+      if (limitCount && media.length > limitCount) {
+        media = media.slice(0, limitCount)
       }
+      
       callback(media)
     }, (error) => {
       console.error('Error subscribing to media:', error)
@@ -210,19 +238,19 @@ export const mediaService = {
   },
 
   // Subscribe to real-time photos updates
-  subscribeToPhotos(callback) {
+  subscribeToPhotos(callback, limitCount = null) {
     return this.subscribeToMedia((media) => {
       const photos = media.filter(item => item.type === 'photo')
       callback(photos)
-    })
+    }, 'photo', limitCount)
   },
 
   // Subscribe to real-time videos updates
-  subscribeToVideos(callback) {
+  subscribeToVideos(callback, limitCount = null) {
     return this.subscribeToMedia((media) => {
       const videos = media.filter(item => item.type === 'video')
       callback(videos)
-    })
+    }, 'video', limitCount)
   },
 
   // Add media item
@@ -287,8 +315,11 @@ export const newsService = {
   },
 
   // Subscribe to real-time news updates
-  subscribeToNews(callback) {
-    const q = query(collection(db, 'news'))
+  subscribeToNews(callback, limitCount = null) {
+    let q = query(collection(db, 'news'), orderBy('publishDate', 'desc'))
+    if (limitCount) {
+      q = query(q, firestoreLimit(limitCount))
+    }
     return onSnapshot(q, (snapshot) => {
       const news = snapshot.docs.map(doc => ({
         id: doc.id,
@@ -325,8 +356,11 @@ export const projectsService = {
   },
 
   // Subscribe to real-time projects updates
-  subscribeToProjects(callback) {
-    const q = query(collection(db, 'projects'))
+  subscribeToProjects(callback, limitCount = null) {
+    let q = query(collection(db, 'projects'), orderBy('createdAt', 'desc'))
+    if (limitCount) {
+      q = query(q, firestoreLimit(limitCount))
+    }
     return onSnapshot(q, (snapshot) => {
       const projects = snapshot.docs.map(doc => ({
         id: doc.id,

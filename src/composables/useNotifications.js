@@ -302,13 +302,22 @@ function storeNotifications(notifs) {
   }
 }
 
-// Mark notification as deleted
-function markNotificationAsDeleted(notificationId) {
+// Remove notification when item is deleted
+function removeNotification(notificationId) {
   const index = notifications.value.findIndex(n => n.id === notificationId)
-  if (index !== -1 && !notifications.value[index].deleted) {
-    notifications.value[index].deleted = true
+  if (index !== -1) {
+    notifications.value.splice(index, 1)
     storeNotifications(notifications.value)
     updateUnreadCount()
+    
+    // Also remove from read notifications
+    const read = getReadNotifications()
+    const readIndex = read.indexOf(notificationId)
+    if (readIndex !== -1) {
+      read.splice(readIndex, 1)
+      localStorage.setItem(NOTIFICATIONS_READ_KEY, JSON.stringify(read))
+    }
+    
     return true
   }
   return false
@@ -337,11 +346,11 @@ async function checkDeletedNotifications() {
     let hasChanges = false
     
     storedNotifications.forEach(notification => {
-      if (!notification.deleted && !currentItems.has(notification.id)) {
-        // Item no longer exists, mark as deleted
+      if (!currentItems.has(notification.id)) {
+        // Item no longer exists, remove notification
         const index = notifications.value.findIndex(n => n.id === notification.id)
         if (index !== -1) {
-          notifications.value[index].deleted = true
+          notifications.value.splice(index, 1)
           hasChanges = true
         }
       }
@@ -384,17 +393,37 @@ function setupRealtimeListeners() {
     }
   }
   
-  // Helper to process items and detect new ones and deletions
+  // Track previous item data to detect updates
+  const previousItems = {
+    news: new Map(),
+    photo: new Map(),
+    video: new Map(),
+    project: new Map()
+  }
+  
+  // Helper to get item hash for comparison
+  const getItemHash = (item) => {
+    return JSON.stringify({
+      title: item.title,
+      description: item.description,
+      image: item.image || item.url,
+      updatedAt: item.updatedAt?.toDate ? item.updatedAt.toDate().getTime() : (item.updatedAt ? new Date(item.updatedAt).getTime() : null)
+    })
+  }
+  
+  // Helper to process items and detect new ones, updates, and deletions
   const processItems = (items, type) => {
     const typedItems = items.map(item => ({ ...item, type }))
     const currentItemIdsSet = new Set(typedItems.map(item => item.id))
+    const previousItemsMap = previousItems[type]
     
     if (!initialLoadComplete) {
-      // On initial load, mark all items as seen
+      // On initial load, mark all items as seen and store their data
       typedItems.forEach(item => {
         const itemId = `${item.type}-${item.id}`
         seenItemIds.add(itemId)
         currentItemIds[type].add(item.id)
+        previousItemsMap.set(item.id, getItemHash(item))
       })
       checkAndProcess()
       return
@@ -402,30 +431,113 @@ function setupRealtimeListeners() {
     
     // After initial load, check all stored notifications of this type for deletions
     const storedNotifications = getStoredNotifications()
-    const typeNotifications = storedNotifications.filter(n => n.type === type && !n.deleted)
+    const typeNotifications = storedNotifications.filter(n => n.type === type)
     
     typeNotifications.forEach(notification => {
       // Check if the item still exists
       const itemStillExists = currentItemIdsSet.has(notification.itemId)
       if (!itemStillExists) {
-        // Item was deleted, mark notification as deleted
-        markNotificationAsDeleted(notification.id)
+        // Item was deleted, remove notification
+        removeNotification(notification.id)
+        previousItemsMap.delete(notification.itemId)
       }
     })
     
-    // Update current item IDs for this type
-    currentItemIds[type] = new Set(typedItems.map(item => item.id))
+    // Detect updates and new items
+    const updatedItems = []
+    const newItems = []
     
-    // Detect new items
-    const newItems = typedItems.filter(item => {
+    typedItems.forEach(item => {
       const itemId = `${item.type}-${item.id}`
-      if (seenItemIds.has(itemId)) {
-        return false
+      const currentHash = getItemHash(item)
+      const previousHash = previousItemsMap.get(item.id)
+      
+      if (!seenItemIds.has(itemId)) {
+        // New item
+        seenItemIds.add(itemId)
+        newItems.push(item)
+        previousItemsMap.set(item.id, currentHash)
+      } else if (previousHash && previousHash !== currentHash) {
+        // Item was updated
+        updatedItems.push(item)
+        previousItemsMap.set(item.id, currentHash)
+      } else if (!previousHash) {
+        // Item exists but wasn't tracked (shouldn't happen, but handle it)
+        previousItemsMap.set(item.id, currentHash)
       }
-      seenItemIds.add(itemId)
-      return true
     })
     
+    // Process updates
+    if (updatedItems.length > 0) {
+      const { info } = useToast()
+      let hasUpdates = false
+      
+      updatedItems.forEach(item => {
+        const notificationId = `${type}-${item.id}`
+        const existingIndex = notifications.value.findIndex(n => n.id === notificationId)
+        
+        if (existingIndex !== -1) {
+          // Update existing notification
+          const existing = notifications.value[existingIndex]
+          notifications.value[existingIndex] = {
+            ...existing,
+            title: item.title || 'Untitled',
+            image: getNotificationImage(item),
+            updated: true,
+            updateTimestamp: Date.now()
+          }
+          
+          // Mark as unread if it was read before
+          const read = getReadNotifications()
+          const readIndex = read.indexOf(notificationId)
+          if (readIndex !== -1) {
+            read.splice(readIndex, 1)
+            localStorage.setItem('sarilaya_notifications_read', JSON.stringify(read))
+          }
+          
+          hasUpdates = true
+          
+          const typeLabel = getNotificationTypeLabel(type)
+          info(`Updated ${typeLabel}: ${item.title || 'Untitled'}`, 5000, {
+            image: getNotificationImage(item),
+            type: type
+          })
+        } else {
+          // Create new notification for updated item (shouldn't happen often)
+          const notification = {
+            id: notificationId,
+            type: type,
+            title: item.title || 'Untitled',
+            itemId: item.id,
+            timestamp: getItemTimestamp(item),
+            date: item.publishDate || item.createdAt,
+            image: getNotificationImage(item),
+            deleted: false,
+            updated: true,
+            updateTimestamp: Date.now()
+          }
+          notifications.value.push(notification)
+          hasUpdates = true
+        }
+      })
+      
+      if (hasUpdates) {
+        // Sort by timestamp (newest first), prioritizing update timestamp
+        notifications.value.sort((a, b) => {
+          const aTime = a.updateTimestamp || a.timestamp
+          const bTime = b.updateTimestamp || b.timestamp
+          return bTime - aTime
+        })
+        notifications.value = notifications.value.slice(0, 50)
+        storeNotifications(notifications.value)
+        updateUnreadCount()
+        
+        // Play sound for updates
+        playNotificationSound()
+      }
+    }
+    
+    // Process new items
     if (newItems.length > 0) {
       // Check if these items are actually new (created after last visit)
       const lastVisitTime = getLastVisit() || 0
@@ -435,19 +547,22 @@ function setupRealtimeListeners() {
       })
       
       if (trulyNew.length > 0) {
-      const newNotifications = trulyNew.map(item => ({
-        id: `${item.type}-${item.id}`,
-        type: item.type,
-        title: item.title || 'Untitled',
-        itemId: item.id,
-        timestamp: getItemTimestamp(item),
-        date: item.publishDate || item.createdAt,
-        image: getNotificationImage(item),
-        deleted: false
-      }))
+        const newNotifications = trulyNew.map(item => ({
+          id: `${item.type}-${item.id}`,
+          type: item.type,
+          title: item.title || 'Untitled',
+          itemId: item.id,
+          timestamp: getItemTimestamp(item),
+            date: item.publishDate || item.createdAt,
+            image: getNotificationImage(item),
+            updated: false
+          }))
         addNewNotifications(newNotifications)
       }
     }
+    
+    // Update current item IDs for this type
+    currentItemIds[type] = new Set(typedItems.map(item => item.id))
   }
   
   // Subscribe to real-time updates

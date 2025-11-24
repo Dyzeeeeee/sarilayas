@@ -125,8 +125,21 @@
             :data-item-id="`${item.type}-${item.id}`"
             :ref="el => { if (el) setItemRef(el, `${item.type}-${item.id}`) }"
             @click="handleItemClick(item)"
-            class="bg-white rounded-xl border-2 border-gray-100 overflow-hidden transition-all duration-300 cursor-pointer hover:border-primary-300 shadow-sm md:shadow-md lg:shadow-lg hover:shadow-xl flex flex-col group"
+            class="bg-white rounded-xl border-2 overflow-hidden transition-all duration-300 cursor-pointer hover:border-primary-300 shadow-sm md:shadow-md lg:shadow-lg hover:shadow-xl flex flex-col group relative"
+            :class="{
+              'border-gray-100': isItemSeen(item),
+              'border-primary-300': !isItemSeen(item)
+            }"
+            :style="{
+              opacity: isItemSeen(item) ? 0.85 : 1
+            }"
           >
+            <!-- Unseen indicator dot -->
+            <div
+              v-if="!isItemSeen(item)"
+              class="absolute top-3 right-3 w-2 h-2 bg-primary-500 rounded-full z-10 shadow-sm animate-pulse"
+              title="New content"
+            ></div>
             <!-- Title Section at Top -->
             <div class="p-4 sm:p-6 lg:p-8 pb-3 lg:pb-4">
               <div class="flex items-start justify-between gap-3 mb-2 lg:mb-3">
@@ -245,8 +258,17 @@
                 <div v-for="(item, index) in filteredFeedItems.slice(0, 5)" :key="`recent-${item.id}`" 
                      class="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
                      @click="handleItemClick(item)">
-                  <div :class="getTypeIconBgClass(item.type)" class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0">
-                    <component :is="getTypeIcon(item.type)" :class="getTypeIconClass(item.type)" class="w-4 h-4" />
+                  <!-- Image Preview -->
+                  <div v-if="getItemImage(item)" class="w-12 h-12 shrink-0 rounded-lg overflow-hidden bg-gray-100">
+                    <img
+                      :src="getItemImage(item)"
+                      :alt="item.title"
+                      class="w-full h-full object-cover"
+                    />
+                  </div>
+                  <!-- Icon fallback if no image -->
+                  <div v-else :class="getTypeIconBgClass(item.type)" class="w-12 h-12 rounded-lg flex items-center justify-center shrink-0">
+                    <component :is="getTypeIcon(item.type)" :class="getTypeIconClass(item.type)" class="w-5 h-5" />
                   </div>
                   <div class="flex-1 min-w-0">
                     <p class="text-sm font-medium text-gray-900 line-clamp-1">{{ item.title || 'Untitled' }}</p>
@@ -417,6 +439,20 @@ function getSeenItems() {
   }
 }
 
+// Reactive seen items set
+const seenItemsSet = ref(new Set(getSeenItems()))
+
+// Update seen items set from localStorage
+function updateSeenItemsSet() {
+  seenItemsSet.value = new Set(getSeenItems())
+}
+
+// Check if an item is seen (reactive)
+function isItemSeen(item) {
+  const itemId = `${item.type}-${item.id}`
+  return seenItemsSet.value.has(itemId)
+}
+
 // Mark item as seen
 function markItemAsSeen(itemId) {
   try {
@@ -424,6 +460,7 @@ function markItemAsSeen(itemId) {
     if (!seen.includes(itemId)) {
       seen.push(itemId)
       localStorage.setItem(seenItemsKey, JSON.stringify(seen))
+      seenItemsSet.value.add(itemId) // Update reactive set immediately
       console.log('Marked as seen:', itemId, 'Total seen:', seen.length)
     }
   } catch (error) {
@@ -782,22 +819,22 @@ async function loadFeed() {
     unsubscribeNews = newsService.subscribeToNews((news) => {
       newsData.value = news
       checkInitialLoad()
-    })
+    }, 20)
     
     unsubscribePhotos = mediaService.subscribeToPhotos((photos) => {
       photosData.value = photos
       checkInitialLoad()
-    })
+    }, 20)
     
     unsubscribeVideos = mediaService.subscribeToVideos((videos) => {
       videosData.value = videos
       checkInitialLoad()
-    })
+    }, 20)
     
     unsubscribeProjects = projectsService.subscribeToProjects((projects) => {
       projectsData.value = projects
       checkInitialLoad()
-    })
+    }, 20)
     
   } catch (error) {
     console.error('Error loading feed:', error)

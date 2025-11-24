@@ -419,7 +419,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, Teleport } from 'vue'
+import { ref, onMounted, onUnmounted, Teleport } from 'vue'
 import AdminLayout from '../../layouts/AdminLayout.vue'
 import { newsService } from '../../firebase/firestore'
 import { useToast } from '../../composables/useToast'
@@ -581,20 +581,29 @@ function clearFileInput() {
   }
 }
 
+let unsubscribeNews = null
+
 async function loadArticles() {
   loadingData.value = true
+  let initialLoadComplete = false
+  
   try {
-    const allArticles = await newsService.getNews()
-    // Sort by newest first
-    articles.value = allArticles.sort((a, b) => {
-      const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : (a.createdAt ? new Date(a.createdAt) : (a.publishDate ? new Date(a.publishDate) : new Date(0)))
-      const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : (b.createdAt ? new Date(b.createdAt) : (b.publishDate ? new Date(b.publishDate) : new Date(0)))
-      return dateB - dateA
-    })
+    // Set up real-time listener with pagination (20 items)
+    unsubscribeNews = newsService.subscribeToNews((news) => {
+      // Sort by newest first
+      articles.value = news.sort((a, b) => {
+        const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : (a.createdAt ? new Date(a.createdAt) : (a.publishDate ? new Date(a.publishDate) : new Date(0)))
+        const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : (b.createdAt ? new Date(b.createdAt) : (b.publishDate ? new Date(b.publishDate) : new Date(0)))
+        return dateB - dateA
+      })
+      if (!initialLoadComplete) {
+        initialLoadComplete = true
+        loadingData.value = false
+      }
+    }, 20)
   } catch (error) {
-    console.error('Error loading articles:', error)
+    console.error('Error setting up news subscription:', error)
     showError('Failed to load articles')
-  } finally {
     loadingData.value = false
   }
 }
@@ -681,7 +690,7 @@ async function handleDelete(id) {
   try {
     await newsService.deleteArticle(id)
     showSuccess('Article deleted successfully!')
-    await loadArticles()
+    // Real-time listener will update automatically
   } catch (error) {
     console.error('Error deleting article:', error)
     showError('Failed to delete article')
@@ -690,5 +699,11 @@ async function handleDelete(id) {
 
 onMounted(() => {
   loadArticles()
+})
+
+onUnmounted(() => {
+  if (unsubscribeNews) {
+    unsubscribeNews()
+  }
 })
 </script>

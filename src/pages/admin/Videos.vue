@@ -516,20 +516,29 @@ async function fetchVideoMetadata() {
   }
 }
 
+let unsubscribeVideos = null
+
 async function loadVideos() {
   loadingData.value = true
+  let initialLoadComplete = false
+  
   try {
-    const allVideos = await mediaService.getVideos()
-    // Sort by newest first
-    videos.value = allVideos.sort((a, b) => {
-      const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : (a.createdAt ? new Date(a.createdAt) : new Date(0))
-      const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : (b.createdAt ? new Date(b.createdAt) : new Date(0))
-      return dateB - dateA // Newest first
-    })
+    // Set up real-time listener with pagination (20 items)
+    unsubscribeVideos = mediaService.subscribeToVideos((videosList) => {
+      // Sort by newest first
+      videos.value = videosList.sort((a, b) => {
+        const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : (a.createdAt ? new Date(a.createdAt) : new Date(0))
+        const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : (b.createdAt ? new Date(b.createdAt) : new Date(0))
+        return dateB - dateA // Newest first
+      })
+      if (!initialLoadComplete) {
+        initialLoadComplete = true
+        loadingData.value = false
+      }
+    }, 20)
   } catch (error) {
-    console.error('Error loading videos:', error)
+    console.error('Error setting up videos subscription:', error)
     showError('Failed to load videos')
-  } finally {
     loadingData.value = false
   }
 }
@@ -737,7 +746,7 @@ async function handleDelete(id) {
   try {
     await mediaService.deleteVideo(id)
     showSuccess('Video deleted successfully!')
-    await loadVideos()
+    // Real-time listener will update automatically
   } catch (error) {
     console.error('Error deleting video:', error)
     showError('Failed to delete video')
@@ -760,5 +769,8 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('beforeunload', handleBeforeUnload)
+  if (unsubscribeVideos) {
+    unsubscribeVideos()
+  }
 })
 </script>

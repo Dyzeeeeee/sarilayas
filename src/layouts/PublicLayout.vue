@@ -12,7 +12,7 @@
         <div class="flex justify-between items-center h-10 md:h-16">
           <!-- Logo -->
           <div class="flex-shrink-0">
-            <router-link to="/" class="flex items-center gap-2 text-xl font-bold text-white hover:opacity-90 transition-opacity">
+            <a @click="handleNavClick('/')" class="flex items-center gap-2 text-xl font-bold text-white hover:opacity-90 transition-opacity cursor-pointer">
               <img 
                 src="/MainSarilayaLogo.png" 
                 alt="Sarilaya Logo" 
@@ -24,7 +24,7 @@
                 class="lg:hidden h-8 w-8 object-contain"
               />
               <span>{{ pageTitle }}</span>
-            </router-link>
+            </a>
           </div>
 
           <!-- View Toggler (Mobile) -->
@@ -49,36 +49,36 @@
               />
             </div>
             
-            <router-link
-              to="/"
-              class="text-white/90 hover:text-white px-3 py-2 text-sm font-medium transition-colors"
+            <a
+              @click="handleNavClick('/')"
+              class="text-white/90 hover:text-white px-3 py-2 text-sm font-medium transition-colors cursor-pointer"
               :class="{ 'text-white border-b-2 border-white': route.path === '/' }"
             >
               Home
-            </router-link>
-            <router-link
-              to="/about"
-              class="text-white/90 hover:text-white px-3 py-2 text-sm font-medium transition-colors"
+            </a>
+            <a
+              @click="handleNavClick('/about')"
+              class="text-white/90 hover:text-white px-3 py-2 text-sm font-medium transition-colors cursor-pointer"
               :class="{ 'text-white border-b-2 border-white': isAboutActive }"
             >
               About Us
-            </router-link>
-            <router-link
+            </a>
+            <a
               v-for="item in navItems"
               :key="item.path"
-              :to="item.path"
-              class="text-white/90 hover:text-white px-3 py-2 text-sm font-medium transition-colors"
-              active-class="text-white border-b-2 border-white"
+              @click="handleNavClick(item.path)"
+              class="text-white/90 hover:text-white px-3 py-2 text-sm font-medium transition-colors cursor-pointer"
+              :class="{ 'text-white border-b-2 border-white': isActiveRoute(item.path) }"
             >
               {{ item.label }}
-            </router-link>
-            <router-link
-              to="/contact"
-              class="text-white/90 hover:text-white px-3 py-2 text-sm font-medium transition-colors"
-              active-class="text-white border-b-2 border-white"
+            </a>
+            <a
+              @click="handleNavClick('/contact')"
+              class="text-white/90 hover:text-white px-3 py-2 text-sm font-medium transition-colors cursor-pointer"
+              :class="{ 'text-white border-b-2 border-white': route.path === '/contact' }"
             >
               Contact
-            </router-link>
+            </a>
             
             <!-- Notifications -->
             <div class="relative ml-2">
@@ -107,7 +107,7 @@
                   <button
                     v-if="unreadCount > 0"
                     @click="markAllAsRead"
-                    class="text-sm text-primary-600 hover:text-primary-700 font-medium"
+                    class="text-sm text-primary-600 hover:text-primary-700 font-medium cursor-pointer"
                   >
                     Mark all as read
                   </button>
@@ -210,51 +210,41 @@
                 <button
                   v-for="notification in notifications"
                   :key="notification.id"
-                  @click="!notification.deleted && handleNotificationClick(notification)"
+                  @click="handleNotificationClick(notification)"
                   class="w-full text-left transition-colors"
                   :class="{
-                    'bg-primary-50 hover:bg-gray-50': !isNotificationRead(notification.id) && !notification.deleted,
-                    'hover:bg-gray-50': isNotificationRead(notification.id) && !notification.deleted,
-                    'opacity-60 cursor-not-allowed': notification.deleted
+                    'bg-primary-50 hover:bg-gray-50': !isNotificationRead(notification.id),
+                    'hover:bg-gray-50': isNotificationRead(notification.id)
                   }"
                 >
                   <div class="flex items-start gap-3 p-4">
                     <!-- Image Preview -->
-                    <div v-if="notification.image" class="w-16 h-16 shrink-0 rounded-lg overflow-hidden bg-gray-100 relative">
+                    <div v-if="notification.image" class="w-16 h-16 shrink-0 rounded-lg overflow-hidden bg-gray-100">
                       <img
                         :src="notification.image"
                         :alt="notification.title"
                         class="w-full h-full object-cover"
-                        :class="{ 'opacity-50 grayscale': notification.deleted }"
                       />
-                      <div v-if="notification.deleted" class="absolute inset-0 bg-red-500/20 flex items-center justify-center">
-                        <span class="text-xs font-bold text-red-600">DELETED</span>
-                      </div>
                     </div>
                     <!-- Icon fallback if no image -->
-                    <div v-else :class="[getNotificationIconBgClass(notification.type), 'w-16 h-16 rounded-lg flex items-center justify-center shrink-0 relative', { 'opacity-50': notification.deleted }]">
+                    <div v-else :class="[getNotificationIconBgClass(notification.type), 'w-16 h-16 rounded-lg flex items-center justify-center shrink-0']">
                       <component
                         :is="getNotificationIconComponent(notification.type)"
                         :class="getNotificationIconClass(notification.type)"
                         class="w-6 h-6"
                       />
-                      <div v-if="notification.deleted" class="absolute inset-0 bg-red-500/20 rounded-lg flex items-center justify-center">
-                        <span class="text-[8px] font-bold text-red-600">DEL</span>
-                      </div>
                     </div>
                     <div class="flex-1 min-w-0">
                       <div class="flex items-center gap-2 mb-1">
-                        <span class="text-xs font-medium"
-                              :class="notification.deleted ? 'text-gray-400' : 'text-primary-600'">
+                        <span class="text-xs font-medium text-primary-600">
                           {{ getNotificationTypeLabel(notification.type) }}
                         </span>
-                        <span v-if="notification.deleted" class="px-1.5 py-0.5 bg-red-100 text-red-600 text-[10px] font-bold rounded">
-                          DELETED
+                        <span v-if="notification.updated" class="px-1.5 py-0.5 bg-blue-100 text-blue-600 text-[10px] font-bold rounded">
+                          UPDATED
                         </span>
                         <span v-else-if="!isNotificationRead(notification.id)" class="w-2 h-2 bg-primary-600 rounded-full"></span>
                       </div>
-                      <p class="text-sm font-medium line-clamp-2"
-                         :class="notification.deleted ? 'text-gray-400 line-through' : 'text-gray-900'">
+                      <p class="text-sm font-medium text-gray-900 line-clamp-2">
                         {{ notification.title }}
                       </p>
                       <p class="text-xs text-gray-500 mt-1">
@@ -675,18 +665,23 @@ const isActiveRoute = (path) => {
   return route.path === path || route.path.startsWith(path + '/')
 }
 
-// Handle bottom nav item click
-const handleBottomNavClick = (item) => {
-  if (isActiveRoute(item.path)) {
+// Handle navigation click (topbar and bottom nav)
+const handleNavClick = (path) => {
+  if (isActiveRoute(path)) {
     // If already on this page, scroll to top and dispatch event to refetch data
     window.scrollTo({ top: 0, behavior: 'smooth' })
     window.dispatchEvent(new CustomEvent('refetch-page-data', { 
-      detail: { path: item.path } 
+      detail: { path: path } 
     }))
   } else {
     // Navigate to the new page
-    router.push(item.path)
+    router.push(path)
   }
+}
+
+// Handle bottom nav item click
+const handleBottomNavClick = (item) => {
+  handleNavClick(item.path)
 }
 </script>
 

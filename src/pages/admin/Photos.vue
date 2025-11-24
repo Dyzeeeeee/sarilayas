@@ -415,7 +415,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, Teleport } from 'vue'
+import { ref, onMounted, onUnmounted, Teleport } from 'vue'
 import AdminLayout from '../../layouts/AdminLayout.vue'
 import { mediaService } from '../../firebase/firestore'
 import { useToast } from '../../composables/useToast'
@@ -573,20 +573,29 @@ function removePhoto() {
   }
 }
 
+let unsubscribePhotos = null
+
 async function loadPhotos() {
   loadingData.value = true
+  let initialLoadComplete = false
+  
   try {
-    const allPhotos = await mediaService.getPhotos()
-    // Sort by newest first
-    photos.value = allPhotos.sort((a, b) => {
-      const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : (a.createdAt ? new Date(a.createdAt) : new Date(0))
-      const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : (b.createdAt ? new Date(b.createdAt) : new Date(0))
-      return dateB - dateA // Newest first
-    })
+    // Set up real-time listener with pagination (20 items)
+    unsubscribePhotos = mediaService.subscribeToPhotos((photosList) => {
+      // Sort by newest first
+      photos.value = photosList.sort((a, b) => {
+        const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : (a.createdAt ? new Date(a.createdAt) : new Date(0))
+        const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : (b.createdAt ? new Date(b.createdAt) : new Date(0))
+        return dateB - dateA // Newest first
+      })
+      if (!initialLoadComplete) {
+        initialLoadComplete = true
+        loadingData.value = false
+      }
+    }, 20)
   } catch (error) {
-    console.error('Error loading photos:', error)
+    console.error('Error setting up photos subscription:', error)
     showError('Failed to load photos')
-  } finally {
     loadingData.value = false
   }
 }
@@ -740,5 +749,11 @@ function formatDate(date) {
 
 onMounted(() => {
   loadPhotos()
+})
+
+onUnmounted(() => {
+  if (unsubscribePhotos) {
+    unsubscribePhotos()
+  }
 })
 </script>

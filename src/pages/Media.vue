@@ -578,31 +578,44 @@ function formatDate(date) {
   }
 }
 
+let unsubscribePhotos = null
+let unsubscribeVideos = null
+
 async function loadPhotos() {
   loadingPhotos.value = true;
+  let initialLoadComplete = false;
+  
   try {
-    photos.value = await mediaService.getPhotos();
+    // Set up real-time listener with pagination (20 items)
+    unsubscribePhotos = mediaService.subscribeToPhotos((photosList) => {
+      photos.value = photosList;
+      if (!initialLoadComplete) {
+        initialLoadComplete = true;
+        loadingPhotos.value = false;
+      }
+    }, 20);
   } catch (err) {
-    console.error("Error fetching photos:", err);
-  } finally {
+    console.error("Error setting up photos subscription:", err);
     loadingPhotos.value = false;
   }
 }
 
 async function loadVideos() {
   loadingVideos.value = true;
+  let initialLoadComplete = false;
+  
   try {
-    videos.value = await mediaService.getVideos();
+    // Set up real-time listener with pagination (20 items)
+    unsubscribeVideos = mediaService.subscribeToVideos((videosList) => {
+      videos.value = videosList;
+      if (!initialLoadComplete) {
+        initialLoadComplete = true;
+        loadingVideos.value = false;
+      }
+    }, 20);
   } catch (err) {
-    console.error("Error fetching videos:", err);
-  } finally {
+    console.error("Error setting up videos subscription:", err);
     loadingVideos.value = false;
-  }
-}
-
-const handleRefetch = () => {
-  if (route.path === '/media') {
-    Promise.all([loadPhotos(), loadVideos()])
   }
 }
 
@@ -615,16 +628,17 @@ onMounted(async () => {
   window.addEventListener('scroll', handleScroll, { passive: true });
   handleScroll();
 
-  // Load both photos and videos on mount
+  // Load both photos and videos on mount with real-time listeners
   await Promise.all([loadPhotos(), loadVideos()]);
-  
-  window.addEventListener('refetch-page-data', handleRefetch)
 });
 
 onUnmounted(() => {
   window.removeEventListener('resize', checkMobile)
   window.removeEventListener('scroll', handleScroll)
-  window.removeEventListener('refetch-page-data', handleRefetch)
+  
+  // Cleanup real-time listeners
+  if (unsubscribePhotos) unsubscribePhotos()
+  if (unsubscribeVideos) unsubscribeVideos()
 })
 </script>
 

@@ -200,7 +200,16 @@
                 class="flex items-center gap-2 md:gap-3 p-2 md:p-3 rounded-lg border border-gray-200 hover:border-primary-300 hover:bg-primary-50/30 transition-all cursor-pointer"
                 @click="handleActivityClick(item)"
               >
-                <div class="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-primary-50 flex items-center justify-center shrink-0">
+                <!-- Image Preview -->
+                <div v-if="getActivityImage(item)" class="h-8 w-8 md:h-10 md:w-10 rounded-lg overflow-hidden bg-gray-100 shrink-0">
+                  <img
+                    :src="getActivityImage(item)"
+                    :alt="item.title"
+                    class="w-full h-full object-cover"
+                  />
+                </div>
+                <!-- Icon fallback if no image -->
+                <div v-else class="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-primary-50 flex items-center justify-center shrink-0">
                   <component :is="getActivityIcon(item.type)" class="h-4 w-4 md:h-5 md:w-5 text-primary-600" />
                 </div>
                 <div class="flex-1 min-w-0">
@@ -917,6 +926,48 @@ function getActivityTypeLabel(type) {
     message: 'Message'
   }
   return labels[type] || 'Item'
+}
+
+function getActivityImage(item) {
+  if (!item.item) return null
+  
+  // For news and projects, use image field
+  if (item.type === 'news' || item.type === 'project') {
+    return item.item.image || null
+  }
+  
+  // For photos, use url field
+  if (item.type === 'photo') {
+    return item.item.url || null
+  }
+  
+  // For videos, extract YouTube thumbnail
+  if (item.type === 'video' && item.item.url) {
+    const videoId = getYouTubeVideoId(item.item.url)
+    if (videoId) {
+      return `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`
+    }
+  }
+  
+  return null
+}
+
+function getYouTubeVideoId(url) {
+  if (!url) return null
+  
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+    /youtube\.com\/watch\?.*v=([^&\n?#]+)/
+  ]
+  
+  for (const pattern of patterns) {
+    const match = url.match(pattern)
+    if (match && match[1]) {
+      return match[1]
+    }
+  }
+  
+  return null
 }
 
 function formatActivityDate(date) {

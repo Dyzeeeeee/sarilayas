@@ -201,29 +201,34 @@ function formatDate(date) {
   }
 }
 
+let unsubscribeProjects = null
+
 async function loadProjects() {
   loading.value = true
+  let initialLoadComplete = false
+  
   try {
-    projects.value = await projectsService.getProjects()
+    // Set up real-time listener with pagination (20 items)
+    unsubscribeProjects = projectsService.subscribeToProjects((projectsList) => {
+      projects.value = projectsList
+      if (!initialLoadComplete) {
+        initialLoadComplete = true
+        loading.value = false
+      }
+    }, 20)
   } catch (error) {
-    console.error('Error loading projects:', error)
-  } finally {
+    console.error('Error setting up projects subscription:', error)
     loading.value = false
-  }
-}
-
-const handleRefetch = () => {
-  if (route.path === '/projects') {
-    loadProjects()
   }
 }
 
 onMounted(() => {
   loadProjects()
-  window.addEventListener('refetch-page-data', handleRefetch)
 })
 
 onUnmounted(() => {
-  window.removeEventListener('refetch-page-data', handleRefetch)
+  if (unsubscribeProjects) {
+    unsubscribeProjects()
+  }
 })
 </script>

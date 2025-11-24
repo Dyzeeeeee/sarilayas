@@ -207,29 +207,34 @@ function formatDate(date) {
   return dateObj.toLocaleString('en-US', options);
 }
 
+let unsubscribeNews = null
+
 const loadArticles = async () => {
   loading.value = true
+  let initialLoadComplete = false
+  
   try {
-    articles.value = await newsService.getNews();
+    // Set up real-time listener with pagination (20 items)
+    unsubscribeNews = newsService.subscribeToNews((news) => {
+      articles.value = news
+      if (!initialLoadComplete) {
+        initialLoadComplete = true
+        loading.value = false
+      }
+    }, 20)
   } catch (err) {
-    console.error("Error fetching articles:", err);
-  } finally {
-    loading.value = false;
-  }
-}
-
-const handleRefetch = () => {
-  if (route.path === '/news') {
-    loadArticles()
+    console.error("Error setting up news subscription:", err);
+    loading.value = false
   }
 }
 
 onMounted(() => {
   loadArticles()
-  window.addEventListener('refetch-page-data', handleRefetch)
 })
 
 onUnmounted(() => {
-  window.removeEventListener('refetch-page-data', handleRefetch)
+  if (unsubscribeNews) {
+    unsubscribeNews()
+  }
 })
 </script>

@@ -417,7 +417,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, Teleport } from 'vue'
+import { ref, onMounted, onUnmounted, Teleport } from 'vue'
 import AdminLayout from '../../layouts/AdminLayout.vue'
 import { projectsService } from '../../firebase/firestore'
 import { useToast } from '../../composables/useToast'
@@ -566,20 +566,29 @@ function clearFileInput() {
   }
 }
 
+let unsubscribeProjects = null
+
 async function loadProjects() {
   loadingData.value = true
+  let initialLoadComplete = false
+  
   try {
-    const allProjects = await projectsService.getProjects()
-    // Sort by newest first
-    projects.value = allProjects.sort((a, b) => {
-      const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : (a.createdAt ? new Date(a.createdAt) : new Date(0))
-      const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : (b.createdAt ? new Date(b.createdAt) : new Date(0))
-      return dateB - dateA
-    })
+    // Set up real-time listener with pagination (20 items)
+    unsubscribeProjects = projectsService.subscribeToProjects((projectsList) => {
+      // Sort by newest first
+      projects.value = projectsList.sort((a, b) => {
+        const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : (a.createdAt ? new Date(a.createdAt) : new Date(0))
+        const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : (b.createdAt ? new Date(b.createdAt) : new Date(0))
+        return dateB - dateA
+      })
+      if (!initialLoadComplete) {
+        initialLoadComplete = true
+        loadingData.value = false
+      }
+    }, 20)
   } catch (error) {
-    console.error('Error loading projects:', error)
+    console.error('Error setting up projects subscription:', error)
     showError('Failed to load projects')
-  } finally {
     loadingData.value = false
   }
 }
@@ -655,7 +664,7 @@ async function handleDelete(id) {
   try {
     await projectsService.deleteProject(id)
     showSuccess('Project deleted successfully!')
-    await loadProjects()
+    // Real-time listener will update automatically
   } catch (error) {
     console.error('Error deleting project:', error)
     showError('Failed to delete project')
@@ -664,5 +673,11 @@ async function handleDelete(id) {
 
 onMounted(() => {
   loadProjects()
+})
+
+onUnmounted(() => {
+  if (unsubscribeProjects) {
+    unsubscribeProjects()
+  }
 })
 </script>
