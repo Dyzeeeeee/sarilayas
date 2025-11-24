@@ -19,8 +19,8 @@
         <!-- Logo with scale animation -->
         <div class="mb-12 transform transition-all duration-500">
           <img
-            src="/MainSarilayaLogo.png"
-            alt="Sarilaya Logo"
+            :src="primaryLogo"
+            :alt="`${siteName} Logo`"
             class="h-20 md:h-24 w-auto mx-auto object-contain animate-logo-float"
             style="opacity: 1;"
           />
@@ -34,16 +34,22 @@
         </div>
         
         <!-- Loading Text with fade animation -->
-        <p class="text-primary-700 font-medium text-lg animate-pulse">Loading...</p>
+        <p class="text-primary-700 font-medium text-lg animate-pulse">Loading {{ siteName }}...</p>
       </div>
     </div>
   </Transition>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { useBranding } from '../composables/useBranding'
 
 const isLoading = ref(true)
+const { branding, initBranding } = useBranding()
+initBranding()
+
+const siteName = computed(() => branding.value.siteName || 'Sarilaya')
+const primaryLogo = computed(() => branding.value.logoUrl || '/MainSarilayaLogo.png')
 
 onMounted(() => {
   // Hide loader after a short delay to ensure smooth transition

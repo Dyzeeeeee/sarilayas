@@ -4,8 +4,8 @@
       <!-- Logo -->
       <div class="mb-8">
         <img
-          src="/MainSarilayaLogo.png"
-          alt="Sarilaya Logo"
+          :src="primaryLogo"
+          :alt="`${siteName} Logo`"
           class="h-24 md:h-32 w-auto mx-auto object-contain"
         />
       </div>
@@ -36,7 +36,14 @@
 </template>
 
 <script setup>
-// No script needed - static component
+import { computed } from 'vue'
+import { useBranding } from '../composables/useBranding'
+
+const { branding, initBranding } = useBranding()
+initBranding()
+
+const siteName = computed(() => branding.value.siteName || 'Sarilaya')
+const primaryLogo = computed(() => branding.value.logoUrl || '/MainSarilayaLogo.png')
 </script>
 
 <style scoped>

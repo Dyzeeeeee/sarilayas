@@ -14,16 +14,16 @@
           <div class="flex-shrink-0">
             <a @click="handleLogoClick" class="flex items-center gap-2 text-xl font-bold text-white hover:opacity-90 transition-opacity cursor-pointer">
               <img 
-                src="/MainSarilayaLogo.png" 
-                alt="Sarilaya Logo" 
+                :src="primaryLogo" 
+                :alt="`${siteName} logo`" 
                 class="hidden lg:block h-10 w-auto object-contain"
               />
               <img 
-                src="/SarilayaLogo.png" 
-                alt="Sarilaya Logo" 
+                :src="compactLogo" 
+                :alt="`${siteName} logo`" 
                 class="lg:hidden h-8 w-8 object-contain"
               />
-              <span>{{ pageTitle }}</span>
+              <span>{{ siteName }}</span>
             </a>
           </div>
 
@@ -399,10 +399,17 @@ import ViewToggler from '../components/ViewToggler.vue'
 import ToastContainer from '../components/ToastContainer.vue'
 import { useNotifications } from '../composables/useNotifications'
 import { useBodyScrollLock } from '../composables/useBodyScrollLock'
+import { useBranding } from '../composables/useBranding'
 
 const route = useRoute()
 const router = useRouter()
 const isScrolledToTop = ref(true)
+const { branding, initBranding } = useBranding()
+initBranding()
+
+const siteName = computed(() => branding.value.siteName || 'Sarilaya')
+const primaryLogo = computed(() => branding.value.logoUrl || '/MainSarilayaLogo.png')
+const compactLogo = computed(() => branding.value.compactLogoUrl || '/SarilayaLogo.png')
 
 // Notifications
 const {
@@ -684,8 +691,8 @@ watch(() => route.path, () => {
 provide('viewMode', currentViewMode)
 
 // Page title mapping
-const pageTitleMap = {
-  '/': 'Sarilaya',
+const routeTitleMap = {
+  '/': 'Home',
   '/news': 'Latest News',
   '/projects': 'Projects',
   '/media': 'Media',
@@ -696,9 +703,12 @@ const pageTitleMap = {
   '/about/chapters': 'Chapters',
 }
 
-const pageTitle = computed(() => {
-  return pageTitleMap[route.path] || 'Sarilaya'
-})
+const currentRouteLabel = computed(() => routeTitleMap[route.path] || siteName.value)
+
+watch([currentRouteLabel, siteName], ([label, site]) => {
+  if (typeof document === 'undefined') return
+  document.title = label === site ? site : `${label} • ${site}`
+}, { immediate: true })
 
 // Navigation
 const navItems = [

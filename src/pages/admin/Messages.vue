@@ -18,9 +18,9 @@
 
       <!-- Messages List -->
       <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
-        <div class="px-4 md:px-6 py-3 md:py-4 border-b border-gray-200 flex items-center justify-between">
+        <div class="px-4 md:px-6 py-3 md:py-4 border-b border-gray-200 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h2 class="text-base md:text-lg font-semibold text-gray-900">All Messages</h2>
-          <div class="flex items-center gap-2">
+          <div class="flex flex-wrap items-center gap-2">
             <button
               @click="filter = 'all'"
               class="px-2 py-0.5 text-xs font-medium rounded-full transition-colors"
@@ -71,7 +71,7 @@
             class="px-4 md:px-6 py-3 md:py-4 hover:bg-gray-50 transition-colors cursor-pointer"
             :class="{ 'bg-primary-50/30': !message.read }"
           >
-            <div class="flex items-center gap-4">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
               <!-- Avatar/Icon -->
               <div class="shrink-0">
                 <div class="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center">
@@ -80,8 +80,8 @@
               </div>
 
               <!-- Message Content -->
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-2 mb-1">
+              <div class="flex-1 min-w-0 w-full max-w-[35vw]">
+                <div class="flex flex-wrap items-center gap-1 sm:gap-2 mb-1">
                   <h3 class="text-sm font-semibold text-gray-900">{{ message.name }}</h3>
                   <span
                     v-if="!message.read"
@@ -89,13 +89,13 @@
                   >
                     New
                   </span>
-                  <span class="text-xs text-gray-400">•</span>
-                  <span class="text-xs text-primary-600">{{ message.email }}</span>
-                  <span class="text-xs text-gray-400">•</span>
+                  <span class="text-xs text-gray-400 hidden sm:inline">•</span>
+                  <span class="text-xs text-primary-600 break-all">{{ message.email }}</span>
+                  <span class="text-xs text-gray-400 hidden sm:inline">•</span>
                   <span class="text-xs text-gray-500">{{ formatDate(message.createdAt) }}</span>
                 </div>
-                <div class="text-sm font-medium text-gray-700 mb-1">{{ message.subject }}</div>
-                <p class="text-xs text-gray-600 line-clamp-2">{{ message.message }}</p>
+                <div class="text-sm font-medium text-gray-700 mb-1 break-words">{{ message.subject }}</div>
+                <p class="text-xs text-gray-600 line-clamp-3 sm:line-clamp-2">{{ message.message }}</p>
               </div>
             </div>
           </div>

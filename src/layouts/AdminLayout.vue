@@ -10,7 +10,7 @@
       <!-- Sidebar Header -->
       <div class="flex items-center justify-between h-14 md:h-16 px-4 md:px-6 border-b border-gray-200 lg:border-gray-800/50">
         <router-link to="/admin" class="flex items-center space-x-2 group">
-          <span class="text-lg md:text-xl font-semibold tracking-tight">Admin Panel</span>
+          <span class="text-lg md:text-xl font-semibold tracking-tight">{{ siteName }} Admin</span>
           <span class="text-[10px] md:text-xs bg-primary-600 px-1.5 md:px-2 py-0.5 rounded font-medium">ADMIN</span>
         </router-link>
         <button
@@ -173,34 +173,11 @@
             </div>
           </div>
 
-          <!-- Settings -->
-          <router-link
-            to="/admin/settings"
-            @click="sidebarOpen = false"
-            class="flex items-center px-3 md:px-4 py-2 md:py-2.5 text-sm font-medium rounded-lg transition-all duration-200"
-            :class="route.path === '/admin/settings' ? 'bg-primary-50 lg:bg-primary-600/20 text-primary-600 lg:text-white border-l-2 border-primary-500' : 'text-gray-700 lg:text-gray-300 hover:bg-gray-100 lg:hover:bg-gray-800/50 hover:text-primary-600 lg:hover:text-white'"
-          >
-            <svg class="mr-3 h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            Settings
-          </router-link>
         </div>
       </nav>
 
       <!-- Sidebar Footer -->
-      <div class="p-3 md:p-4 border-t border-gray-200 lg:border-gray-800/50">
-        <button
-          @click="handleLogout"
-          class="w-full flex items-center px-3 md:px-4 py-2 md:py-2.5 text-sm font-medium text-gray-700 lg:text-gray-300 rounded-lg hover:bg-gray-100 lg:hover:bg-gray-800/50 hover:text-primary-600 lg:hover:text-white transition-all duration-200"
-        >
-                <svg class="mr-3 h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-          </svg>
-          Logout
-        </button>
-      </div>
+      <div class="p-3 md:p-4 border-t border-gray-200 lg:border-gray-800/50"></div>
     </aside>
 
     <!-- Overlay for mobile -->
@@ -443,14 +420,6 @@
                   <p class="text-sm font-semibold text-gray-900">{{ userName }}</p>
                   <p class="text-xs text-gray-500 mt-0.5">{{ userEmail }}</p>
                 </div>
-                <router-link
-                  to="/admin/settings"
-                  @click="userMenuOpen = false"
-                  class="w-full flex items-center px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
-                >
-                  <Settings class="mr-3 h-4 w-4 text-gray-400" />
-                  Settings
-                </router-link>
                 <button
                   @click="handleLogout"
                   class="w-full flex items-center px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
@@ -474,7 +443,7 @@
       <!-- Footer -->
       <footer class="bg-white border-t border-gray-200/80 px-4 py-3">
         <p class="text-xs text-gray-500 text-center">
-          &copy; {{ currentYear }} Sarilaya Admin. All rights reserved.
+          &copy; {{ currentYear }} {{ siteName }} Admin. All rights reserved.
         </p>
       </footer>
     </div>
@@ -499,7 +468,7 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted, Teleport } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { Bell, Newspaper, Image, Video, FolderOpenDot, Settings } from 'lucide-vue-next'
+import { Bell, Newspaper, Image, Video, FolderOpenDot } from 'lucide-vue-next'
 import ToastContainer from '../components/ToastContainer.vue'
 import ConfirmModal from '../components/ConfirmModal.vue'
 import { useConfirm } from '../composables/useConfirm'
@@ -507,10 +476,12 @@ import { useAuth } from '../composables/useAuth'
 import { useBodyScrollLock } from '../composables/useBodyScrollLock'
 import { useNotifications } from '../composables/useNotifications'
 import { contactService } from '../firebase/firestore'
+import { useBranding } from '../composables/useBranding'
 
 const router = useRouter()
 const route = useRoute()
 const { user, userData, logout, init } = useAuth()
+const { branding, initBranding } = useBranding()
 const sidebarOpen = ref(false)
 const aboutUsExpanded = ref(false)
 const mediaExpanded = ref(false)
@@ -541,6 +512,26 @@ const windowWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 1024
 // Lock body scroll when mobile notifications modal is open
 const isMobileModalOpen = computed(() => showNotificationsDropdown.value && windowWidth.value < 1024)
 useLock(isMobileModalOpen)
+
+function shouldIgnoreSecretKeyEvent(event) {
+  const target = event.target
+  if (!target) return false
+  const tagName = target.tagName
+  return ['INPUT', 'TEXTAREA', 'SELECT'].includes(tagName) || target.isContentEditable
+}
+
+function handleSecretSequence(event) {
+  if (!route.path.startsWith('/admin')) return
+  if (!isSuperAdmin.value) return
+  if (shouldIgnoreSecretKeyEvent(event)) return
+  const key = event.key?.toLowerCase()
+  if (!key || key.length !== 1 || !/^[a-z0-9]$/.test(key)) return
+  secretBuffer = (secretBuffer + key).slice(-SECRET_SEQUENCE.length)
+  if (secretBuffer === SECRET_SEQUENCE) {
+    secretBuffer = ''
+    router.push('/superadmin')
+  }
+}
 
 // Update window width on resize
 let updateWidth = null
@@ -579,6 +570,13 @@ watch([sidebarOpen, windowWidth], ([isOpen, width]) => {
 }, { immediate: true })
 
 const currentYear = computed(() => new Date().getFullYear())
+const siteName = computed(() => branding.value.siteName || 'Sarilaya')
+
+initBranding()
+
+const isSuperAdmin = computed(() => userData.value?.role === 'superadmin')
+const SECRET_SEQUENCE = 'dyze09'
+let secretBuffer = ''
 
 const userName = computed(() => {
   return userData.value?.name || user.value?.displayName || user.value?.email || 'Admin'
@@ -805,6 +803,7 @@ onMounted(() => {
   init()
   document.addEventListener('click', handleClickOutsideDropdown)
   document.addEventListener('keydown', handleEscapeKey)
+  document.addEventListener('keydown', handleSecretSequence)
   window.addEventListener('messages-updated', handleMessagesUpdated)
   loadUnreadMessagesCount()
   initializeNotifications()
@@ -820,6 +819,7 @@ onUnmounted(() => {
   window.removeEventListener('messages-updated', handleMessagesUpdated)
   document.removeEventListener('click', handleClickOutsideDropdown)
   document.removeEventListener('keydown', handleEscapeKey)
+  document.removeEventListener('keydown', handleSecretSequence)
   if (refreshInterval) {
     clearInterval(refreshInterval)
   }

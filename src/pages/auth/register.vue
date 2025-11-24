@@ -3,9 +3,9 @@
     <div class="w-full max-w-md bg-white rounded-lg border border-gray-200/80 shadow-sm p-6">
       <!-- Logo and Title -->
       <div class="text-center mb-6">
-        <img :src="logo" alt="Sarilaya Logo" class="h-16 mx-auto mb-4 object-contain" />
+        <img :src="brandLogo" :alt="`${siteName} Logo`" class="h-16 mx-auto mb-4 object-contain" />
         <h1 class="text-xl font-semibold text-gray-900 tracking-tight">Create Account</h1>
-        <p class="text-xs text-gray-500 mt-1">Register for admin access</p>
+        <p class="text-xs text-gray-500 mt-1">Register for admin access on {{ siteName }}</p>
       </div>
 
       <!-- Error Message -->
@@ -94,14 +94,16 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import Button from '../../components/Button.vue'
 import { useAuth } from '../../composables/useAuth'
-import logo from '../../assets/SarilayaLogo.png'
+import { useBranding } from '../../composables/useBranding'
 
 const router = useRouter()
 const { register } = useAuth()
+const { branding, initBranding } = useBranding()
+initBranding()
 
 const name = ref('')
 const email = ref('')
@@ -109,6 +111,8 @@ const password = ref('')
 const loading = ref(false)
 const errorMessage = ref('')
 const successMessage = ref('')
+const siteName = computed(() => branding.value.siteName || 'Sarilaya')
+const brandLogo = computed(() => branding.value.compactLogoUrl || branding.value.logoUrl || '/SarilayaLogo.png')
 
 async function handleRegister() {
   if (password.value.length < 6) {

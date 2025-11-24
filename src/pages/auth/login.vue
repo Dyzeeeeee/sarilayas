@@ -31,10 +31,10 @@
         <!-- Logo and Title Section -->
         <div class="text-center mb-8">
           <div class="inline-block p-4 bg-white rounded-2xl shadow-lg mb-4">
-            <img :src="logo" alt="Sarilaya Logo" class="h-20 w-auto mx-auto object-contain" />
+            <img :src="brandLogo" :alt="`${siteName} Logo`" class="h-20 w-auto mx-auto object-contain" />
           </div>
           <h1 class="text-3xl font-bold text-gray-900 tracking-tight mb-2">Welcome Back</h1>
-          <p class="text-sm text-gray-600">Sign in to access the admin panel</p>
+          <p class="text-sm text-gray-600">Sign in to manage {{ siteName }}</p>
         </div>
 
         <!-- Login Card -->
@@ -120,14 +120,16 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import Button from '../../components/Button.vue'
 import { useAuth } from '../../composables/useAuth'
-import logo from '../../assets/Sarilaya Logo.png'
+import { useBranding } from '../../composables/useBranding'
 
 const router = useRouter()
 const { login } = useAuth()
+const { branding, initBranding } = useBranding()
+initBranding()
 
 const email = ref('')
 const password = ref('')
@@ -142,6 +144,9 @@ onMounted(() => {
   }, 500)
 })
 
+const siteName = computed(() => branding.value.siteName || 'Sarilaya')
+const brandLogo = computed(() => branding.value.compactLogoUrl || branding.value.logoUrl || '/SarilayaLogo.png')
+
 async function handleLogin() {
   loading.value = true
   errorMessage.value = ''
@@ -149,7 +154,23 @@ async function handleLogin() {
   const result = await login(email.value, password.value)
   
   if (result.success) {
-    router.push('/admin')
+    try {
+      const { authService } = await import('../../firebase/auth')
+      const current = authService.getCurrentUser()
+      if (current) {
+        const userDoc = await authService.getUserData(current.uid)
+        if (userDoc?.role === 'superadmin') {
+          router.push('/superadmin')
+        } else {
+          router.push('/admin')
+        }
+      } else {
+        router.push('/admin')
+      }
+    } catch (error) {
+      console.error('Error resolving user role after login:', error)
+      router.push('/admin')
+    }
   } else {
     errorMessage.value = result.error
     setTimeout(() => {

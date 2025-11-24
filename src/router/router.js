@@ -5,6 +5,7 @@ import Home from '../pages/Home.vue'
 import News from '../pages/News.vue'
 import NewsDetail from '../pages/NewsDetail.vue'
 import Projects from '../pages/Projects.vue'
+import ProjectDetail from '../pages/ProjectDetail.vue'
 import Media from '../pages/Media.vue'
 import Contact from '../pages/Contact.vue'
 import About from '../pages/about/About.vue'
@@ -22,7 +23,8 @@ import AdminVideos from '../pages/admin/Videos.vue'
 import AdminPhotos from '../pages/admin/Photos.vue'
 import AdminNews from '../pages/admin/News.vue'
 import AdminProjects from '../pages/admin/Projects.vue'
-import AdminSettings from '../pages/admin/Settings.vue'
+import SuperAdminSettings from '../pages/superadmin/Settings.vue'
+import SuperAdminUsers from '../pages/superadmin/Users.vue'
 import SiteDown from '../components/SiteDown.vue'
 import NotFound from '../pages/NotFound.vue'
 
@@ -32,6 +34,7 @@ const routes = [
   { path: '/news/:id', name: 'NewsDetail', component: NewsDetail },
   { path: '/projects', name: 'Projects', component: Projects },
   { path: '/media', name: 'Media', component: Media },
+  { path: '/projects/:id', name: 'ProjectDetail', component: ProjectDetail },
   { path: '/contact', name: 'Contact', component: Contact },
   { path: '/about', name: 'About', component: About },
   { path: '/about/officers', name: 'Officers', component: Officers },
@@ -51,7 +54,9 @@ const routes = [
   { path: '/admin/news', name: 'AdminNews', component: AdminNews, meta: { requiresAuth: true } },
   { path: '/admin/projects', name: 'AdminProjects', component: AdminProjects, meta: { requiresAuth: true } },
   { path: '/admin/messages', name: 'AdminMessages', component: () => import('../pages/admin/Messages.vue'), meta: { requiresAuth: true } },
-  { path: '/admin/settings', name: 'AdminSettings', component: AdminSettings, meta: { requiresAuth: true } },
+  { path: '/superadmin', redirect: '/superadmin/settings' },
+  { path: '/superadmin/settings', name: 'SuperAdminSettings', component: SuperAdminSettings, meta: { requiresAuth: true, requiresSuperAdmin: true } },
+  { path: '/superadmin/users', name: 'SuperAdminUsers', component: SuperAdminUsers, meta: { requiresAuth: true, requiresSuperAdmin: true } },
   { path: '/site-down', name: 'SiteDown', component: SiteDown },
   // Catch-all route for 404 - must be last
   { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
@@ -80,10 +85,18 @@ router.beforeEach(async (to, from, next) => {
     await auth.waitForAuth()
     
     const isAuthenticated = !!auth.user.value
+    const userRole = auth.userData.value?.role
+    const isSuperAdmin = userRole === 'superadmin'
     
     // Check if route requires auth
     if (to.meta.requiresAuth && !isAuthenticated) {
       next('/login')
+      return
+    }
+
+    // Check if route requires super admin privileges
+    if (to.meta.requiresSuperAdmin && !isSuperAdmin) {
+      next('/admin')
       return
     }
     

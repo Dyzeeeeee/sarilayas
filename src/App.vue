@@ -2,16 +2,19 @@
 import { ref, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from './composables/useAuth'
+import { useBranding } from './composables/useBranding'
 import PageLoader from './components/PageLoader.vue'
 import { settingsService } from './firebase/firestore'
 
 const router = useRouter()
 const auth = useAuth()
+const { initBranding } = useBranding()
 const isInitialLoad = ref(false) // Start as false, only show if loader is enabled
 const showPageLoader = ref(false) // Start as false, will be set based on setting
 
 onMounted(async () => {
   try {
+    initBranding()
     // Check if page loader is enabled FIRST
     try {
       const settings = await settingsService.getSettings()

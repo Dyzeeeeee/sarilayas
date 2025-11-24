@@ -3,6 +3,15 @@ import { app } from './config'
 
 const db = getFirestore(app)
 
+const defaultSettings = {
+  siteEnabled: true,
+  pageLoaderEnabled: true,
+  siteName: 'Sarilaya',
+  logoUrl: '/MainSarilayaLogo.png',
+  compactLogoUrl: '/SarilayaLogo.png',
+  primaryColor: '#9333ea',
+}
+
 // Generic CRUD operations
 export const firestoreService = {
   // Get a single document
@@ -394,15 +403,19 @@ export const settingsService = {
   // Get site settings
   async getSettings() {
     const settings = await firestoreService.getDocument('settings', 'site')
-    // Default to enabled if no settings exist
     if (!settings) {
-      return { siteEnabled: true, pageLoaderEnabled: true }
+      return { ...defaultSettings }
     }
-    // Return settings with defaults for undefined values
+
     return {
+      ...defaultSettings,
       ...settings,
-      siteEnabled: settings.siteEnabled !== undefined ? settings.siteEnabled : true,
-      pageLoaderEnabled: settings.pageLoaderEnabled !== undefined ? settings.pageLoaderEnabled : true
+      siteEnabled: settings.siteEnabled !== undefined ? settings.siteEnabled : defaultSettings.siteEnabled,
+      pageLoaderEnabled: settings.pageLoaderEnabled !== undefined ? settings.pageLoaderEnabled : defaultSettings.pageLoaderEnabled,
+      siteName: settings.siteName || defaultSettings.siteName,
+      logoUrl: settings.logoUrl || defaultSettings.logoUrl,
+      compactLogoUrl: settings.compactLogoUrl || defaultSettings.compactLogoUrl,
+      primaryColor: settings.primaryColor || defaultSettings.primaryColor,
     }
   },
 
@@ -414,18 +427,30 @@ export const settingsService = {
   // Subscribe to real-time settings updates
   subscribeToSettings(callback) {
     const docRef = doc(db, 'settings', 'site')
-    return onSnapshot(docRef, (docSnap) => {
-      if (docSnap.exists()) {
-        callback({ id: docSnap.id, ...docSnap.data() })
-      } else {
-        // Default to enabled if no settings exist
-        callback({ siteEnabled: true })
+    return onSnapshot(
+      docRef,
+      (docSnap) => {
+        if (docSnap.exists()) {
+          callback({
+            ...defaultSettings,
+            id: docSnap.id,
+            ...docSnap.data(),
+          })
+        } else {
+          callback({ ...defaultSettings })
+        }
+      },
+      (error) => {
+        console.error('Error subscribing to settings:', error)
+        callback({ ...defaultSettings })
       }
-    }, (error) => {
-      console.error('Error subscribing to settings:', error)
-      // Default to enabled on error
-      callback({ siteEnabled: true })
-    })
-  }
+    )
+  },
+}
+
+export const userService = {
+  async getUsers() {
+    return await firestoreService.getCollection('users', null, 'createdAt', 'desc')
+  },
 }
 
