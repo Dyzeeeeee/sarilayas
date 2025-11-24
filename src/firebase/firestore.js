@@ -454,3 +454,72 @@ export const userService = {
   },
 }
 
+export const visitorsService = {
+  async recordVisit(data) {
+    const payload = {
+      route: data.route || '/',
+      referrer: data.referrer || (typeof document !== 'undefined' ? document.referrer : ''),
+      userAgent: data.userAgent || '',
+      siteEnabled: data.siteEnabled !== false,
+      createdAt: new Date(),
+    }
+    return await addDoc(collection(db, 'visits'), payload)
+  },
+
+  async getVisitSummary(limitCount = 20) {
+    const q = query(collection(db, 'visits'), orderBy('createdAt', 'desc'), firestoreLimit(limitCount))
+    const snapshot = await getDocs(q)
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+  },
+}
+
+export const eventsService = {
+  async getEvents() {
+    const q = query(collection(db, 'events'), orderBy('startAt', 'desc'))
+    const snapshot = await getDocs(q)
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+  },
+
+  subscribeToEvents(callback) {
+    const q = query(collection(db, 'events'), orderBy('startAt', 'desc'))
+    return onSnapshot(q, (snapshot) => {
+      callback(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })))
+    })
+  },
+
+  async createEvent(data) {
+    return await addDoc(collection(db, 'events'), {
+      ...data,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    })
+  },
+
+  async updateEvent(id, data) {
+    return await updateDoc(doc(db, 'events', id), {
+      ...data,
+      updatedAt: new Date(),
+    })
+  },
+
+  async deleteEvent(id) {
+    return await deleteDoc(doc(db, 'events', id))
+  },
+
+  async getActiveEvent() {
+    const now = new Date()
+    const q = query(
+      collection(db, 'events'),
+      where('active', '==', true),
+      orderBy('startAt', 'desc'),
+      firestoreLimit(1)
+    )
+    const snapshot = await getDocs(q)
+    const [eventDoc] = snapshot.docs
+    if (!eventDoc) return null
+    const data = eventDoc.data()
+    if (data.endAt && data.endAt.toDate && data.endAt.toDate() < now) return null
+    return { id: eventDoc.id, ...data }
+  },
+}
+

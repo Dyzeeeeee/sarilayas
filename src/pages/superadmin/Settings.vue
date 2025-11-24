@@ -97,6 +97,49 @@
           </div>
         </section>
       </div>
+      
+      <!-- Visits Snapshot -->
+      <section class="bg-white border border-gray-200 rounded-2xl p-5 md:p-6 shadow-sm">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+          <div>
+            <h2 class="text-lg font-semibold text-gray-900">Recent Visits</h2>
+            <p class="text-sm text-gray-500">Last {{ visitSummaryLimit }} recorded visits</p>
+          </div>
+          <button
+            @click="refreshVisitSummary"
+            :disabled="visitSummaryLoading"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 hover:bg-gray-50 transition disabled:opacity-50"
+          >
+            <svg :class="['h-4 w-4', visitSummaryLoading && 'animate-spin']" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v6h6M20 20v-6h-6M5 13a7 7 0 0012 4M19 11a7 7 0 00-12-4" />
+            </svg>
+            Refresh
+          </button>
+        </div>
+        <div v-if="visitSummaryLoading" class="space-y-3">
+          <div v-for="n in 4" :key="n" class="h-12 rounded-lg bg-gray-100 animate-pulse"></div>
+        </div>
+        <div v-else-if="visitSummary.length === 0" class="text-center py-8 text-sm text-gray-500">
+          No visit data recorded yet.
+        </div>
+        <div v-else class="space-y-3">
+          <div
+            v-for="visit in visitSummary"
+            :key="visit.id"
+            class="p-3 rounded-xl border border-gray-200 hover:border-primary-300 transition"
+          >
+            <div class="flex items-center justify-between text-sm text-gray-600">
+              <span class="font-semibold text-gray-900">{{ visit.route }}</span>
+              <span>{{ formatVisitDate(visit.createdAt) }}</span>
+            </div>
+            <div class="mt-1 text-xs text-gray-500 flex flex-wrap gap-2">
+              <span>Referrer: {{ visit.referrer || 'Direct' }}</span>
+              <span>UA: {{ truncateUserAgent(visit.userAgent) }}</span>
+              <span>Status: {{ visit.siteEnabled ? 'Live' : 'Down' }}</span>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <!-- Site Controls -->
       <div class="grid gap-4 md:gap-6 lg:grid-cols-2">
@@ -374,6 +417,7 @@ import SuperAdminLayout from '../../layouts/SuperAdminLayout.vue'
 import { settingsService } from '../../firebase/firestore'
 import { useToast } from '../../composables/useToast'
 import { useBranding } from '../../composables/useBranding'
+import { useVisitors } from '../../composables/useVisitors'
 
 const FALLBACK_PRIMARY_LOGO = '/MainSarilayaLogo.png'
 const FALLBACK_COMPACT_LOGO = '/SarilayaLogo.png'
@@ -397,6 +441,7 @@ const compactLogoInput = ref(null)
 
 const { success: showSuccess, error: showError } = useToast()
 const { branding } = useBranding()
+const { getVisitSummary } = useVisitors()
 
 const paletteTones = [100, 300, 500, 700, 900]
 const colorPresets = [
@@ -425,6 +470,9 @@ const colorDetails = computed(() => {
 const primaryLogoMeta = computed(() => getLogoMetaSummary(logoUrl.value))
 const compactLogoMeta = computed(() => getLogoMetaSummary(compactLogoUrl.value))
 const LOGO_HELP_TEXT = 'PNG, JPG, or WEBP up to ~512KB. Click or drag & drop to replace.'
+const visitSummary = ref([])
+const visitSummaryLimit = 25
+const visitSummaryLoading = ref(false)
 
 const clipboardAvailable = typeof navigator !== 'undefined' && !!navigator.clipboard
 let copyTimeoutId = null
@@ -565,6 +613,27 @@ function resetBrandingToDefaults() {
   showSuccess('Reverted to live branding (unsaved)')
 }
 
+function formatVisitDate(date) {
+  if (!date) return 'Unknown'
+  let dateObj = date
+  if (date.toDate) {
+    dateObj = date.toDate()
+  } else if (!(date instanceof Date)) {
+    dateObj = new Date(date)
+  }
+  return dateObj.toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  })
+}
+
+function truncateUserAgent(agent = '') {
+  if (!agent) return 'Unknown device'
+  return agent.length > 50 ? agent.slice(0, 47) + '...' : agent
+}
+
 async function loadSettings() {
   try {
     const settings = await settingsService.getSettings()
@@ -577,6 +646,17 @@ async function loadSettings() {
   } catch (error) {
     console.error('Error loading settings:', error)
     showError('Unable to load settings')
+  }
+}
+
+async function loadVisitSummary() {
+  visitSummaryLoading.value = true
+  try {
+    visitSummary.value = await getVisitSummary(visitSummaryLimit)
+  } catch (error) {
+    console.error('Error loading visit summary:', error)
+  } finally {
+    visitSummaryLoading.value = false
   }
 }
 
@@ -701,8 +781,13 @@ async function saveBranding() {
   }
 }
 
+async function refreshVisitSummary() {
+  await loadVisitSummary()
+}
+
 onMounted(() => {
   loadSettings()
+  loadVisitSummary()
 })
 
 onBeforeUnmount(() => {

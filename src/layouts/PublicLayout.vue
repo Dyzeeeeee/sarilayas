@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex flex-col bg-primary-100">
+  <div class="min-h-screen flex flex-col bg-primary-100" :style="eventThemeStyle">
     <!-- Header -->
     <header 
       class="bg-gradient-to-r from-primary-400 via-primary-500 to-primary-700 shadow-sm sticky z-50 transition-all duration-300 ease-in-out py-1 md:py-0 top-0 lg:top-0 lg:rounded-none lg:mx-0"
@@ -23,7 +23,10 @@
                 :alt="`${siteName} logo`" 
                 class="lg:hidden h-8 w-8 object-contain"
               />
-              <span>{{ siteName }}</span>
+              <div class="flex flex-col leading-tight">
+                <span>{{ siteName }}</span>
+                <span v-if="activeEventTagline" class="text-[11px] font-medium text-white/70">{{ activeEventTagline }}</span>
+              </div>
             </a>
           </div>
 
@@ -386,6 +389,9 @@
       </div>
     </nav>
     
+    <!-- Event Greeting Modal -->
+    <EventGreetingModal :event="activeEvent" :open="showEventModal" @close="dismissEventModal" />
+
     <!-- Toast Container -->
     <ToastContainer />
   </div>
@@ -397,19 +403,31 @@ import { useRoute, useRouter } from 'vue-router'
 import { Newspaper, Briefcase, Users, Video, Image, Home, FolderOpenDot, BadgeInfo, Mail, Bell } from 'lucide-vue-next'
 import ViewToggler from '../components/ViewToggler.vue'
 import ToastContainer from '../components/ToastContainer.vue'
+import EventGreetingModal from '../components/EventGreetingModal.vue'
 import { useNotifications } from '../composables/useNotifications'
 import { useBodyScrollLock } from '../composables/useBodyScrollLock'
 import { useBranding } from '../composables/useBranding'
+import { useVisitors } from '../composables/useVisitors'
+import { useEvents } from '../composables/useEvents'
 
 const route = useRoute()
 const router = useRouter()
 const isScrolledToTop = ref(true)
 const { branding, initBranding } = useBranding()
+const { recordVisit } = useVisitors()
+const { activeEvent: rawActiveEvent, attachPresetDefaults } = useEvents()
 initBranding()
 
 const siteName = computed(() => branding.value.siteName || 'Sarilaya')
 const primaryLogo = computed(() => branding.value.logoUrl || '/MainSarilayaLogo.png')
 const compactLogo = computed(() => branding.value.compactLogoUrl || '/SarilayaLogo.png')
+const activeEvent = computed(() => rawActiveEvent.value ? attachPresetDefaults(rawActiveEvent.value) : null)
+const activeEventTagline = computed(() => {
+  if (!activeEvent.value) return ''
+  return activeEvent.value.title || activeEvent.value.headline || activeEvent.value.label || ''
+})
+const showEventModal = ref(false)
+const EVENT_SEEN_KEY = 'sarilaya_event_seen'
 
 // Notifications
 const {
@@ -429,6 +447,15 @@ const notificationsDropdown = ref(null)
 const mobileNotificationsDropdown = ref(null)
 const notificationButton = ref(null)
 const mobileNotificationButton = ref(null)
+const eventThemeStyle = computed(() => {
+  if (!activeEvent.value) return {}
+  const bg = activeEvent.value.colors?.background || '#0f172a'
+  const accent = activeEvent.value.colors?.accent || '#f97316'
+  document.documentElement.style.setProperty('--color-primary-500', accent)
+  return {
+    backgroundImage: `linear-gradient(135deg, ${bg}0D, ${accent}0D)`,
+  }
+})
 
 // Lock body scroll when mobile notifications modal is open
 const { useLock } = useBodyScrollLock()
@@ -489,6 +516,8 @@ onMounted(() => {
   // Scroll detection
   window.addEventListener('scroll', handleScroll)
   handleScroll() // Check initial scroll position
+
+  recordVisitSafe(route.path, typeof document !== 'undefined' ? document.referrer : '')
 })
 
 onUnmounted(() => {
@@ -773,21 +802,59 @@ const handleLogoClick = () => {
 
 // Handle navigation click (topbar and bottom nav)
 const handleNavClick = (path) => {
+  const previous = route.path
   if (isActiveRoute(path)) {
-    // If already on this page, scroll to top and dispatch event to refetch data
     window.scrollTo({ top: 0, behavior: 'smooth' })
-    window.dispatchEvent(new CustomEvent('refetch-page-data', { 
-      detail: { path: path } 
-    }))
+    window.dispatchEvent(new CustomEvent('refetch-page-data', { detail: { path } }))
   } else {
-    // Navigate to the new page
     router.push(path)
+  }
+  recordVisitSafe(path, previous)
+}
+
+const handleBottomNavClick = (item) => {
+  handleNavClick(item.path)
+}
+
+const recordVisitSafe = async (path, previousRoute) => {
+  try {
+    const userAgent = typeof window !== 'undefined' ? window.navigator.userAgent : ''
+    await recordVisit({
+      route: path,
+      referrer: previousRoute,
+      userAgent,
+      siteEnabled: true,
+    })
+  } catch (error) {
+    if (import.meta.env.DEV) {
+      console.error('Visit tracking failed', error)
+    }
   }
 }
 
-// Handle bottom nav item click
-const handleBottomNavClick = (item) => {
-  handleNavClick(item.path)
+watch(() => activeEvent.value?.id, (id) => {
+  if (!id) {
+    showEventModal.value = false
+    if (branding.value?.primaryColor) {
+      applyBranding({ primaryColor: branding.value.primaryColor })
+    }
+    return
+  }
+  const seenKey = `${EVENT_SEEN_KEY}:${id}`
+  const hasSeen = typeof window !== 'undefined' ? sessionStorage.getItem(seenKey) : null
+  if (!hasSeen) {
+    showEventModal.value = true
+  }
+  if (activeEvent.value?.colors?.accent) {
+    applyBranding({ primaryColor: activeEvent.value.colors.accent })
+  }
+})
+
+const dismissEventModal = () => {
+  if (activeEvent.value?.id && typeof window !== 'undefined') {
+    sessionStorage.setItem(`${EVENT_SEEN_KEY}:${activeEvent.value.id}`, 'seen')
+  }
+  showEventModal.value = false
 }
 </script>
 

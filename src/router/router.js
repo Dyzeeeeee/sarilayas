@@ -25,6 +25,7 @@ import AdminNews from '../pages/admin/News.vue'
 import AdminProjects from '../pages/admin/Projects.vue'
 import SuperAdminSettings from '../pages/superadmin/Settings.vue'
 import SuperAdminUsers from '../pages/superadmin/Users.vue'
+import SuperAdminEvents from '../pages/superadmin/Events.vue'
 import SiteDown from '../components/SiteDown.vue'
 import NotFound from '../pages/NotFound.vue'
 
@@ -57,6 +58,7 @@ const routes = [
   { path: '/superadmin', redirect: '/superadmin/settings' },
   { path: '/superadmin/settings', name: 'SuperAdminSettings', component: SuperAdminSettings, meta: { requiresAuth: true, requiresSuperAdmin: true } },
   { path: '/superadmin/users', name: 'SuperAdminUsers', component: SuperAdminUsers, meta: { requiresAuth: true, requiresSuperAdmin: true } },
+  { path: '/superadmin/events', name: 'SuperAdminEvents', component: SuperAdminEvents, meta: { requiresAuth: true, requiresSuperAdmin: true } },
   { path: '/site-down', name: 'SiteDown', component: SiteDown },
   // Catch-all route for 404 - must be last
   { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },

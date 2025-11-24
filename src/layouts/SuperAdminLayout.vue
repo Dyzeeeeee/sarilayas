@@ -112,7 +112,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { Settings, Users, LogOut } from 'lucide-vue-next'
+import { Settings, Users, LogOut, Sparkles } from 'lucide-vue-next'
 import ToastContainer from '../components/ToastContainer.vue'
 import ConfirmModal from '../components/ConfirmModal.vue'
 import { useAuth } from '../composables/useAuth'
@@ -132,6 +132,7 @@ const { confirmState, handleConfirm, handleCancel, confirm } = useConfirm()
 
 const navigation = [
   { to: '/superadmin/settings', label: 'Brand & Settings', icon: Settings },
+  { to: '/superadmin/events', label: 'Events & Greetings', icon: Sparkles },
   { to: '/superadmin/users', label: 'User Directory', icon: Users },
 ]
 
