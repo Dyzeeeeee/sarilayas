@@ -100,15 +100,15 @@
         </div>
 
         <!-- Photos List View -->
-        <div v-else-if="photos.length > 0 && viewMode === 'list'" class="divide-y divide-gray-200">
+        <div v-else-if="photos.length > 0 && viewMode === 'list'" class="divide-y divide-gray-200 overflow-hidden">
           <div
             v-for="photo in photos"
             :key="photo.id"
-            class="group p-3 md:p-4 hover:bg-gray-50 transition-colors"
+            class="group p-3 md:p-4 hover:bg-gray-50 transition-colors min-w-0"
           >
-            <div class="flex items-center gap-3 md:gap-4 min-w-0">
+            <div class="flex items-center gap-3 md:gap-4 min-w-0 w-full">
               <!-- Photo Thumbnail -->
-              <div class="w-24 md:w-32 h-24 md:h-32 bg-gray-100 rounded-lg overflow-hidden shrink-0 relative">
+              <div class="w-24 md:w-32 h-24 md:h-32 rounded-lg overflow-hidden bg-gray-100 shrink-0">
                 <img
                   :src="photo.url"
                   :alt="photo.title || 'Photo'"
@@ -117,27 +117,30 @@
               </div>
 
               <!-- Photo Info -->
-              <div class="flex-1 min-w-0">
-                <h3 class="text-sm md:text-base font-semibold text-gray-900 mb-1 line-clamp-1">{{ photo.title || 'Untitled' }}</h3>
-                <p v-if="photo.description" class="text-xs md:text-sm text-gray-600 line-clamp-2 mb-1">{{ photo.description }}</p>
-                <p class="text-xs text-gray-500">{{ formatDate(photo.createdAt) }}</p>
+              <div class="flex-1 min-w-0 max-w-[35vw] overflow-hidden">
+                <h3 class="text-sm md:text-base font-semibold text-gray-900 mb-1 line-clamp-1 min-w-0">{{ photo.title || 'Untitled' }}</h3>
+                <p v-if="photo.description" class="text-xs md:text-sm text-gray-600 mb-1 line-clamp-2 min-w-0">{{ photo.description }}</p>
+                <p class="text-[10px] md:text-xs text-gray-500 flex items-center gap-1 min-w-0">
+                  <Clock class="h-3 w-3 shrink-0" />
+                  <span class="truncate">{{ formatDate(photo.createdAt) }}</span>
+                </p>
               </div>
 
               <!-- Actions -->
-              <div class="flex items-center gap-2 shrink-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+              <div class="flex items-center gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                 <button
                   @click="handleEdit(photo)"
-                  class="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                  class="p-2 text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                   title="Edit photo"
                 >
-                  <Edit class="h-4 w-4 text-gray-700" />
+                  <Edit class="h-4 w-4" />
                 </button>
                 <button
                   @click="handleDelete(photo.id)"
-                  class="p-2 rounded-lg hover:bg-red-50 transition-colors"
+                  class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                   title="Delete photo"
                 >
-                  <Trash2 class="h-4 w-4 text-red-600" />
+                  <Trash2 class="h-4 w-4" />
                 </button>
               </div>
             </div>
@@ -421,7 +424,7 @@ import { mediaService } from '../../firebase/firestore'
 import { useToast } from '../../composables/useToast'
 import { useConfirm } from '../../composables/useConfirm'
 import { useBodyScrollLock } from '../../composables/useBodyScrollLock'
-import { Plus, Edit, Trash2, X, Grid3x3, List, Eye } from 'lucide-vue-next'
+import { Plus, Edit, Trash2, X, Grid3x3, List, Eye, Clock } from 'lucide-vue-next'
 
 const { success: showSuccess, error: showError } = useToast()
 const { confirm } = useConfirm()

@@ -21,10 +21,13 @@ function initNotificationSound() {
     // Try public folder first (Vite serves files from public/)
     notificationSound = new Audio('/notif.mp3')
     notificationSound.volume = 0.5
-    // Preload the sound
-    notificationSound.load().catch(err => {
-      console.warn('Could not preload notification sound:', err)
-    })
+    // Preload the sound - load() may not return a Promise in all browsers
+    const loadResult = notificationSound.load()
+    if (loadResult && typeof loadResult.catch === 'function') {
+      loadResult.catch(err => {
+        console.warn('Could not preload notification sound:', err)
+      })
+    }
   } catch (error) {
     console.warn('Could not load notification sound:', error)
   }

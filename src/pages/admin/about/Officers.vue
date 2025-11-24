@@ -547,11 +547,13 @@ async function loadOfficers() {
   loadingData.value = true
   try {
     const officersData = await aboutUsService.getOfficers()
-    // Ensure all officers have an index, assign if missing
-    officers.value = officersData.map((officer, idx) => ({
-      ...officer,
-      index: officer.index !== undefined ? officer.index : idx
-    }))
+    // Ensure all officers have an index, assign if missing, then sort by index (lowest first)
+    officers.value = officersData
+      .map((officer, idx) => ({
+        ...officer,
+        index: officer.index !== undefined ? officer.index : idx
+      }))
+      .sort((a, b) => (a.index || 0) - (b.index || 0))
     const aboutData = await aboutUsService.getAboutUs()
     officersImage.value = aboutData?.officersImage || ''
   } catch (error) {

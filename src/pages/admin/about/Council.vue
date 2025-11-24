@@ -442,11 +442,13 @@ async function loadMembers() {
   loadingData.value = true
   try {
     const membersData = await aboutUsService.getNationalCouncil()
-    // Ensure all members have an index, assign if missing
-    members.value = membersData.map((member, idx) => ({
-      ...member,
-      index: member.index !== undefined ? member.index : idx
-    }))
+    // Ensure all members have an index, assign if missing, then sort by index (lowest first)
+    members.value = membersData
+      .map((member, idx) => ({
+        ...member,
+        index: member.index !== undefined ? member.index : idx
+      }))
+      .sort((a, b) => (a.index || 0) - (b.index || 0))
     const aboutData = await aboutUsService.getAboutUs()
     nationalCouncilImage.value = aboutData?.nationalCouncilImage || ''
   } catch (error) {

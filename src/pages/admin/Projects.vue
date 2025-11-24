@@ -108,13 +108,13 @@
         </div>
 
         <!-- Projects List View -->
-        <div v-else-if="projects.length > 0 && viewMode === 'list'" class="divide-y divide-gray-200">
+        <div v-else-if="projects.length > 0 && viewMode === 'list'" class="divide-y divide-gray-200 overflow-hidden">
           <div
             v-for="project in projects"
             :key="project.id"
-            class="group p-3 md:p-4 hover:bg-gray-50 transition-colors"
+            class="group p-3 md:p-4 hover:bg-gray-50 transition-colors min-w-0"
           >
-            <div class="flex items-center gap-3 md:gap-4">
+            <div class="flex items-center gap-3 md:gap-4 min-w-0 w-full">
               <!-- Thumbnail -->
               <div class="w-24 md:w-32 h-16 md:h-20 rounded-lg overflow-hidden bg-gray-100 shrink-0">
                 <img
@@ -129,13 +129,13 @@
               </div>
 
               <!-- Content -->
-              <div class="flex-1 min-w-0">
-                <h3 class="text-sm md:text-base font-semibold text-gray-900 mb-1 line-clamp-1">{{ project.title || 'Untitled' }}</h3>
-                <p v-if="project.tagline" class="text-xs md:text-sm text-gray-600 mb-1 line-clamp-1 italic">{{ project.tagline }}</p>
-                <p v-if="project.description" class="text-xs md:text-sm text-gray-600 mb-1 line-clamp-2">{{ project.description }}</p>
-                <p class="text-[10px] md:text-xs text-gray-500 flex items-center gap-1">
-                  <Clock class="h-3 w-3" />
-                  {{ formatDate(project.createdAt) }}
+              <div class="flex-1 min-w-0 max-w-[35vw] overflow-hidden">
+                <h3 class="text-sm md:text-base font-semibold text-gray-900 mb-1 line-clamp-1 min-w-0">{{ project.title || 'Untitled' }}</h3>
+                <p v-if="project.tagline" class="text-xs md:text-sm text-gray-600 mb-1 line-clamp-1 italic min-w-0">{{ project.tagline }}</p>
+                <p v-if="project.description" class="text-xs md:text-sm text-gray-600 mb-1 line-clamp-2 min-w-0">{{ project.description }}</p>
+                <p class="text-[10px] md:text-xs text-gray-500 flex items-center gap-1 min-w-0">
+                  <Clock class="h-3 w-3 shrink-0" />
+                  <span class="truncate">{{ formatDate(project.createdAt) }}</span>
                 </p>
               </div>
 

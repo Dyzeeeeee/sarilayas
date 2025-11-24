@@ -104,11 +104,11 @@
           <div
             v-for="video in videos"
             :key="video.id"
-            class="group p-3 md:p-4 hover:bg-gray-50 transition-colors"
+            class="group p-3 md:p-4 hover:bg-gray-50 transition-colors min-w-0"
           >
             <div class="flex items-center gap-3 md:gap-4 min-w-0">
               <!-- Video Thumbnail -->
-              <div class="w-24 md:w-32 h-16 md:h-20 bg-gray-100 rounded-lg overflow-hidden shrink-0 relative">
+              <div class="w-24 md:w-32 h-16 md:h-20 rounded-lg overflow-hidden bg-gray-100 shrink-0">
                 <img
                   :src="getYouTubeThumbnail(video.url)"
                   :alt="video.title"
@@ -119,29 +119,28 @@
               <!-- Video Info -->
               <div class="flex-1 min-w-0">
                 <h3 class="text-sm md:text-base font-semibold text-gray-900 mb-1 line-clamp-1">{{ video.title || 'Untitled' }}</h3>
-                <p v-if="video.description" class="text-xs md:text-sm text-gray-600 line-clamp-2 mb-1">{{ video.description }}</p>
-                <div class="flex items-center gap-2 text-xs text-gray-500 min-w-0">
-                  <span class="shrink-0">{{ formatDate(video.createdAt) }}</span>
-                  <span class="shrink-0">•</span>
-                  <span class="truncate min-w-0">{{ video.url }}</span>
-                </div>
+                <p v-if="video.description" class="text-xs md:text-sm text-gray-600 mb-1 line-clamp-2">{{ video.description }}</p>
+                <p class="text-[10px] md:text-xs text-gray-500 flex items-center gap-1">
+                  <Clock class="h-3 w-3" />
+                  {{ formatDate(video.createdAt) }}
+                </p>
               </div>
 
               <!-- Actions -->
-              <div class="flex items-center gap-2 shrink-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+              <div class="flex items-center gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                 <button
                   @click="handleEdit(video)"
-                  class="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                  class="p-2 text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                   title="Edit video"
                 >
-                  <Edit class="h-4 w-4 text-gray-700" />
+                  <Edit class="h-4 w-4" />
                 </button>
                 <button
                   @click="handleDelete(video.id)"
-                  class="p-2 rounded-lg hover:bg-red-50 transition-colors"
+                  class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                   title="Delete video"
                 >
-                  <Trash2 class="h-4 w-4 text-red-600" />
+                  <Trash2 class="h-4 w-4" />
                 </button>
               </div>
             </div>
@@ -388,7 +387,7 @@ import { mediaService } from '../../firebase/firestore'
 import { useToast } from '../../composables/useToast'
 import { useConfirm } from '../../composables/useConfirm'
 import { useBodyScrollLock } from '../../composables/useBodyScrollLock'
-import { Plus, Edit, Trash2, X, Grid3x3, List, Eye } from 'lucide-vue-next'
+import { Plus, Edit, Trash2, X, Grid3x3, List, Eye, Clock } from 'lucide-vue-next'
 
 const { success: showSuccess, error: showError } = useToast()
 const { confirm } = useConfirm()
@@ -517,6 +516,7 @@ async function fetchVideoMetadata() {
 }
 
 let unsubscribeVideos = null
+const isMounted = ref(true)
 
 async function loadVideos() {
   loadingData.value = true
@@ -525,6 +525,9 @@ async function loadVideos() {
   try {
     // Set up real-time listener with pagination (20 items)
     unsubscribeVideos = mediaService.subscribeToVideos((videosList) => {
+      // Check if component is still mounted before updating state
+      if (!isMounted.value) return
+      
       // Sort by newest first
       videos.value = videosList.sort((a, b) => {
         const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : (a.createdAt ? new Date(a.createdAt) : new Date(0))
@@ -533,13 +536,17 @@ async function loadVideos() {
       })
       if (!initialLoadComplete) {
         initialLoadComplete = true
-        loadingData.value = false
+        if (isMounted.value) {
+          loadingData.value = false
+        }
       }
     }, 20)
   } catch (error) {
     console.error('Error setting up videos subscription:', error)
-    showError('Failed to load videos')
-    loadingData.value = false
+    if (isMounted.value) {
+      showError('Failed to load videos')
+      loadingData.value = false
+    }
   }
 }
 
@@ -763,11 +770,13 @@ const handleBeforeUnload = (e) => {
 }
 
 onMounted(() => {
+  isMounted.value = true
   loadVideos()
   window.addEventListener('beforeunload', handleBeforeUnload)
 })
 
 onUnmounted(() => {
+  isMounted.value = false
   window.removeEventListener('beforeunload', handleBeforeUnload)
   if (unsubscribeVideos) {
     unsubscribeVideos()
