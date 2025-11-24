@@ -46,10 +46,16 @@
             <!-- About Section -->
             <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
               <h3 class="text-lg font-bold text-gray-900 mb-3">About Sarilaya</h3>
-              <p class="text-sm text-gray-600 leading-relaxed mb-4">
+              <div v-if="loading" class="space-y-2 mb-4">
+                <div class="h-3 bg-gray-200 rounded w-full animate-pulse"></div>
+                <div class="h-3 bg-gray-200 rounded w-full animate-pulse"></div>
+                <div class="h-3 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+              </div>
+              <p v-else class="text-sm text-gray-600 leading-relaxed mb-4">
                 {{ aboutData?.description || 'Connecting communities and fostering growth through meaningful initiatives and shared values.' }}
               </p>
               <router-link
+                v-if="!loading"
                 to="/about"
                 class="text-primary-600 hover:text-primary-700 font-medium text-sm inline-flex items-center gap-1"
               >
@@ -61,7 +67,13 @@
             <!-- Stats Card -->
             <div class="bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl p-6 text-white shadow-lg">
               <h3 class="text-lg font-bold mb-4">Community Stats</h3>
-              <div class="space-y-3">
+              <div v-if="loading" class="space-y-3">
+                <div v-for="n in 4" :key="n" class="flex items-center justify-between">
+                  <div class="h-4 bg-white/20 rounded w-24 animate-pulse"></div>
+                  <div class="h-8 bg-white/20 rounded w-12 animate-pulse"></div>
+                </div>
+              </div>
+              <div v-else class="space-y-3">
                 <div class="flex items-center justify-between">
                   <span class="text-primary-100">Total Projects</span>
                   <span class="font-bold text-2xl">{{ stats.projects }}</span>
@@ -71,34 +83,16 @@
                   <span class="font-bold text-2xl">{{ stats.news }}</span>
                 </div>
                 <div class="flex items-center justify-between">
-                  <span class="text-primary-100">Media Items</span>
-                  <span class="font-bold text-2xl">{{ stats.media }}</span>
+                  <span class="text-primary-100">Photos</span>
+                  <span class="font-bold text-2xl">{{ stats.photos }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-primary-100">Videos</span>
+                  <span class="font-bold text-2xl">{{ stats.videos }}</span>
                 </div>
               </div>
             </div>
 
-            <!-- Where We Are Stats -->
-            <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-              <h3 class="text-lg font-bold text-gray-900 mb-4">Where We Are</h3>
-              <div class="space-y-3">
-                <div class="flex items-center justify-between">
-                  <span class="text-gray-600">Regions</span>
-                  <span class="font-bold text-2xl text-primary-600">{{ whereWeAreStats.regions }}</span>
-                </div>
-                <div class="flex items-center justify-between">
-                  <span class="text-gray-600">Provinces</span>
-                  <span class="font-bold text-2xl text-primary-600">{{ whereWeAreStats.provinces }}</span>
-                </div>
-                <div class="flex items-center justify-between">
-                  <span class="text-gray-600">Municipalities</span>
-                  <span class="font-bold text-2xl text-primary-600">{{ whereWeAreStats.municipalities }}</span>
-                </div>
-                <div class="flex items-center justify-between">
-                  <span class="text-gray-600">Members</span>
-                  <span class="font-bold text-2xl text-primary-600">{{ whereWeAreStats.members }}</span>
-                </div>
-              </div>
-            </div>
           </div>
         </aside>
 
@@ -251,32 +245,31 @@
               </div>
             </div>
 
-            <!-- Recent Activity -->
+            <!-- Where We Are Stats -->
             <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-              <h3 class="text-lg font-bold text-gray-900 mb-4">Recent Activity</h3>
-              <div class="space-y-3">
-                <div v-for="(item, index) in filteredFeedItems.slice(0, 5)" :key="`recent-${item.id}`" 
-                     class="flex items-start gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
-                     @click="handleItemClick(item)">
-                  <!-- Image Preview -->
-                  <div v-if="getItemImage(item)" class="w-12 h-12 shrink-0 rounded-lg overflow-hidden bg-gray-100">
-                    <img
-                      :src="getItemImage(item)"
-                      :alt="item.title"
-                      class="w-full h-full object-cover"
-                    />
-                  </div>
-                  <!-- Icon fallback if no image -->
-                  <div v-else :class="getTypeIconBgClass(item.type)" class="w-12 h-12 rounded-lg flex items-center justify-center shrink-0">
-                    <component :is="getTypeIcon(item.type)" :class="getTypeIconClass(item.type)" class="w-5 h-5" />
-                  </div>
-                  <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium text-gray-900 line-clamp-1">{{ item.title || 'Untitled' }}</p>
-                    <p class="text-xs text-gray-500 mt-1">{{ formatDate(getItemDate(item)) }}</p>
-                  </div>
+              <h3 class="text-lg font-bold text-gray-900 mb-4">Where We Are</h3>
+              <div v-if="loading" class="grid grid-cols-2 gap-4">
+                <div v-for="n in 4" :key="n" class="flex flex-col items-center text-center">
+                  <div class="h-6 bg-gray-200 rounded w-16 mb-2 animate-pulse"></div>
+                  <div class="h-8 bg-gray-200 rounded w-12 animate-pulse"></div>
                 </div>
-                <div v-if="filteredFeedItems.length === 0" class="text-sm text-gray-500 text-center py-4">
-                  No recent activity
+              </div>
+              <div v-else class="grid grid-cols-2 gap-4">
+                <div class="flex flex-col items-center text-center">
+                  <span class="text-sm text-gray-600 mb-1">Regions</span>
+                  <span class="font-bold text-2xl text-primary-600">{{ whereWeAreStats.regions }}</span>
+                </div>
+                <div class="flex flex-col items-center text-center">
+                  <span class="text-sm text-gray-600 mb-1">Provinces</span>
+                  <span class="font-bold text-2xl text-primary-600">{{ whereWeAreStats.provinces }}</span>
+                </div>
+                <div class="flex flex-col items-center text-center">
+                  <span class="text-sm text-gray-600 mb-1">Municipalities</span>
+                  <span class="font-bold text-2xl text-primary-600">{{ whereWeAreStats.municipalities }}</span>
+                </div>
+                <div class="flex flex-col items-center text-center">
+                  <span class="text-sm text-gray-600 mb-1">Members</span>
+                  <span class="font-bold text-2xl text-primary-600">{{ whereWeAreStats.members }}</span>
                 </div>
               </div>
             </div>
@@ -422,7 +415,8 @@ const stats = computed(() => {
   return {
     projects: feedItems.value.filter(item => item.type === 'project').length,
     news: feedItems.value.filter(item => item.type === 'news').length,
-    media: feedItems.value.filter(item => item.type === 'photo' || item.type === 'video').length
+    photos: feedItems.value.filter(item => item.type === 'photo').length,
+    videos: feedItems.value.filter(item => item.type === 'video').length
   }
 })
 
