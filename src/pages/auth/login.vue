@@ -1,17 +1,44 @@
 <template>
   <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-primary-100 to-primary-200 p-4">
     <div class="w-full max-w-md">
-      <!-- Logo and Title Section -->
-      <div class="text-center mb-8">
-        <div class="inline-block p-4 bg-white rounded-2xl shadow-lg mb-4">
-          <img :src="logo" alt="Sarilaya Logo" class="h-20 w-auto mx-auto object-contain" />
+      <!-- Skeleton Loader -->
+      <div v-if="initialLoading" class="space-y-8">
+        <!-- Logo and Title Skeleton -->
+        <div class="text-center mb-8">
+          <div class="inline-block p-4 bg-white rounded-2xl shadow-lg mb-4 animate-pulse">
+            <div class="h-20 w-20 bg-gray-200 rounded-lg mx-auto"></div>
+          </div>
+          <div class="h-8 w-48 bg-gray-200 rounded-lg mx-auto mb-2 animate-pulse"></div>
+          <div class="h-4 w-64 bg-gray-200 rounded-lg mx-auto animate-pulse"></div>
         </div>
-        <h1 class="text-3xl font-bold text-gray-900 tracking-tight mb-2">Welcome Back</h1>
-        <p class="text-sm text-gray-600">Sign in to access the admin panel</p>
+
+        <!-- Form Skeleton -->
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 md:p-10 space-y-6">
+          <div class="space-y-4">
+            <div class="h-4 w-32 bg-gray-200 rounded animate-pulse"></div>
+            <div class="h-12 w-full bg-gray-200 rounded-xl animate-pulse"></div>
+          </div>
+          <div class="space-y-4">
+            <div class="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
+            <div class="h-12 w-full bg-gray-200 rounded-xl animate-pulse"></div>
+          </div>
+          <div class="h-12 w-full bg-gray-200 rounded-xl animate-pulse mt-8"></div>
+        </div>
       </div>
 
-      <!-- Login Card -->
-      <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 md:p-10">
+      <!-- Actual Content -->
+      <div v-else>
+        <!-- Logo and Title Section -->
+        <div class="text-center mb-8">
+          <div class="inline-block p-4 bg-white rounded-2xl shadow-lg mb-4">
+            <img :src="logo" alt="Sarilaya Logo" class="h-20 w-auto mx-auto object-contain" />
+          </div>
+          <h1 class="text-3xl font-bold text-gray-900 tracking-tight mb-2">Welcome Back</h1>
+          <p class="text-sm text-gray-600">Sign in to access the admin panel</p>
+        </div>
+
+        <!-- Login Card -->
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-8 md:p-10">
         <!-- Error Message -->
         <div
           v-if="errorMessage"
@@ -83,16 +110,17 @@
         </form>
       </div>
 
-      <!-- Footer Text -->
-      <p class="text-center text-sm text-gray-600 mt-6">
-        Secure admin access for authorized personnel only
-      </p>
+        <!-- Footer Text -->
+        <p class="text-center text-sm text-gray-600 mt-6">
+          Secure admin access for authorized personnel only
+        </p>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Button from '../../components/Button.vue'
 import { useAuth } from '../../composables/useAuth'
@@ -105,6 +133,14 @@ const email = ref('')
 const password = ref('')
 const loading = ref(false)
 const errorMessage = ref('')
+const initialLoading = ref(true)
+
+onMounted(() => {
+  // Simulate initial load time for skeleton
+  setTimeout(() => {
+    initialLoading.value = false
+  }, 500)
+})
 
 async function handleLogin() {
   loading.value = true

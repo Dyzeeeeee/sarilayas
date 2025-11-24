@@ -70,7 +70,7 @@
                 />
                 <!-- Overlay Actions -->
                 <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                  <div class="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
+                  <div class="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex items-center gap-2">
                     <button
                       @click.stop="handleEdit(video)"
                       class="p-2 bg-white/90 backdrop-blur-sm rounded-lg hover:bg-white transition-colors"
@@ -106,7 +106,7 @@
             :key="video.id"
             class="group p-3 md:p-4 hover:bg-gray-50 transition-colors"
           >
-            <div class="flex items-center gap-3 md:gap-4">
+            <div class="flex items-center gap-3 md:gap-4 min-w-0">
               <!-- Video Thumbnail -->
               <div class="w-24 md:w-32 h-16 md:h-20 bg-gray-100 rounded-lg overflow-hidden shrink-0 relative">
                 <img
@@ -120,15 +120,15 @@
               <div class="flex-1 min-w-0">
                 <h3 class="text-sm md:text-base font-semibold text-gray-900 mb-1 line-clamp-1">{{ video.title || 'Untitled' }}</h3>
                 <p v-if="video.description" class="text-xs md:text-sm text-gray-600 line-clamp-2 mb-1">{{ video.description }}</p>
-                <div class="flex items-center gap-2 text-xs text-gray-500">
-                  <span>{{ formatDate(video.createdAt) }}</span>
-                  <span>•</span>
-                  <span class="truncate">{{ video.url }}</span>
+                <div class="flex items-center gap-2 text-xs text-gray-500 min-w-0">
+                  <span class="shrink-0">{{ formatDate(video.createdAt) }}</span>
+                  <span class="shrink-0">•</span>
+                  <span class="truncate min-w-0">{{ video.url }}</span>
                 </div>
               </div>
 
               <!-- Actions -->
-              <div class="flex items-center gap-2 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div class="flex items-center gap-2 shrink-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                 <button
                   @click="handleEdit(video)"
                   class="p-2 rounded-lg hover:bg-gray-100 transition-colors"

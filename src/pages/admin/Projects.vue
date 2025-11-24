@@ -74,7 +74,7 @@
                 </div>
                 <!-- Overlay Actions -->
                 <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                  <div class="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2">
+                  <div class="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex items-center gap-2">
                     <button
                       @click.stop="handleEdit(project)"
                       class="p-2 bg-white/90 backdrop-blur-sm rounded-lg hover:bg-white transition-colors"
@@ -140,7 +140,7 @@
               </div>
 
               <!-- Actions -->
-              <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div class="flex items-center gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                 <button
                   @click="handleEdit(project)"
                   class="p-2 text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"

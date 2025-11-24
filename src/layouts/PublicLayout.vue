@@ -182,80 +182,108 @@
                 {{ unreadCount > 9 ? '9+' : unreadCount }}
               </span>
             </button>
-            
-            <!-- Mobile Notifications Dropdown -->
-            <div
-              v-if="showNotificationsDropdown"
-              ref="mobileNotificationsDropdown"
-              class="fixed top-16 left-0 right-0 bg-white border-b border-gray-200 z-50 max-h-96 overflow-y-auto"
-            >
-              <div class="p-4 border-b border-gray-200 flex items-center justify-between">
-                <h3 class="font-bold text-gray-900">Notifications</h3>
-                <button
-                  v-if="unreadCount > 0"
-                  @click="markAllAsRead"
-                  class="text-sm text-primary-600 hover:text-primary-700 font-medium"
+          </div>
+          
+          <!-- Mobile Notifications Modal -->
+          <Teleport to="body">
+            <Transition name="modal">
+              <div
+                v-if="showNotificationsDropdown"
+                class="md:hidden fixed inset-0 flex flex-col"
+                style="z-index: 9999;"
+                @click.self="showNotificationsDropdown = false"
+              >
+                <!-- Backdrop -->
+                <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+                
+                <!-- Modal Content -->
+                <div
+                  ref="mobileNotificationsDropdown"
+                  class="relative w-full bg-white rounded-t-3xl shadow-2xl flex-1 flex flex-col mt-auto"
                 >
-                  Mark all as read
-                </button>
-              </div>
-              
-              <div v-if="isLoading" class="p-4 text-center text-gray-500 text-sm">
-                Loading...
-              </div>
-              <div v-else-if="notifications.length === 0" class="p-4 text-center text-gray-500 text-sm">
-                No notifications
-              </div>
-              <div v-else class="divide-y divide-gray-100">
-                <button
-                  v-for="notification in notifications"
-                  :key="notification.id"
-                  @click="handleNotificationClick(notification)"
-                  class="w-full text-left transition-colors"
-                  :class="{
-                    'bg-primary-50 hover:bg-gray-50': !isNotificationRead(notification.id),
-                    'hover:bg-gray-50': isNotificationRead(notification.id)
-                  }"
-                >
-                  <div class="flex items-start gap-3 p-4">
-                    <!-- Image Preview -->
-                    <div v-if="notification.image" class="w-16 h-16 shrink-0 rounded-lg overflow-hidden bg-gray-100">
-                      <img
-                        :src="notification.image"
-                        :alt="notification.title"
-                        class="w-full h-full object-cover"
-                      />
-                    </div>
-                    <!-- Icon fallback if no image -->
-                    <div v-else :class="[getNotificationIconBgClass(notification.type), 'w-16 h-16 rounded-lg flex items-center justify-center shrink-0']">
-                      <component
-                        :is="getNotificationIconComponent(notification.type)"
-                        :class="getNotificationIconClass(notification.type)"
-                        class="w-6 h-6"
-                      />
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <div class="flex items-center gap-2 mb-1">
-                        <span class="text-xs font-medium text-primary-600">
-                          {{ getNotificationTypeLabel(notification.type) }}
-                        </span>
-                        <span v-if="notification.updated" class="px-1.5 py-0.5 bg-blue-100 text-blue-600 text-[10px] font-bold rounded">
-                          UPDATED
-                        </span>
-                        <span v-else-if="!isNotificationRead(notification.id)" class="w-2 h-2 bg-primary-600 rounded-full"></span>
-                      </div>
-                      <p class="text-sm font-medium text-gray-900 line-clamp-2">
-                        {{ notification.title }}
-                      </p>
-                      <p class="text-xs text-gray-500 mt-1">
-                        {{ formatNotificationDate(notification.date) }}
-                      </p>
-                    </div>
+                <!-- Header -->
+                <div class="p-4 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white rounded-t-3xl z-10">
+                  <h3 class="text-lg font-bold text-gray-900">Notifications</h3>
+                  <div class="flex items-center gap-3">
+                    <button
+                      v-if="unreadCount > 0"
+                      @click="markAllAsRead"
+                      class="text-sm text-primary-600 hover:text-primary-700 font-medium cursor-pointer"
+                    >
+                      Mark all as read
+                    </button>
+                    <button
+                      @click="showNotificationsDropdown = false"
+                      class="p-1.5 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                    >
+                      <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
                   </div>
-                </button>
+                </div>
+                
+                <!-- Content -->
+                <div class="flex-1 overflow-y-auto">
+                  <div v-if="isLoading" class="p-8 text-center text-gray-500 text-sm">
+                    Loading...
+                  </div>
+                  <div v-else-if="notifications.length === 0" class="p-8 text-center text-gray-500 text-sm">
+                    No notifications
+                  </div>
+                  <div v-else class="divide-y divide-gray-100">
+                    <button
+                      v-for="notification in notifications"
+                      :key="notification.id"
+                      @click="handleNotificationClick(notification)"
+                      class="w-full text-left transition-colors cursor-pointer"
+                      :class="{
+                        'bg-primary-50 active:bg-primary-100': !isNotificationRead(notification.id),
+                        'active:bg-gray-50': isNotificationRead(notification.id)
+                      }"
+                    >
+                      <div class="flex items-start gap-3 p-4">
+                        <!-- Image Preview -->
+                        <div v-if="notification.image" class="w-16 h-16 shrink-0 rounded-lg overflow-hidden bg-gray-100">
+                          <img
+                            :src="notification.image"
+                            :alt="notification.title"
+                            class="w-full h-full object-cover"
+                          />
+                        </div>
+                        <!-- Icon fallback if no image -->
+                        <div v-else :class="[getNotificationIconBgClass(notification.type), 'w-16 h-16 rounded-lg flex items-center justify-center shrink-0']">
+                          <component
+                            :is="getNotificationIconComponent(notification.type)"
+                            :class="getNotificationIconClass(notification.type)"
+                            class="w-6 h-6"
+                          />
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <div class="flex items-center gap-2 mb-1">
+                            <span class="text-xs font-medium text-primary-600">
+                              {{ getNotificationTypeLabel(notification.type) }}
+                            </span>
+                            <span v-if="notification.updated" class="px-1.5 py-0.5 bg-blue-100 text-blue-600 text-[10px] font-bold rounded">
+                              UPDATED
+                            </span>
+                            <span v-else-if="!isNotificationRead(notification.id)" class="w-2 h-2 bg-primary-600 rounded-full"></span>
+                          </div>
+                          <p class="text-sm font-medium text-gray-900 line-clamp-2">
+                            {{ notification.title }}
+                          </p>
+                          <p class="text-xs text-gray-500 mt-1">
+                            {{ formatNotificationDate(notification.date) }}
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          </Transition>
+        </Teleport>
         </div>
       </div>
     </header>
@@ -364,12 +392,13 @@
 </template>
 
 <script setup>
-import { ref, computed, provide, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, provide, watch, onMounted, onUnmounted, Teleport } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Newspaper, Briefcase, Users, Video, Image, Home, FolderOpenDot, BadgeInfo, Mail, Bell } from 'lucide-vue-next'
 import ViewToggler from '../components/ViewToggler.vue'
 import ToastContainer from '../components/ToastContainer.vue'
 import { useNotifications } from '../composables/useNotifications'
+import { useBodyScrollLock } from '../composables/useBodyScrollLock'
 
 const route = useRoute()
 const router = useRouter()
@@ -394,11 +423,31 @@ const mobileNotificationsDropdown = ref(null)
 const notificationButton = ref(null)
 const mobileNotificationButton = ref(null)
 
-// Handle click outside to close dropdown
+// Lock body scroll when mobile notifications modal is open
+const { useLock } = useBodyScrollLock()
+const windowWidth = ref(typeof window !== 'undefined' ? window.innerWidth : 1024)
+const isMobileModalOpen = computed(() => showNotificationsDropdown.value && windowWidth.value < 768)
+useLock(isMobileModalOpen)
+
+// Update window width on resize
+if (typeof window !== 'undefined') {
+  const updateWidth = () => {
+    windowWidth.value = window.innerWidth
+  }
+  window.addEventListener('resize', updateWidth)
+  onMounted(() => {
+    updateWidth()
+  })
+  onUnmounted(() => {
+    window.removeEventListener('resize', updateWidth)
+  })
+}
+
+// Handle click outside to close dropdown (desktop only)
 function handleClickOutside(event) {
-  if (showNotificationsDropdown.value) {
-    const dropdown = notificationsDropdown.value || mobileNotificationsDropdown.value
-    const button = notificationButton.value || mobileNotificationButton.value
+  if (showNotificationsDropdown.value && windowWidth.value >= 768) {
+    const dropdown = notificationsDropdown.value
+    const button = notificationButton.value
     
     if (dropdown && !dropdown.contains(event.target) && 
         button && !button.contains(event.target)) {
@@ -407,12 +456,27 @@ function handleClickOutside(event) {
   }
 }
 
+// Handle escape key to close mobile modal
+watch(() => showNotificationsDropdown.value, (isOpen) => {
+  if (isOpen && windowWidth.value < 768) {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        showNotificationsDropdown.value = false
+      }
+    }
+    document.addEventListener('keydown', handleEscape)
+    return () => {
+      document.removeEventListener('keydown', handleEscape)
+    }
+  }
+})
+
 // Initialize notifications on mount
 onMounted(() => {
   initializeNotifications()
   loadReadNotifications()
   
-  // Add click outside listener
+  // Add click outside listener (only for desktop dropdown)
   document.addEventListener('click', handleClickOutside)
   
   // Scroll detection
@@ -445,14 +509,17 @@ function isNotificationRead(notificationId) {
 
 // Handle notification click
 function handleNotificationClick(notification) {
+  // Close dropdown first
+  showNotificationsDropdown.value = false
+  
   // Don't navigate if deleted
   if (notification.deleted) {
     return
   }
   
+  // Mark as read
   markAsRead(notification.id)
   readNotifications.value.add(notification.id)
-  showNotificationsDropdown.value = false
   
   // Navigate to the item
   if (notification.type === 'news') {
@@ -665,7 +732,7 @@ const isActiveRoute = (path) => {
   return route.path === path || route.path.startsWith(path + '/')
 }
 
-// Triple-click detection for logo
+// Five-click detection for logo
 const logoClickCount = ref(0)
 const logoClickTimer = ref(null)
 
@@ -677,17 +744,17 @@ const handleLogoClick = () => {
     clearTimeout(logoClickTimer.value)
   }
   
-  // If triple-clicked, redirect to admin
-  if (logoClickCount.value === 3) {
+  // If five-clicked, redirect to admin
+  if (logoClickCount.value === 5) {
     router.push('/admin')
     logoClickCount.value = 0
     return
   }
   
-  // Reset counter after 500ms if not triple-clicked
+  // Reset counter after 500ms if not five-clicked
   logoClickTimer.value = setTimeout(() => {
-    if (logoClickCount.value < 3) {
-      // Single or double click - navigate to home
+    if (logoClickCount.value < 5) {
+      // Single, double, triple, or quadruple click - navigate to home
       handleNavClick('/')
     }
     logoClickCount.value = 0
@@ -715,6 +782,27 @@ const handleBottomNavClick = (item) => {
 </script>
 
 <style scoped>
+/* Modal transitions */
+.modal-enter-active,
+.modal-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.modal-enter-active .bg-white,
+.modal-leave-active .bg-white {
+  transition: transform 0.3s ease;
+}
+
+.modal-enter-from,
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-enter-from .bg-white,
+.modal-leave-to .bg-white {
+  transform: translateY(100%);
+}
+
 @keyframes scale-up {
   0% {
     transform: scale(1);
