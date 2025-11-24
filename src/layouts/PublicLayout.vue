@@ -12,7 +12,7 @@
         <div class="flex justify-between items-center h-10 md:h-16">
           <!-- Logo -->
           <div class="flex-shrink-0">
-            <a @click="handleNavClick('/')" class="flex items-center gap-2 text-xl font-bold text-white hover:opacity-90 transition-opacity cursor-pointer">
+            <a @click="handleLogoClick" class="flex items-center gap-2 text-xl font-bold text-white hover:opacity-90 transition-opacity cursor-pointer">
               <img 
                 src="/MainSarilayaLogo.png" 
                 alt="Sarilaya Logo" 
@@ -663,6 +663,35 @@ const isActiveRoute = (path) => {
     return route.path === '/'
   }
   return route.path === path || route.path.startsWith(path + '/')
+}
+
+// Triple-click detection for logo
+const logoClickCount = ref(0)
+const logoClickTimer = ref(null)
+
+const handleLogoClick = () => {
+  logoClickCount.value++
+  
+  // Clear existing timer
+  if (logoClickTimer.value) {
+    clearTimeout(logoClickTimer.value)
+  }
+  
+  // If triple-clicked, redirect to admin
+  if (logoClickCount.value === 3) {
+    router.push('/admin')
+    logoClickCount.value = 0
+    return
+  }
+  
+  // Reset counter after 500ms if not triple-clicked
+  logoClickTimer.value = setTimeout(() => {
+    if (logoClickCount.value < 3) {
+      // Single or double click - navigate to home
+      handleNavClick('/')
+    }
+    logoClickCount.value = 0
+  }, 500)
 }
 
 // Handle navigation click (topbar and bottom nav)
