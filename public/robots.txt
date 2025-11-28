@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+
+# Disallow admin and auth pages
+Disallow: /admin/
+Disallow: /login
+Disallow: /superadmin/
+
+# Allow public pages
+Allow: /
+Allow: /news
+Allow: /projects
+Allow: /media
+Allow: /about
+Allow: /contact
+
+# Sitemap location
+Sitemap: https://sarilaya.org/sitemap.xml
+

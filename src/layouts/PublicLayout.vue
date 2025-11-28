@@ -409,6 +409,7 @@ import { useBodyScrollLock } from '../composables/useBodyScrollLock'
 import { useBranding } from '../composables/useBranding'
 import { useVisitors } from '../composables/useVisitors'
 import { useEvents } from '../composables/useEvents'
+import { useSEO } from '../composables/useSEO'
 
 const route = useRoute()
 const router = useRouter()
@@ -734,6 +735,90 @@ const routeTitleMap = {
 
 const currentRouteLabel = computed(() => routeTitleMap[route.path] || siteName.value)
 
+// SEO setup
+const { updateMetaTags, addStructuredData } = useSEO()
+
+// Route-specific SEO metadata
+const routeSEOMap = {
+  '/': {
+    title: 'Home',
+    description: 'Welcome to Sarilaya - Discover our latest news, projects, community initiatives, and connect with our organization.',
+    keywords: 'Sarilaya, community, organization, news, projects, events',
+  },
+  '/news': {
+    title: 'Latest News',
+    description: 'Stay updated with the latest news, announcements, and updates from Sarilaya.',
+    keywords: 'Sarilaya news, announcements, updates, community news',
+  },
+  '/projects': {
+    title: 'Projects',
+    description: 'Explore our community projects, initiatives, and programs that make a difference.',
+    keywords: 'Sarilaya projects, community projects, initiatives, programs',
+  },
+  '/media': {
+    title: 'Media',
+    description: 'Browse our photo gallery and video collection showcasing our events and activities.',
+    keywords: 'Sarilaya media, photos, videos, gallery, events',
+  },
+  '/about': {
+    title: 'About Us',
+    description: 'Learn about Sarilaya, our mission, values, and the people who make our organization great.',
+    keywords: 'Sarilaya about, mission, values, organization',
+  },
+  '/about/officers': {
+    title: 'Officers',
+    description: 'Meet the officers and leadership team of Sarilaya.',
+    keywords: 'Sarilaya officers, leadership, team',
+  },
+  '/about/national-council': {
+    title: 'National Council',
+    description: 'Get to know the members of our National Council and their contributions.',
+    keywords: 'Sarilaya national council, council members',
+  },
+  '/about/chapters': {
+    title: 'Chapters',
+    description: 'Explore our regional chapters and their activities across different areas.',
+    keywords: 'Sarilaya chapters, regional chapters, locations',
+  },
+  '/contact': {
+    title: 'Contact Us',
+    description: 'Get in touch with Sarilaya. We\'d love to hear from you!',
+    keywords: 'Sarilaya contact, get in touch, contact information',
+  },
+}
+
+// Update SEO on route change
+watch([route, siteName, branding], () => {
+  if (typeof document === 'undefined') return
+  
+  const seoData = routeSEOMap[route.path] || {
+    title: currentRouteLabel.value,
+    description: `Welcome to ${siteName.value} - Discover our latest news, projects, and community initiatives.`,
+  }
+
+  const logoUrl = branding.value?.logoUrl || '/MainSarilayaLogo.png'
+  const siteUrl = typeof window !== 'undefined' ? window.location.origin : ''
+
+  updateMetaTags({
+    title: seoData.title,
+    description: seoData.description,
+    keywords: seoData.keywords,
+    image: logoUrl.startsWith('http') ? logoUrl : `${siteUrl}${logoUrl}`,
+    url: route.path,
+  })
+
+  // Add organization structured data
+  addStructuredData({
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: siteName.value,
+    url: siteUrl,
+    logo: logoUrl.startsWith('http') ? logoUrl : `${siteUrl}${logoUrl}`,
+    description: seoData.description,
+  })
+}, { immediate: true })
+
+// Keep title update for backward compatibility
 watch([currentRouteLabel, siteName], ([label, site]) => {
   if (typeof document === 'undefined') return
   document.title = label === site ? site : `${label} • ${site}`
