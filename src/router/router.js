@@ -8,6 +8,7 @@ import Projects from '../pages/Projects.vue'
 import ProjectDetail from '../pages/ProjectDetail.vue'
 import Media from '../pages/Media.vue'
 import Contact from '../pages/Contact.vue'
+import BackgroundRemover from '../pages/BackgroundRemover.vue'
 import About from '../pages/about/About.vue'
 import Officers from '../pages/about/Officers.vue'
 import NationalCouncil from '../pages/about/NationalCouncil.vue'
@@ -37,6 +38,7 @@ const routes = [
   { path: '/media', name: 'Media', component: Media },
   { path: '/projects/:id', name: 'ProjectDetail', component: ProjectDetail },
   { path: '/contact', name: 'Contact', component: Contact },
+  { path: '/background-remover', name: 'BackgroundRemover', component: BackgroundRemover },
   { path: '/about', name: 'About', component: About },
   { path: '/about/officers', name: 'Officers', component: Officers },
   { path: '/about/national-council', name: 'NationalCouncil', component: NationalCouncil },

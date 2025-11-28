@@ -78,7 +78,14 @@ const loading = ref(true)
 async function loadMembers() {
   loading.value = true
   try {
-    members.value = await aboutUsService.getNationalCouncil()
+    const membersData = await aboutUsService.getNationalCouncil()
+    // Ensure all members have an index, assign if missing, then sort by index (lowest first)
+    members.value = membersData
+      .map((member, idx) => ({
+        ...member,
+        index: member.index !== undefined ? member.index : idx
+      }))
+      .sort((a, b) => (a.index || 0) - (b.index || 0))
   } catch (error) {
     console.error('Error loading council members:', error)
   } finally {

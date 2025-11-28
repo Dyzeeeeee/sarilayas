@@ -168,76 +168,115 @@
     </div>
 
     <!-- MEMBER MODAL -->
-    <div
-      v-if="selectedMember"
-      class="fixed inset-0 backdrop-blur-sm bg-black/70 flex items-center justify-center z-[60] p-3"
-      @click.self="closeMemberModal"
-    >
-      <div class="relative w-full max-w-2xl max-h-[90vh] flex flex-col bg-white rounded-lg overflow-hidden">
-        <!-- Close Button -->
-        <button
-          @click="closeMemberModal"
-          class="absolute top-2 right-2 z-10 bg-gray-800 text-white rounded-full w-8 h-8 flex items-center justify-center hover:bg-gray-700 transition text-lg leading-none"
-          aria-label="Close"
-        >
-          ×
-        </button>
-        
-        <!-- Previous Button -->
-        <button
-          v-if="getCurrentMemberIndex() > 0"
-          @click.stop="navigateToPreviousMember"
-          class="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-gray-800/80 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-700 transition"
-          aria-label="Previous member"
-        >
-          <ChevronLeft class="w-5 h-5" />
-        </button>
-        
-        <!-- Next Button -->
-        <button
-          v-if="getCurrentMemberIndex() < members.length - 1"
-          @click.stop="navigateToNextMember"
-          class="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-gray-800/80 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-gray-700 transition"
-          aria-label="Next member"
-        >
-          <ChevronRight class="w-5 h-5" />
-        </button>
-        
-        <!-- Photo Section -->
-        <div class="flex-1 overflow-auto flex items-center justify-center bg-gradient-to-br from-primary-500 via-primary-700 to-primary-900 p-8 sm:p-12">
-          <div v-if="selectedMember.photo" class="relative">
-            <img
-              :src="selectedMember.photo"
-              :alt="selectedMember.name"
-              class="max-w-full max-h-[50vh] object-contain rounded-lg"
-            />
+    <Teleport to="body">
+      <div
+        v-if="selectedMember"
+        class="fixed inset-0 backdrop-blur-md bg-black/60 flex items-center justify-center z-[60] p-4 transition-opacity duration-200"
+        @click.self="closeMemberModal"
+        @keydown.esc="closeMemberModal"
+      >
+        <div class="relative w-full max-w-3xl max-h-[90vh] flex flex-col bg-white rounded-2xl shadow-2xl overflow-hidden transform transition-all duration-300 scale-100">
+          <!-- Close Button -->
+          <button
+            @click="closeMemberModal"
+            class="absolute top-4 right-4 z-20 bg-white/90 backdrop-blur-sm text-gray-700 rounded-full w-10 h-10 flex items-center justify-center hover:bg-white hover:scale-110 transition-all shadow-lg"
+            aria-label="Close"
+          >
+            <X class="w-5 h-5" />
+          </button>
+          
+          <!-- Previous Button -->
+          <button
+            v-if="getCurrentMemberIndex() > 0"
+            @click.stop="navigateToPreviousMember"
+            class="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur-sm text-gray-700 rounded-full w-12 h-12 flex items-center justify-center hover:bg-white hover:scale-110 transition-all shadow-lg"
+            aria-label="Previous member"
+          >
+            <ChevronLeft class="w-6 h-6" />
+          </button>
+          
+          <!-- Next Button -->
+          <button
+            v-if="getCurrentMemberIndex() < members.length - 1"
+            @click.stop="navigateToNextMember"
+            class="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur-sm text-gray-700 rounded-full w-12 h-12 flex items-center justify-center hover:bg-white hover:scale-110 transition-all shadow-lg"
+            aria-label="Next member"
+          >
+            <ChevronRight class="w-6 h-6" />
+          </button>
+          
+          <!-- Photo Section with Dynamic Background -->
+          <div class="relative flex-1 overflow-hidden min-h-[400px] flex items-center justify-center">
+            <!-- Dynamic gradient background with blur -->
+            <div class="absolute inset-0 bg-gradient-to-br from-primary-300 via-primary-200 to-primary-100"></div>
+            <div 
+              class="absolute inset-0 opacity-60"
+              style="background: radial-gradient(circle at center, rgba(233, 213, 255, 0.8) 0%, rgba(243, 232, 255, 0.4) 50%, rgba(250, 245, 255, 0.2) 100%);"
+            ></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-primary-500/20 via-transparent to-transparent"></div>
+            
+            <!-- Photo Container -->
+            <div class="relative z-10 p-8 sm:p-12 flex items-center justify-center">
+              <div v-if="selectedMember.photo" class="relative">
+                <!-- Photo with dynamic background -->
+                <div class="relative">
+                  <div class="absolute inset-0 bg-gradient-to-br from-primary-300 via-primary-200 to-primary-100 blur-2xl opacity-60 -z-10 rounded-full scale-150"></div>
+                  <div 
+                    class="absolute inset-0 opacity-40 -z-10 rounded-full"
+                    style="background: radial-gradient(circle, rgba(233, 213, 255, 0.6) 0%, rgba(243, 232, 255, 0.3) 100%);"
+                  ></div>
+                  <img
+                    :src="selectedMember.photo"
+                    :alt="selectedMember.name"
+                    class="w-64 h-64 sm:w-80 sm:h-80 rounded-full object-cover ring-8 ring-white/50 shadow-2xl transform transition-all duration-500 scale-100"
+                  />
+                </div>
+              </div>
+              <div v-else class="relative">
+                <div class="absolute inset-0 bg-gradient-to-br from-primary-300 via-primary-200 to-primary-100 blur-2xl opacity-60 -z-10 rounded-full scale-150"></div>
+                <div class="w-64 h-64 sm:w-80 sm:h-80 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center ring-8 ring-white/50 shadow-2xl">
+                  <span class="text-white text-7xl sm:text-8xl font-bold">{{ selectedMember.name.charAt(0) }}</span>
+                </div>
+              </div>
+            </div>
           </div>
-          <div v-else class="w-48 h-48 rounded-full bg-white flex items-center justify-center">
-            <span class="text-primary-600 text-6xl font-bold">{{ selectedMember.name.charAt(0) }}</span>
+          
+          <!-- Details Section -->
+          <div class="relative bg-white p-8 sm:p-10 border-t border-gray-100">
+            <!-- Decorative accent -->
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-500 via-primary-400 to-primary-500"></div>
+            
+            <div class="text-center space-y-3 transform transition-all duration-500">
+              <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
+                {{ selectedMember.name }}
+              </h2>
+              <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-50 border border-primary-100">
+                <p class="text-lg sm:text-xl text-primary-600 font-semibold">
+                  {{ selectedMember.role }}
+                </p>
+              </div>
+            </div>
+            
+            <!-- Member counter -->
+            <div class="mt-6 text-center">
+              <p class="text-sm text-gray-500">
+                {{ getCurrentMemberIndex() + 1 }} of {{ members.length }}
+              </p>
+            </div>
           </div>
-        </div>
-        
-        <!-- Details -->
-        <div class="p-6 bg-white border-t border-gray-200">
-          <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-            {{ selectedMember.name }}
-          </h2>
-          <p class="text-lg sm:text-xl text-primary-600 font-semibold">
-            {{ selectedMember.role }}
-          </p>
         </div>
       </div>
-    </div>
+    </Teleport>
   </PublicLayout>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, Teleport } from 'vue'
 import PublicLayout from '../../layouts/PublicLayout.vue'
 import { aboutUsService } from '../../firebase/firestore'
 import { useViewMode } from '../../composables/useViewMode'
 import { useBodyScrollLock } from '../../composables/useBodyScrollLock'
-import { ChevronLeft, ChevronRight } from 'lucide-vue-next'
+import { ChevronLeft, ChevronRight, X } from 'lucide-vue-next'
 
 const { viewMode } = useViewMode('nationalCouncil')
 const members = ref([])
@@ -285,7 +324,13 @@ async function loadMembers() {
       aboutUsService.getNationalCouncil(),
       aboutUsService.getAboutUs().catch(() => null)
     ])
+    // Ensure all members have an index, assign if missing, then sort by index (lowest first)
     members.value = membersData
+      .map((member, idx) => ({
+        ...member,
+        index: member.index !== undefined ? member.index : idx
+      }))
+      .sort((a, b) => (a.index || 0) - (b.index || 0))
     if (aboutData) {
       officersImage.value = aboutData.officersImage || ''
       chaptersImage.value = aboutData.chaptersImage || ''

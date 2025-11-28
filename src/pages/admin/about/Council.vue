@@ -105,11 +105,19 @@
                     </button>
                   </div>
                   <div v-if="member.photo" class="shrink-0">
-                    <img
-                      :src="member.photo"
-                      :alt="member.name"
-                      class="w-12 h-12 rounded-full object-cover ring-2 ring-gray-100"
-                    />
+                    <div class="w-12 h-12 rounded-full ring-2 ring-gray-100 overflow-hidden flex items-center justify-center relative">
+                      <!-- Dynamic gradient background with blur -->
+                      <div class="absolute inset-0 bg-gradient-to-br from-primary-300 via-primary-200 to-primary-100 blur-sm"></div>
+                      <div 
+                        class="absolute inset-0 opacity-80"
+                        style="background: radial-gradient(circle, rgba(233, 213, 255, 0.8) 0%, rgba(243, 232, 255, 0.6) 50%, rgba(250, 245, 255, 0.4) 100%);"
+                      ></div>
+                      <img
+                        :src="member.photo"
+                        :alt="member.name"
+                        class="w-full h-full object-cover relative z-10"
+                      />
+                    </div>
                   </div>
                   <div v-else class="shrink-0 w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center ring-2 ring-gray-100">
                     <span class="text-primary-600 text-base font-semibold">{{ member.name.charAt(0) }}</span>
@@ -176,11 +184,19 @@
               <div class="bg-white rounded-lg border border-gray-200 p-6">
                 <div class="flex flex-col items-center text-center space-y-4">
                   <div v-if="form.photo" class="relative">
-                    <img
-                      :src="form.photo"
-                      :alt="form.name || 'Member'"
-                      class="w-24 h-24 rounded-full object-cover ring-4 ring-primary-100"
-                    />
+                    <div class="w-24 h-24 rounded-full ring-4 ring-primary-100 overflow-hidden flex items-center justify-center relative">
+                      <!-- Dynamic gradient background with blur -->
+                      <div class="absolute inset-0 bg-gradient-to-br from-primary-300 via-primary-200 to-primary-100 blur-sm"></div>
+                      <div 
+                        class="absolute inset-0 opacity-80"
+                        style="background: radial-gradient(circle, rgba(233, 213, 255, 0.8) 0%, rgba(243, 232, 255, 0.6) 50%, rgba(250, 245, 255, 0.4) 100%);"
+                      ></div>
+                      <img
+                        :src="form.photo"
+                        :alt="form.name || 'Member'"
+                        class="w-full h-full object-cover relative z-10"
+                      />
+                    </div>
                   </div>
                   <div v-else class="w-24 h-24 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center ring-4 ring-primary-100">
                     <span class="text-white text-2xl font-bold">{{ (form.name || 'M').charAt(0).toUpperCase() }}</span>
@@ -195,6 +211,7 @@
                   </div>
                 </div>
               </div>
+              
             </div>
 
             <!-- Editor Column -->
@@ -246,15 +263,32 @@
                       placeholder="https://example.com/photo.jpg"
                     />
                   </div>
-                  <div v-if="form.photo && !uploadingPhoto" class="mt-2 flex items-center gap-2">
-                    <img :src="form.photo" alt="Preview" class="w-16 h-16 rounded-full object-cover border border-gray-200" />
-                    <button
-                      type="button"
-                      @click="removePhoto"
-                      class="text-xs text-red-600 hover:text-red-700"
-                    >
-                      Remove
-                    </button>
+                  <div v-if="form.photo && !uploadingPhoto && !editingImage" class="mt-2 flex items-center gap-2">
+                    <div class="w-16 h-16 rounded-full border border-gray-200 overflow-hidden flex items-center justify-center relative">
+                      <!-- Dynamic gradient background with blur -->
+                      <div class="absolute inset-0 bg-gradient-to-br from-primary-300 via-primary-200 to-primary-100 blur-sm"></div>
+                      <div 
+                        class="absolute inset-0 opacity-80"
+                        style="background: radial-gradient(circle, rgba(233, 213, 255, 0.8) 0%, rgba(243, 232, 255, 0.6) 50%, rgba(250, 245, 255, 0.4) 100%);"
+                      ></div>
+                      <img :src="form.photo" alt="Preview" class="w-full h-full object-cover relative z-10" />
+                    </div>
+                    <div class="flex gap-2">
+                      <button
+                        type="button"
+                        @click="startImageEdit"
+                        class="text-xs text-primary-600 hover:text-primary-700 font-medium"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        @click="removePhoto"
+                        class="text-xs text-red-600 hover:text-red-700"
+                      >
+                        Remove
+                      </button>
+                    </div>
                   </div>
                   <div v-if="uploadingPhoto" class="mt-2 flex items-center gap-2 text-xs text-gray-500">
                     <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
@@ -282,6 +316,135 @@
               class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {{ loading ? 'Saving...' : editingMember ? 'Update' : 'Add' }} Member
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- Image Editor Modal -->
+    <Teleport to="body">
+      <div
+        v-if="showImageEditorModal"
+        class="fixed inset-0 z-[70] flex items-center justify-center p-4"
+        @click.self="showImageEditorModal = false"
+        @keydown.esc="showImageEditorModal = false"
+      >
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+        
+        <!-- Modal Content -->
+        <div class="relative bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+          <!-- Header -->
+          <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between shrink-0">
+            <h2 class="text-lg font-semibold text-gray-900">Edit Image</h2>
+            <button
+              @click="cancelImageEdit"
+              class="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <X class="h-5 w-5 text-gray-500" />
+            </button>
+          </div>
+
+          <!-- Modal Body -->
+          <div class="flex-1 overflow-y-auto p-6">
+            <div class="space-y-4">
+              <!-- Editor Container -->
+              <div
+                ref="editorContainer"
+                class="relative w-full h-96 bg-gray-100 rounded-lg overflow-hidden cursor-move border border-gray-200"
+                @mousedown="startDrag"
+                @wheel.prevent="handleWheel"
+              >
+                <!-- Circular crop mask overlay -->
+                <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                  <div class="w-64 h-64 rounded-full border-2 border-primary-500 shadow-lg ring-2 ring-white/50 relative">
+                    <!-- Face position indicator -->
+                    <div class="absolute inset-0 flex items-center justify-center">
+                      <div class="relative">
+                        <!-- Face outline -->
+                        <svg class="w-32 h-32 text-primary-400/60" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="1.5">
+                          <!-- Head circle -->
+                          <circle cx="50" cy="50" r="35" />
+                          <!-- Left eye -->
+                          <circle cx="40" cy="45" r="4" />
+                          <!-- Right eye -->
+                          <circle cx="60" cy="45" r="4" />
+                          <!-- Nose -->
+                          <path d="M 50 50 Q 50 55 48 58" />
+                          <!-- Mouth -->
+                          <path d="M 40 65 Q 50 70 60 65" />
+                        </svg>
+                        <!-- Center dot -->
+                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-primary-500 rounded-full"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Editable image layer -->
+                <div
+                  ref="editableImage"
+                  class="absolute inset-0 flex items-center justify-center"
+                  :style="imageTransform"
+                >
+                  <img
+                    :src="editingImage"
+                    alt="Editable"
+                    ref="editorImage"
+                    class="max-w-none select-none pointer-events-none"
+                    style="max-width: 100%; max-height: 100%; width: auto; height: auto;"
+                    draggable="false"
+                    @load="onEditorImageLoad"
+                  />
+                </div>
+                <!-- Instructions -->
+                <div class="absolute bottom-2 left-0 right-0 text-center pointer-events-none z-10">
+                  <p class="text-xs text-gray-600 bg-white/80 px-2 py-1 rounded">Drag to move • Scroll to zoom</p>
+                </div>
+              </div>
+              
+              <!-- Controls -->
+              <div class="space-y-4">
+                <div>
+                  <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    Scale: {{ Math.round(imageScale * 100) }}%
+                  </label>
+                  <input
+                    v-model.number="imageScale"
+                    type="range"
+                    min="0.5"
+                    max="3"
+                    step="0.1"
+                    class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary-600"
+                  />
+                  <div class="flex justify-between text-xs text-gray-500 mt-1">
+                    <span>50%</span>
+                    <span>300%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3 shrink-0">
+            <button
+              @click="cancelImageEdit"
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              @click="resetImageTransform"
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+            >
+              Reset
+            </button>
+            <button
+              @click="applyImageEdit"
+              class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors"
+            >
+              Apply
             </button>
           </div>
         </div>
@@ -404,7 +567,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, Teleport } from 'vue'
+import { ref, onMounted, computed, Teleport } from 'vue'
 import AdminLayout from '../../../layouts/AdminLayout.vue'
 import { aboutUsService } from '../../../firebase/firestore'
 import { useToast } from '../../../composables/useToast'
@@ -416,6 +579,9 @@ const { success: showSuccess, error: showError } = useToast()
 const { confirm } = useConfirm()
 const { useLock } = useBodyScrollLock()
 
+// Remove.bg API key
+const REMOVE_BG_API_KEY = 'brLpKtTAsdKuFHoJe6KgFCjK'
+
 const loading = ref(false)
 const loadingData = ref(true)
 const members = ref([])
@@ -424,18 +590,39 @@ const uploadingPhoto = ref(false)
 const fileInput = ref(null)
 const showImageModal = ref(false)
 const showMemberModal = ref(false)
+const showImageEditorModal = ref(false)
 const nationalCouncilImage = ref('')
 const uploadingImage = ref(false)
 const imageFileInput = ref(null)
 
+// Image editor state
+const editingImage = ref(null)
+const imageScale = ref(1)
+const imagePosition = ref({ x: 0, y: 0 })
+const isDragging = ref(false)
+const dragStart = ref({ x: 0, y: 0 })
+const editorContainer = ref(null)
+const editableImage = ref(null)
+const originalImageData = ref(null)
+const imageDimensions = ref({ width: 0, height: 0 })
+
 // Lock body scroll when modals are open
 useLock(showImageModal)
 useLock(showMemberModal)
+useLock(showImageEditorModal)
 
 const form = ref({
   name: '',
   role: '',
   photo: ''
+})
+
+// Computed transform for editable image
+const imageTransform = computed(() => {
+  return {
+    transform: `translate(${imagePosition.value.x}px, ${imagePosition.value.y}px) scale(${imageScale.value})`,
+    transition: isDragging.value ? 'none' : 'transform 0.1s ease-out'
+  }
 })
 
 async function loadMembers() {
@@ -475,10 +662,38 @@ function cancelEdit() {
   if (fileInput.value) {
     fileInput.value.value = ''
   }
+  cancelImageEdit()
   showMemberModal.value = false
 }
 
-function compressImage(file, maxWidth = 400, maxHeight = 400, quality = 0.8) {
+async function removeBackground(file) {
+  try {
+    const formData = new FormData()
+    formData.append('size', 'auto')
+    formData.append('image_file', file)
+
+    const response = await fetch('https://api.remove.bg/v1.0/removebg', {
+      method: 'POST',
+      headers: {
+        'X-Api-Key': REMOVE_BG_API_KEY
+      },
+      body: formData
+    })
+
+    if (!response.ok) {
+      const errMsg = await response.text()
+      throw new Error(`Background removal failed: ${response.status} - ${errMsg}`)
+    }
+
+    const blob = await response.blob()
+    return blob
+  } catch (error) {
+    console.error('Error removing background:', error)
+    throw error
+  }
+}
+
+function compressImage(fileOrBlob, maxWidth = 400, maxHeight = 400, quality = 0.8) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
     
@@ -519,7 +734,7 @@ function compressImage(file, maxWidth = 400, maxHeight = 400, quality = 0.8) {
     }
     
     reader.onerror = reject
-    reader.readAsDataURL(file)
+    reader.readAsDataURL(fileOrBlob)
   })
 }
 
@@ -542,33 +757,239 @@ async function handleFileSelect(event) {
   uploadingPhoto.value = true
 
   try {
-    // Compress image to fit Firestore limit (1MB)
-    const compressedDataUrl = await compressImage(file, 400, 400, 0.75)
-    
-    // Check if compressed size is still too large
-    const base64Size = compressedDataUrl.length * 0.75 // Approximate byte size
-    if (base64Size > 900000) { // Leave some margin under 1MB
-      // Try more aggressive compression
-      const moreCompressed = await compressImage(file, 300, 300, 0.6)
-      form.value.photo = moreCompressed
-    } else {
-      form.value.photo = compressedDataUrl
+    // Step 1: Remove background using remove.bg API
+    let processedFile = file
+    try {
+      const bgRemovedBlob = await removeBackground(file)
+      // Convert blob to File for editing
+      processedFile = new File([bgRemovedBlob], file.name, { type: 'image/png' })
+    } catch (bgError) {
+      console.warn('Background removal failed, using original image:', bgError)
+      // Continue with original file if background removal fails
     }
+
+    // Step 2: Load image for editing
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      editingImage.value = e.target.result
+      originalImageData.value = e.target.result
+      imageScale.value = 1
+      imagePosition.value = { x: 0, y: 0 }
+      imageDimensions.value = { width: 0, height: 0 }
+      uploadingPhoto.value = false
+      showImageEditorModal.value = true
+    }
+    reader.readAsDataURL(processedFile)
   } catch (error) {
     console.error('Error processing image:', error)
     showError('Failed to process image file')
     if (fileInput.value) {
       fileInput.value.value = ''
     }
-  } finally {
     uploadingPhoto.value = false
   }
 }
 
 function removePhoto() {
   form.value.photo = ''
+  editingImage.value = null
+  originalImageData.value = null
   if (fileInput.value) {
     fileInput.value.value = ''
+  }
+}
+
+// Image editor functions
+function onEditorImageLoad(event) {
+  if (event.target) {
+    imageDimensions.value = {
+      width: event.target.naturalWidth,
+      height: event.target.naturalHeight
+    }
+    // Image dimensions loaded
+  }
+}
+
+function startImageEdit() {
+  if (form.value.photo) {
+    editingImage.value = form.value.photo
+    originalImageData.value = form.value.photo
+    imageScale.value = 1
+    imagePosition.value = { x: 0, y: 0 }
+    imageDimensions.value = { width: 0, height: 0 }
+    showImageEditorModal.value = true
+  }
+}
+
+function cancelImageEdit() {
+  editingImage.value = null
+  originalImageData.value = null
+  imageScale.value = 1
+  imagePosition.value = { x: 0, y: 0 }
+  isDragging.value = false
+  showImageEditorModal.value = false
+}
+
+function resetImageTransform() {
+  imageScale.value = 1
+  imagePosition.value = { x: 0, y: 0 }
+}
+
+function startDrag(event) {
+  if (!editingImage.value || !editorContainer.value) return
+  event.preventDefault()
+  isDragging.value = true
+  
+  const containerRect = editorContainer.value.getBoundingClientRect()
+  const containerCenterX = containerRect.width / 2
+  const containerCenterY = containerRect.height / 2
+  
+  const startX = event.clientX - containerRect.left
+  const startY = event.clientY - containerRect.top
+  const startOffsetX = imagePosition.value.x
+  const startOffsetY = imagePosition.value.y
+  
+  const handleMouseMove = (e) => {
+    if (!isDragging.value) return
+    const currentX = e.clientX - containerRect.left
+    const currentY = e.clientY - containerRect.top
+    
+    imagePosition.value = {
+      x: startOffsetX + (currentX - startX),
+      y: startOffsetY + (currentY - startY)
+    }
+  }
+  
+  const handleMouseUp = () => {
+    isDragging.value = false
+    document.removeEventListener('mousemove', handleMouseMove)
+    document.removeEventListener('mouseup', handleMouseUp)
+  }
+  
+  document.addEventListener('mousemove', handleMouseMove)
+  document.addEventListener('mouseup', handleMouseUp)
+}
+
+function handleWheel(event) {
+  if (!editingImage.value) return
+  event.preventDefault()
+  const delta = event.deltaY > 0 ? -0.1 : 0.1
+  imageScale.value = Math.max(0.5, Math.min(3, imageScale.value + delta))
+}
+
+async function applyImageEdit() {
+  if (!editingImage.value || imageDimensions.value.width === 0 || !editorContainer.value || !editableImage.value) return
+  
+  try {
+    // Create canvas to render the edited image
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    
+    // Set canvas size (circular crop area - 400x400 for final output)
+    const size = 400
+    canvas.width = size
+    canvas.height = size
+    
+    // Load the image
+    const img = new Image()
+    await new Promise((resolve, reject) => {
+      img.onload = resolve
+      img.onerror = reject
+      img.src = editingImage.value
+    })
+    
+    // Get actual rendered dimensions
+    const containerRect = editorContainer.value.getBoundingClientRect()
+    const containerWidth = containerRect.width
+    const containerHeight = containerRect.height
+    
+    // Calculate base display size (how image fits in container with CSS constraints)
+    // Image has max-width: 100%, max-height: 100%, maintaining aspect ratio
+    const imageAspect = imageDimensions.value.width / imageDimensions.value.height
+    const containerAspect = containerWidth / containerHeight
+    
+    let baseDisplayWidth, baseDisplayHeight
+    if (imageAspect > containerAspect) {
+      // Image is wider - constrained by container width
+      baseDisplayWidth = containerWidth
+      baseDisplayHeight = containerWidth / imageAspect
+    } else {
+      // Image is taller - constrained by container height
+      baseDisplayHeight = containerHeight
+      baseDisplayWidth = containerHeight * imageAspect
+    }
+    
+    // Crop circle is w-64 = 256px
+    const cropSize = 256
+    const scaleFactor = size / cropSize // Maps container pixels to canvas pixels
+    
+    // Calculate the scale ratio: displayed pixels per actual image pixel
+    const pixelsPerImagePixel = baseDisplayWidth / imageDimensions.value.width
+    
+    // Apply user scale factor (from CSS transform)
+    const scaledDisplayWidth = baseDisplayWidth * imageScale.value
+    const scaledDisplayHeight = baseDisplayHeight * imageScale.value
+    
+    // Map position from container space to canvas space
+    // imagePosition is in container pixels, relative to center
+    const canvasX = size / 2 + (imagePosition.value.x * scaleFactor)
+    const canvasY = size / 2 + (imagePosition.value.y * scaleFactor)
+    
+    // Calculate image dimensions on canvas in actual image pixels
+    // First convert displayed size to canvas size, then to image pixels
+    const canvasDisplayWidth = scaledDisplayWidth * scaleFactor
+    const canvasDisplayHeight = scaledDisplayHeight * scaleFactor
+    
+    // Convert canvas display size to actual image pixels
+    const canvasImageWidth = canvasDisplayWidth / pixelsPerImagePixel
+    const canvasImageHeight = canvasDisplayHeight / pixelsPerImagePixel
+    
+    // Draw circular clipping path and fill with dynamic gradient background
+    ctx.beginPath()
+    ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2)
+    
+    // Create radial gradient for dynamic effect
+    const gradient = ctx.createRadialGradient(
+      size / 2, size / 2, 0,
+      size / 2, size / 2, size / 2
+    )
+    gradient.addColorStop(0, '#e9d5ff') // primary-200 center
+    gradient.addColorStop(0.5, '#f3e8ff') // primary-100 middle
+    gradient.addColorStop(1, '#faf5ff') // primary-50 edge
+    
+    ctx.fillStyle = gradient
+    ctx.fill()
+    ctx.clip()
+    
+    // Draw the scaled and positioned image
+    ctx.drawImage(
+      img,
+      canvasX - canvasImageWidth / 2,
+      canvasY - canvasImageHeight / 2,
+      canvasImageWidth,
+      canvasImageHeight
+    )
+    
+    // Convert to blob and then compress
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        showError('Failed to create image')
+        return
+      }
+      // Compress the edited image
+      compressImage(blob, 400, 400, 0.75).then((compressed) => {
+        form.value.photo = compressed
+        showImageEditorModal.value = false
+        cancelImageEdit()
+        showSuccess('Image edited and saved')
+      }).catch((error) => {
+        console.error('Error compressing edited image:', error)
+        showError('Failed to save edited image')
+      })
+    }, 'image/png', 0.9)
+  } catch (error) {
+    console.error('Error applying image edit:', error)
+    showError('Failed to apply image edits')
   }
 }
 
@@ -713,6 +1134,7 @@ async function saveImageAndClose() {
     loading.value = false
   }
 }
+
 
 onMounted(() => {
   loadMembers()
