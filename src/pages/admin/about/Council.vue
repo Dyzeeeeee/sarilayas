@@ -580,7 +580,7 @@ const { confirm } = useConfirm()
 const { useLock } = useBodyScrollLock()
 
 // Remove.bg API key
-const REMOVE_BG_API_KEY = 'brLpKtTAsdKuFHoJe6KgFCjK'
+const REMOVE_BG_API_KEY = 'r988qtar4rdcETKfHG3t6hCH'
 
 const loading = ref(false)
 const loadingData = ref(true)
@@ -723,9 +723,14 @@ function compressImage(fileOrBlob, maxWidth = 400, maxHeight = 400, quality = 0.
         
         const ctx = canvas.getContext('2d')
         ctx.drawImage(img, 0, 0, width, height)
-        
-        // Convert to base64 with compression
-        const compressedDataUrl = canvas.toDataURL('image/jpeg', quality)
+
+        // Decide output format: preserve PNG transparency, use JPEG for others
+        const isPngSource =
+          (fileOrBlob && fileOrBlob.type === 'image/png') ||
+          (typeof img.src === 'string' && img.src.startsWith('data:image/png'))
+
+        const mimeType = isPngSource ? 'image/png' : 'image/jpeg'
+        const compressedDataUrl = canvas.toDataURL(mimeType, isPngSource ? undefined : quality)
         resolve(compressedDataUrl)
       }
       
@@ -768,18 +773,17 @@ async function handleFileSelect(event) {
       // Continue with original file if background removal fails
     }
 
-    // Step 2: Load image for editing
-    const reader = new FileReader()
-    reader.onload = (e) => {
-      editingImage.value = e.target.result
-      originalImageData.value = e.target.result
-      imageScale.value = 1
-      imagePosition.value = { x: 0, y: 0 }
-      imageDimensions.value = { width: 0, height: 0 }
-      uploadingPhoto.value = false
-      showImageEditorModal.value = true
-    }
-    reader.readAsDataURL(processedFile)
+    // Step 2: Normalize image size so large files don't appear overly zoomed when cropping
+    // This keeps all avatars in a similar resolution range for the editor, regardless of original size.
+    const normalizedDataUrl = await compressImage(processedFile, 800, 800, 0.9)
+
+    editingImage.value = normalizedDataUrl
+    originalImageData.value = normalizedDataUrl
+    imageScale.value = 1
+    imagePosition.value = { x: 0, y: 0 }
+    imageDimensions.value = { width: 0, height: 0 }
+    uploadingPhoto.value = false
+    showImageEditorModal.value = true
   } catch (error) {
     console.error('Error processing image:', error)
     showError('Failed to process image file')
