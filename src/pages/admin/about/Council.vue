@@ -681,8 +681,28 @@ async function removeBackground(file) {
     })
 
     if (!response.ok) {
-      const errMsg = await response.text()
-      throw new Error(`Background removal failed: ${response.status} - ${errMsg}`)
+      const errText = await response.text()
+
+      // Try to normalize remove.bg error into a clean, user-friendly message
+      let normalizedMessage = 'Background removal failed.'
+      try {
+        const json = JSON.parse(errText)
+        const apiError = json?.errors?.[0]
+        if (apiError?.title) {
+          // e.g. "API Key invalid"
+          normalizedMessage = `Background removal failed: ${apiError.title}.`
+        }
+        if (apiError?.code === 'auth_failed') {
+          normalizedMessage = 'Background removal failed: API key invalid. Please check your remove.bg API key.'
+        }
+      } catch {
+        // Fallback to raw text if not JSON
+        if (errText) {
+          normalizedMessage = `Background removal failed: ${errText}`
+        }
+      }
+
+      throw new Error(normalizedMessage)
     }
 
     const blob = await response.blob()
@@ -770,6 +790,11 @@ async function handleFileSelect(event) {
       processedFile = new File([bgRemovedBlob], file.name, { type: 'image/png' })
     } catch (bgError) {
       console.warn('Background removal failed, using original image:', bgError)
+      // Show the API error response in a toast so the user knows what's wrong (e.g. invalid API key)
+      const message =
+        (bgError && bgError.message) ||
+        'Background removal failed. Please check your remove.bg API key and try again.'
+      showError(message)
       // Continue with original file if background removal fails
     }
 
