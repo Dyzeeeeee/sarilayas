@@ -16,7 +16,7 @@
               {{ siteEnabled ? 'Public site is currently live' : 'Public site is currently disabled' }}
             </p>
             <p class="text-xs text-gray-400 mt-1">
-              When disabled, public users will see a "Website Temporarily Down" message. Admin users can still access all pages.
+              When disabled, all users (including admins) will see a "Website Temporarily Down" message. Only superadmins can access the site when disabled.
             </p>
           </div>
           <label class="relative inline-flex items-center cursor-pointer">

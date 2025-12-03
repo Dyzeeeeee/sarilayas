@@ -127,18 +127,19 @@ router.beforeEach(async (to, from, next) => {
       }
     }
     
-    // Check site status for public routes (not admin routes and not site-down page)
-    if (!to.meta.requiresAuth && to.path !== '/site-down' && to.path !== '/login') {
+    // Check site status for all routes (except superadmin routes, site-down, and login)
+    // When site is disabled, only superadmins can access
+    if (!to.meta.requiresSuperAdmin && to.path !== '/site-down' && to.path !== '/login') {
       try {
         const { settingsService } = await import('../firebase/firestore')
         const settings = await settingsService.getSettings()
         
         // Check if site is explicitly disabled
         // siteEnabled can be: true (enabled), false (disabled), or undefined (defaults to enabled)
-        // Only allow authenticated admins to access public routes when site is disabled
+        // Only allow superadmins to access when site is disabled
         const isSiteDisabled = settings && settings.siteEnabled === false
         
-        if (isSiteDisabled && !isAuthenticated) {
+        if (isSiteDisabled && !isSuperAdmin) {
           next('/site-down')
           return
         }

@@ -148,7 +148,7 @@
             <div>
               <p class="text-base md:text-lg font-semibold text-gray-900">Public Site Status</p>
               <p class="text-sm text-gray-500 mt-1">
-                {{ siteEnabled ? 'Visitors can access the public site' : 'Visitors are redirected to the Site Down page' }}
+                {{ siteEnabled ? 'Visitors can access the public site' : 'All users (including admins) are redirected to the Site Down page. Only superadmins can access when disabled.' }}
               </p>
             </div>
             <label class="inline-flex items-center cursor-pointer">
