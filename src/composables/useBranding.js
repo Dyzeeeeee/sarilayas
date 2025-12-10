@@ -3,6 +3,7 @@ import { settingsService } from '../firebase/firestore'
 
 const defaultBranding = {
   siteName: 'Sarilaya',
+  siteDescription: '',
   logoUrl: '/MainSarilayaLogo.png',
   compactLogoUrl: '/SarilayaLogo.png',
   primaryColor: '#9333ea',

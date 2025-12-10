@@ -16,16 +16,17 @@
               <img 
                 :src="primaryLogo" 
                 :alt="`${siteName} logo`" 
-                class="hidden lg:block h-10 w-auto object-contain"
+                class="hidden lg:block h-14 w-auto object-contain"
               />
               <img 
                 :src="compactLogo" 
                 :alt="`${siteName} logo`" 
-                class="lg:hidden h-8 w-8 object-contain"
+                class="lg:hidden h-12 w-12 object-contain"
               />
               <div class="flex flex-col leading-tight">
-                <span>{{ siteName }}</span>
-                <span v-if="activeEventTagline" class="text-[11px] font-medium text-white/70">{{ activeEventTagline }}</span>
+                <span class="uppercase">{{ siteName }}</span>
+                <span v-if="siteDescription" class="text-[11px] font-medium text-white/70">{{ siteDescription }}</span>
+                <span v-else-if="activeEventTagline" class="text-[11px] font-medium text-white/70">{{ activeEventTagline }}</span>
               </div>
             </a>
           </div>
@@ -420,6 +421,7 @@ const { activeEvent: rawActiveEvent, attachPresetDefaults } = useEvents()
 initBranding()
 
 const siteName = computed(() => branding.value.siteName || 'Sarilaya')
+const siteDescription = computed(() => branding.value.siteDescription || '')
 const primaryLogo = computed(() => branding.value.logoUrl || '/MainSarilayaLogo.png')
 const compactLogo = computed(() => branding.value.compactLogoUrl || '/SarilayaLogo.png')
 const activeEvent = computed(() => rawActiveEvent.value ? attachPresetDefaults(rawActiveEvent.value) : null)
