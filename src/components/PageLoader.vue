@@ -6,13 +6,9 @@
     >
       <div class="text-center">
         <!-- Words with animation -->
-        <div class="mb-8 flex justify-center items-center gap-4 md:gap-6">
+        <div class="mb-8 flex justify-center items-center">
           <span class="text-2xl md:text-3xl lg:text-4xl font-bold text-pink-600 animate-word-slide-in-left">
-            KASARIAN
-          </span>
-          <span class="text-primary-400 text-xl md:text-2xl">•</span>
-          <span class="text-2xl md:text-3xl lg:text-4xl font-bold text-green-600 animate-word-slide-in-right">
-            KALAYAAN
+            Kasarian Kalayaan Inc.
           </span>
         </div>
         
@@ -21,7 +17,7 @@
           <img
             :src="primaryLogo"
             :alt="`${siteName} Logo`"
-            class="h-20 md:h-24 w-auto mx-auto object-contain animate-logo-float"
+            class="h-32 md:h-40 w-auto mx-auto object-contain animate-logo-float"
             style="opacity: 1;"
           />
         </div>
@@ -81,38 +77,21 @@ defineExpose({
   opacity: 0;
 }
 
-/* Word slide in animations */
-@keyframes word-slide-in-left {
+/* Word slide in animation */
+@keyframes word-slide-in {
   0% {
     opacity: 0;
-    transform: translateX(-50px);
+    transform: translateY(-20px);
   }
   100% {
     opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes word-slide-in-right {
-  0% {
-    opacity: 0;
-    transform: translateX(50px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateX(0);
+    transform: translateY(0);
   }
 }
 
 .animate-word-slide-in-left {
-  animation: word-slide-in-left 0.8s ease-out forwards;
+  animation: word-slide-in 0.8s ease-out forwards;
   animation-delay: 0.2s;
-  opacity: 0;
-}
-
-.animate-word-slide-in-right {
-  animation: word-slide-in-right 0.8s ease-out forwards;
-  animation-delay: 0.4s;
   opacity: 0;
 }
 

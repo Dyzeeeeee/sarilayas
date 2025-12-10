@@ -2,27 +2,29 @@
   <div class="min-h-screen flex flex-col bg-primary-100" :style="eventThemeStyle">
     <!-- Header -->
     <header 
-      class="bg-gradient-to-r from-primary-400 via-primary-500 to-primary-700 shadow-sm sticky z-50 transition-all duration-300 ease-in-out py-1 md:py-0 top-0 lg:top-0 lg:rounded-none lg:mx-0"
+      class="bg-gradient-to-r from-primary-400 via-primary-500 to-primary-700 shadow-sm sticky z-50 transition-all duration-300 ease-in-out py-2 md:py-3 top-0 lg:top-0 lg:rounded-none lg:mx-0 overflow-visible"
       :class="{
         'top-3 mx-4 rounded-full': isScrolledToTop,
         'top-0 mx-0 rounded-none': !isScrolledToTop
       }"
     >
-      <div class="lg:max-w-none mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-10 md:h-16">
+      <div class="lg:max-w-none mx-auto px-4 sm:px-6 lg:px-8 overflow-visible">
+        <div class="flex justify-between items-center h-[4.5rem] overflow-visible">
           <!-- Logo -->
           <div class="flex-shrink-0">
             <a @click="handleLogoClick" class="flex items-center gap-2 text-xl font-bold text-white hover:opacity-90 transition-opacity cursor-pointer">
-              <img 
-                :src="primaryLogo" 
-                :alt="`${siteName} logo`" 
-                class="hidden lg:block h-14 w-auto object-contain"
-              />
-              <img 
-                :src="compactLogo" 
-                :alt="`${siteName} logo`" 
-                class="lg:hidden h-12 w-12 object-contain"
-              />
+              <div class="relative">
+                <img 
+                  :src="primaryLogo" 
+                  :alt="`${siteName} logo`" 
+                  class="hidden lg:block h-20 w-auto object-contain relative z-10 seal-emboss"
+                />
+                <img 
+                  :src="compactLogo" 
+                  :alt="`${siteName} logo`" 
+                  class="lg:hidden h-16 w-16 object-contain relative z-10 seal-emboss"
+                />
+              </div>
               <div class="flex flex-col leading-tight">
                 <span class="uppercase">{{ siteName }}</span>
                 <span v-if="siteDescription" class="text-[11px] font-medium text-white/70">{{ siteDescription }}</span>
@@ -981,5 +983,13 @@ const dismissEventModal = () => {
 
 .animate-scale-up {
   animation: scale-up 0.3s ease-out;
+}
+
+/* Embossed seal effect - extends beyond purple bar */
+.seal-emboss {
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3)) 
+          drop-shadow(0 8px 16px rgba(0, 0, 0, 0.2))
+          drop-shadow(0 2px 4px rgba(255, 255, 255, 0.1));
+  transform: translateY(-2px);
 }
 </style>

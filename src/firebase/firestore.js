@@ -7,7 +7,7 @@ const defaultSettings = {
   siteEnabled: true,
   pageLoaderEnabled: true,
   siteName: 'Sarilaya',
-  siteDescription: 'Kasarian • Kalayaan',
+  siteDescription: 'Kasarian Kalayaan Inc.',
   logoUrl: '/MainSarilayaLogo.png',
   compactLogoUrl: '/SarilayaLogo.png',
   primaryColor: '#9333ea',

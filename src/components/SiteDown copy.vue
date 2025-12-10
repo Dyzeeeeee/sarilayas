@@ -19,10 +19,8 @@
       </p>
 
       <!-- Decorative Elements -->
-      <div class="flex justify-center items-center gap-4 mb-8">
-        <span class="text-2xl md:text-3xl font-bold text-pink-600">KASARIAN</span>
-        <span class="text-primary-400 text-xl md:text-2xl">•</span>
-        <span class="text-2xl md:text-3xl font-bold text-green-600">KALAYAAN</span>
+      <div class="flex justify-center items-center mb-8">
+        <span class="text-2xl md:text-3xl font-bold text-pink-600">Kasarian Kalayaan Inc.</span>
       </div>
 
       <!-- Loading Animation -->
