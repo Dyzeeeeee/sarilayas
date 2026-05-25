@@ -195,9 +195,12 @@
           <div class="flex-1 overflow-hidden flex flex-col md:flex-row">
             <!-- Preview Column - Hidden on mobile -->
             <div class="hidden md:block w-1/2 border-r border-gray-200 overflow-y-auto p-6 bg-gray-50">
-              <p class="text-sm font-semibold text-gray-700 mb-4">Preview</p>
-              <div class="bg-white rounded-lg border border-gray-200 p-4">
-                <div v-if="form.image || form.title || form.description" class="space-y-4">
+              <div class="space-y-6">
+                <!-- Project Preview -->
+                <div>
+                  <p class="text-sm font-semibold text-gray-700 mb-3">Project Preview</p>
+                  <div class="bg-white rounded-lg border border-gray-200 p-4">
+                    <div v-if="form.image || form.title || form.description" class="space-y-4">
                   <!-- Image -->
                   <div v-if="form.image" class="aspect-video rounded-lg overflow-hidden bg-gray-100">
                     <img
@@ -212,16 +215,18 @@
                   
                   <!-- Content -->
                   <div class="space-y-2">
-                    <h3 class="text-lg font-semibold text-gray-900">{{ form.title || 'Project Title' }}</h3>
+                    <h3 :class="['text-gray-900', `text-${titleFontSize}`, titleBold ? 'font-bold' : 'font-semibold', titleItalic ? 'italic' : '']">{{ form.title || 'Project Title' }}</h3>
                     <p v-if="form.tagline" class="text-sm text-gray-600 italic">{{ form.tagline }}</p>
-                    <p v-if="form.description" class="text-sm text-gray-600">{{ form.description }}</p>
-                    <div v-if="form.content" class="text-sm text-gray-700 whitespace-pre-wrap border-t border-gray-200 pt-4 mt-4">
+                    <p v-if="form.description" :class="['text-gray-600', `text-${descriptionFontSize}`, descriptionBold ? 'font-bold' : 'font-normal', descriptionItalic ? 'italic' : '']">{{ form.description }}</p>
+                    <div v-if="form.content" :class="['text-gray-700 whitespace-pre-wrap border-t border-gray-200 pt-4 mt-4', `text-${contentFontSize}`, contentBold ? 'font-bold' : 'font-normal', contentItalic ? 'italic' : '']">
                       {{ form.content }}
                     </div>
                   </div>
                 </div>
-                <div v-else class="text-center py-8">
-                  <p class="text-xs text-gray-500">Fill in the form to see preview</p>
+                    <div v-else class="text-center py-8">
+                      <p class="text-xs text-gray-500">Fill in the form to see preview</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -237,11 +242,16 @@
                 <Eye class="h-4 w-4" />
                 Preview
               </button>
-              <form @submit.prevent="saveProjectAndClose" class="space-y-4">
-          <div>
-                  <label class="block text-sm font-semibold text-gray-700 mb-2">
-              Title *
-            </label>
+              <form @submit.prevent="saveCustomizationAndProject" class="space-y-4">
+            <div>
+                  <div class="flex items-center justify-between mb-2">
+                    <label class="text-sm font-semibold text-gray-700">Title *</label>
+                    <div class="flex items-center gap-1">
+                      <button type="button" @click="titleBold = !titleBold" :class="['px-2 py-1 text-xs font-bold rounded transition-colors', titleBold ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300']">B</button>
+                      <button type="button" @click="titleItalic = !titleItalic" :class="['px-2 py-1 text-xs italic rounded transition-colors', titleItalic ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300']">I</button>
+                      <button type="button" @click="cycleTitleFontSize" class="px-2 py-1 text-xs bg-gray-200 text-gray-700 hover:bg-gray-300 rounded transition-colors">A↔</button>
+                    </div>
+                  </div>
             <input
               v-model="form.title"
               type="text"
@@ -262,9 +272,14 @@
             />
           </div>
           <div>
-                  <label class="block text-sm font-semibold text-gray-700 mb-2">
-              Description (optional)
-            </label>
+                  <div class="flex items-center justify-between mb-2">
+                    <label class="text-sm font-semibold text-gray-700">Description (optional)</label>
+                    <div class="flex items-center gap-1">
+                      <button type="button" @click="descriptionBold = !descriptionBold" :class="['px-2 py-1 text-xs font-bold rounded transition-colors', descriptionBold ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300']">B</button>
+                      <button type="button" @click="descriptionItalic = !descriptionItalic" :class="['px-2 py-1 text-xs italic rounded transition-colors', descriptionItalic ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300']">I</button>
+                      <button type="button" @click="cycleDescriptionFontSize" class="px-2 py-1 text-xs bg-gray-200 text-gray-700 hover:bg-gray-300 rounded transition-colors">A↔</button>
+                    </div>
+                  </div>
             <textarea
               v-model="form.description"
               rows="3"
@@ -273,9 +288,14 @@
             ></textarea>
           </div>
           <div>
-                  <label class="block text-sm font-semibold text-gray-700 mb-2">
-              Content *
-            </label>
+                  <div class="flex items-center justify-between mb-2">
+                    <label class="text-sm font-semibold text-gray-700">Content *</label>
+                    <div class="flex items-center gap-1">
+                      <button type="button" @click="contentBold = !contentBold" :class="['px-2 py-1 text-xs font-bold rounded transition-colors', contentBold ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300']">B</button>
+                      <button type="button" @click="contentItalic = !contentItalic" :class="['px-2 py-1 text-xs italic rounded transition-colors', contentItalic ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300']">I</button>
+                      <button type="button" @click="cycleContentFontSize" class="px-2 py-1 text-xs bg-gray-200 text-gray-700 hover:bg-gray-300 rounded transition-colors">A↔</button>
+                    </div>
+                  </div>
             <textarea
               v-model="form.content"
               rows="10"
@@ -337,11 +357,11 @@
               Cancel
             </button>
             <button
-              @click="saveProjectAndClose"
+              @click="saveCustomizationAndProject"
               :disabled="loading || uploadingImage || !form.title || !form.content"
               class="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {{ loading ? 'Saving...' : editingProject ? 'Update' : 'Add' }} Project
+              {{ loading ? 'Saving...' : editingProject ? 'Update' : 'Add' }} & Save Settings
             </button>
           </div>
         </div>
@@ -387,10 +407,10 @@
                 
                 <!-- Content -->
                 <div class="space-y-2">
-                  <h3 class="text-lg font-semibold text-gray-900">{{ form.title || 'Project Title' }}</h3>
+                  <h3 :class="['text-gray-900', `text-${titleFontSize}`, titleBold ? 'font-bold' : 'font-semibold', titleItalic ? 'italic' : '']">{{ form.title || 'Project Title' }}</h3>
                   <p v-if="form.tagline" class="text-sm text-gray-600 italic">{{ form.tagline }}</p>
-                  <p v-if="form.description" class="text-sm text-gray-600">{{ form.description }}</p>
-                  <div v-if="form.content" class="text-sm text-gray-700 whitespace-pre-wrap border-t border-gray-200 pt-4 mt-4">
+                  <p v-if="form.description" :class="['text-gray-600', `text-${descriptionFontSize}`, descriptionBold ? 'font-bold' : 'font-normal', descriptionItalic ? 'italic' : '']">{{ form.description }}</p>
+                  <div v-if="form.content" :class="['text-gray-700 whitespace-pre-wrap border-t border-gray-200 pt-4 mt-4', `text-${contentFontSize}`, contentBold ? 'font-bold' : 'font-normal', contentItalic ? 'italic' : '']">
                     {{ form.content }}
                   </div>
                 </div>
@@ -419,7 +439,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, Teleport } from 'vue'
 import AdminLayout from '../../layouts/AdminLayout.vue'
-import { projectsService } from '../../firebase/firestore'
+import { projectsService, settingsService } from '../../firebase/firestore'
 import { useToast } from '../../composables/useToast'
 import { useConfirm } from '../../composables/useConfirm'
 import { useBodyScrollLock } from '../../composables/useBodyScrollLock'
@@ -438,6 +458,44 @@ const showPreviewModal = ref(false)
 const uploadingImage = ref(false)
 const fileInput = ref(null)
 const viewMode = ref('grid') // 'grid' or 'list'
+
+
+// Public Page Font Sizes
+const projectsCardTitleFontSize = ref('text-xl sm:text-2xl')
+const projectsCardTaglineFontSize = ref('text-sm sm:text-base')
+const projectsCardDescriptionFontSize = ref('text-sm')
+const projectDetailTitleFontSize = ref('text-3xl sm:text-4xl')
+const projectDetailTaglineFontSize = ref('text-xl sm:text-2xl')
+const projectDetailDescriptionFontSize = ref('text-lg')
+const projectDetailContentFontSize = ref('text-base')
+
+// Form field formatting
+const titleBold = ref(false)
+const titleItalic = ref(false)
+const titleFontSize = ref('base')
+const descriptionBold = ref(false)
+const descriptionItalic = ref(false)
+const descriptionFontSize = ref('base')
+const contentBold = ref(false)
+const contentItalic = ref(false)
+const contentFontSize = ref('base')
+
+const fontSizes = ['xs', 'sm', 'base', 'lg', 'xl', '2xl', '3xl']
+
+function cycleTitleFontSize() {
+  const currentIndex = fontSizes.indexOf(titleFontSize.value)
+  titleFontSize.value = fontSizes[(currentIndex + 1) % fontSizes.length]
+}
+
+function cycleDescriptionFontSize() {
+  const currentIndex = fontSizes.indexOf(descriptionFontSize.value)
+  descriptionFontSize.value = fontSizes[(currentIndex + 1) % fontSizes.length]
+}
+
+function cycleContentFontSize() {
+  const currentIndex = fontSizes.indexOf(contentFontSize.value)
+  contentFontSize.value = fontSizes[(currentIndex + 1) % fontSizes.length]
+}
 
 // Lock body scroll when modal is open
 useLock(showProjectModal)
@@ -568,6 +626,110 @@ function clearFileInput() {
 
 let unsubscribeProjects = null
 
+async function saveCustomizationAndProject() {
+  if (!form.value.title || !form.value.content) {
+    showError('Title and content are required')
+    return
+  }
+
+  loading.value = true
+
+  try {
+    // Save public page font sizes and formatting
+    await settingsService.updateSettings({
+      projectsCardTitleFontSize: projectsCardTitleFontSize.value,
+      projectsCardTaglineFontSize: projectsCardTaglineFontSize.value,
+      projectsCardDescriptionFontSize: projectsCardDescriptionFontSize.value,
+      projectDetailTitleFontSize: projectDetailTitleFontSize.value,
+      projectDetailTitleBold: titleBold.value,
+      projectDetailTitleItalic: titleItalic.value,
+      projectDetailTaglineFontSize: projectDetailTaglineFontSize.value,
+      projectDetailDescriptionFontSize: projectDetailDescriptionFontSize.value,
+      projectDetailDescriptionBold: descriptionBold.value,
+      projectDetailDescriptionItalic: descriptionItalic.value,
+      projectDetailContentFontSize: projectDetailContentFontSize.value,
+      projectDetailContentBold: contentBold.value,
+      projectDetailContentItalic: contentItalic.value
+    })
+
+    // Save project
+    const projectData = {
+      title: form.value.title,
+      tagline: form.value.tagline || '',
+      description: form.value.description || '',
+      content: form.value.content,
+      image: form.value.image || ''
+    }
+    if (editingProject.value) {
+      await projectsService.updateProject(editingProject.value.id, projectData)
+      showSuccess('Project updated and settings saved!')
+    } else {
+      await projectsService.addProject(projectData)
+      showSuccess('Project added and settings saved!')
+    }
+    closeProjectModal()
+    await loadProjects()
+  } catch (error) {
+    console.error('Error saving:', error)
+    showError('Failed to save')
+  } finally {
+    loading.value = false
+  }
+}
+
+async function resetCustomization() {
+  const confirmed = await confirm('Reset text customization to defaults?', {
+    title: 'Reset Customization',
+    confirmText: 'Reset'
+  })
+
+  if (!confirmed) return
+
+  try {
+    await settingsService.updateSettings({
+      projectsPageTitle: 'Projects',
+      projectsPageDescription: 'Manage organization projects',
+      projectsPageHeaderText: 'All Projects',
+      projectsPageTitleFontSize: 'text-xl md:text-2xl',
+      projectsPageTitleFontWeight: 'font-semibold',
+      projectsPageDescriptionFontSize: 'text-xs md:text-sm',
+      projectsPageDescriptionFontWeight: 'font-normal',
+      projectsPageHeaderFontSize: 'text-base md:text-lg',
+      projectsPageHeaderFontWeight: 'font-semibold'
+    })
+    await loadSettings()
+    showSuccess('Text customization reset to defaults!')
+  } catch (error) {
+    console.error('Error resetting customization:', error)
+    showError('Failed to reset customization')
+  }
+}
+
+async function loadSettings() {
+  try {
+    const settings = await settingsService.getSettings()
+
+    // Public page font sizes
+    projectsCardTitleFontSize.value = settings.projectsCardTitleFontSize || 'text-xl sm:text-2xl'
+    projectsCardTaglineFontSize.value = settings.projectsCardTaglineFontSize || 'text-sm sm:text-base'
+    projectsCardDescriptionFontSize.value = settings.projectsCardDescriptionFontSize || 'text-sm'
+    projectDetailTitleFontSize.value = settings.projectDetailTitleFontSize || 'text-3xl sm:text-4xl'
+    projectDetailTaglineFontSize.value = settings.projectDetailTaglineFontSize || 'text-xl sm:text-2xl'
+    projectDetailDescriptionFontSize.value = settings.projectDetailDescriptionFontSize || 'text-lg'
+    projectDetailContentFontSize.value = settings.projectDetailContentFontSize || 'text-base'
+
+    // Form field formatting
+    titleBold.value = settings.projectDetailTitleBold || false
+    titleItalic.value = settings.projectDetailTitleItalic || false
+    descriptionBold.value = settings.projectDetailDescriptionBold || false
+    descriptionItalic.value = settings.projectDetailDescriptionItalic || false
+    contentBold.value = settings.projectDetailContentBold || false
+    contentItalic.value = settings.projectDetailContentItalic || false
+  } catch (error) {
+    console.error('Error loading settings:', error)
+  }
+}
+
 async function loadProjects() {
   loadingData.value = true
   let initialLoadComplete = false
@@ -672,6 +834,7 @@ async function handleDelete(id) {
 }
 
 onMounted(() => {
+  loadSettings()
   loadProjects()
 })
 

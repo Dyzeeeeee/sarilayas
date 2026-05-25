@@ -80,9 +80,42 @@
 
       <!-- Officers Cards View -->
       <template v-else-if="!loading && officers.length > 0 && viewMode === 'cards'">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <!-- First Officer - Centered on Desktop -->
+        <div class="mb-8 sm:mb-12">
+          <div
+            @click="handleOfficerClick(officers[0])"
+            class="max-w-sm mx-auto bg-white rounded-xl border-2 border-gray-100 p-6 text-center transition-all duration-300 cursor-pointer hover:border-primary-300"
+          >
+            <!-- PHOTO -->
+            <div class="flex justify-center mb-4">
+              <div v-if="officers[0].photo" class="relative">
+                <img
+                  :src="officers[0].photo"
+                  :alt="officers[0].name"
+                  class="w-24 h-24 rounded-full object-cover ring-4 ring-primary-100"
+                />
+              </div>
+              <div v-else class="w-24 h-24 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center ring-4 ring-primary-100">
+                <span class="text-white text-2xl font-bold">{{ officers[0].name.charAt(0) }}</span>
+              </div>
+            </div>
+
+            <!-- INFO -->
+            <div>
+              <h3 class="text-lg sm:text-xl font-bold text-gray-900 mb-2">
+                {{ officers[0].name }}
+              </h3>
+              <p class="text-sm sm:text-base text-primary-600 font-medium">
+                {{ officers[0].position }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Remaining Officers Grid -->
+        <div v-if="officers.length > 1" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <div
-          v-for="officer in officers"
+          v-for="officer in officers.slice(1)"
           :key="officer.id"
           @click="handleOfficerClick(officer)"
           class="bg-white rounded-xl border-2 border-gray-100 p-6 text-center transition-all duration-300 cursor-pointer hover:border-primary-300"
@@ -285,7 +318,13 @@ async function loadOfficers() {
       aboutUsService.getOfficers(),
       aboutUsService.getAboutUs().catch(() => null)
     ])
+    // Sort officers by index (respect drag-and-drop ordering from admin)
     officers.value = officersData
+      .map((officer, idx) => ({
+        ...officer,
+        index: officer.index !== undefined ? officer.index : idx
+      }))
+      .sort((a, b) => (a.index || 0) - (b.index || 0))
     if (aboutData) {
       councilImage.value = aboutData.nationalCouncilImage || ''
       chaptersImage.value = aboutData.chaptersImage || ''

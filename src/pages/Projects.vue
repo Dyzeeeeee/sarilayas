@@ -63,7 +63,7 @@
 
               <!-- CONTENT -->
               <div class="flex-1 p-4 sm:p-6 flex flex-col justify-center">
-                <p v-if="project.description" class="text-sm sm:text-base text-gray-600 line-clamp-3">
+                <p v-if="project.description" :class="`${projectsCardDescriptionFontSize} text-gray-600 line-clamp-3`">
                   {{ project.description }}
                 </p>
               </div>
@@ -102,10 +102,10 @@
                     {{ formatDate(project.createdAt) }}
                   </span>
                 </div>
-                <h3 class="text-xl sm:text-2xl font-extrabold mb-1 line-clamp-2 text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                <h3 :class="`${projectsCardTitleFontSize} font-extrabold mb-1 line-clamp-2 text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]`">
                   {{ project.title }}
                 </h3>
-                <p v-if="project.tagline" class="text-sm sm:text-base text-primary-200 font-medium line-clamp-1 drop-shadow-[0_1px_3px_rgba(0,0,0,0.7)]">
+                <p v-if="project.tagline" :class="`${projectsCardTaglineFontSize} text-primary-200 font-medium line-clamp-1 drop-shadow-[0_1px_3px_rgba(0,0,0,0.7)]`">
                   {{ project.tagline }}
                 </p>
               </div>
@@ -113,7 +113,7 @@
 
             <!-- CONTENT -->
             <div class="p-4 sm:p-6 flex-1 flex flex-col">
-              <p v-if="project.description" class="text-sm text-gray-600 line-clamp-3 mb-4 flex-1">
+              <p v-if="project.description" :class="`${projectsCardDescriptionFontSize} text-gray-600 line-clamp-3 mb-4 flex-1`">
                 {{ project.description }}
               </p>
             </div>
@@ -141,7 +141,7 @@ import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import PublicLayout from '../layouts/PublicLayout.vue'
 import Skeleton from '../components/Skeleton.vue'
-import { projectsService } from '../firebase/firestore'
+import { projectsService, settingsService } from '../firebase/firestore'
 import { useViewMode } from '../composables/useViewMode'
 import { Briefcase, Calendar } from 'lucide-vue-next'
 
@@ -150,6 +150,9 @@ const route = useRoute()
 const router = useRouter()
 const projects = ref([])
 const loading = ref(true)
+const projectsCardTitleFontSize = ref('text-xl sm:text-2xl')
+const projectsCardTaglineFontSize = ref('text-sm sm:text-base')
+const projectsCardDescriptionFontSize = ref('text-sm')
 
 // Sort projects by newest first
 const sortedProjects = computed(() => {
@@ -203,10 +206,21 @@ function formatDate(date) {
 
 let unsubscribeProjects = null
 
+async function loadSettings() {
+  try {
+    const settings = await settingsService.getSettings()
+    projectsCardTitleFontSize.value = settings.projectsCardTitleFontSize || 'text-xl sm:text-2xl'
+    projectsCardTaglineFontSize.value = settings.projectsCardTaglineFontSize || 'text-sm sm:text-base'
+    projectsCardDescriptionFontSize.value = settings.projectsCardDescriptionFontSize || 'text-sm'
+  } catch (error) {
+    console.error('Error loading settings:', error)
+  }
+}
+
 async function loadProjects() {
   loading.value = true
   let initialLoadComplete = false
-  
+
   try {
     // Set up real-time listener with pagination (20 items)
     unsubscribeProjects = projectsService.subscribeToProjects((projectsList) => {
@@ -223,6 +237,7 @@ async function loadProjects() {
 }
 
 onMounted(() => {
+  loadSettings()
   loadProjects()
 })
 

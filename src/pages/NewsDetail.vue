@@ -17,7 +17,7 @@
       <article v-else-if="article">
         <!-- Header -->
         <header class="mb-6">
-          <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-3">
+          <h1 :class="[newsDetailTitleFontSize, 'text-gray-900 mb-3', newsDetailTitleBold ? 'font-extrabold' : 'font-bold', newsDetailTitleItalic ? 'italic' : '']">
             {{ article.title || 'Untitled Article' }}
           </h1>
           <div class="flex items-center gap-4 text-sm text-gray-500">
@@ -39,14 +39,14 @@
 
         <!-- Description -->
         <div v-if="article.description" class="prose prose-lg max-w-none mb-6">
-          <p class="text-gray-700 text-lg leading-relaxed whitespace-pre-wrap">
+          <p :class="['text-gray-700 leading-relaxed whitespace-pre-wrap', newsDetailDescriptionFontSize, newsDetailDescriptionBold ? 'font-bold' : 'font-normal', newsDetailDescriptionItalic ? 'italic' : '']">
             {{ article.description }}
           </p>
         </div>
 
         <!-- Content (if available) -->
         <div v-if="article.content" class="prose prose-lg max-w-none">
-          <div class="text-gray-700 leading-relaxed whitespace-pre-wrap">
+          <div :class="['text-gray-700 leading-relaxed whitespace-pre-wrap', newsDetailContentFontSize, newsDetailContentBold ? 'font-bold' : 'font-normal', newsDetailContentItalic ? 'italic' : '']">
             {{ article.content }}
           </div>
         </div>
@@ -113,13 +113,22 @@ import { useRoute, useRouter } from 'vue-router'
 import PublicLayout from '../layouts/PublicLayout.vue'
 import Card from '../components/Card.vue'
 import { Calendar } from 'lucide-vue-next'
-import { newsService } from '../firebase/firestore'
+import { newsService, settingsService } from '../firebase/firestore'
 
 const route = useRoute()
 const router = useRouter()
 const article = ref(null)
 const allArticles = ref([])
 const loading = ref(true)
+const newsDetailTitleFontSize = ref('text-3xl sm:text-4xl')
+const newsDetailTitleBold = ref(false)
+const newsDetailTitleItalic = ref(false)
+const newsDetailDescriptionFontSize = ref('text-lg')
+const newsDetailDescriptionBold = ref(false)
+const newsDetailDescriptionItalic = ref(false)
+const newsDetailContentFontSize = ref('text-base')
+const newsDetailContentBold = ref(false)
+const newsDetailContentItalic = ref(false)
 
 // Get other articles (excluding current one)
 const otherArticles = computed(() => {
@@ -193,6 +202,23 @@ function formatDate(date) {
   return dateObj.toLocaleString('en-US', options);
 }
 
+async function loadSettings() {
+  try {
+    const settings = await settingsService.getSettings()
+    newsDetailTitleFontSize.value = settings.newsDetailTitleFontSize || 'text-3xl sm:text-4xl'
+    newsDetailTitleBold.value = settings.newsDetailTitleBold || false
+    newsDetailTitleItalic.value = settings.newsDetailTitleItalic || false
+    newsDetailDescriptionFontSize.value = settings.newsDetailDescriptionFontSize || 'text-lg'
+    newsDetailDescriptionBold.value = settings.newsDetailDescriptionBold || false
+    newsDetailDescriptionItalic.value = settings.newsDetailDescriptionItalic || false
+    newsDetailContentFontSize.value = settings.newsDetailContentFontSize || 'text-base'
+    newsDetailContentBold.value = settings.newsDetailContentBold || false
+    newsDetailContentItalic.value = settings.newsDetailContentItalic || false
+  } catch (error) {
+    console.error('Error loading settings:', error)
+  }
+}
+
 onMounted(async () => {
   const articleId = route.params.id
   if (!articleId) {
@@ -202,6 +228,7 @@ onMounted(async () => {
 
   try {
     loading.value = true
+    await loadSettings()
     allArticles.value = await newsService.getNews()
     article.value = allArticles.value.find(a => a.id === articleId) || null
   } catch (err) {

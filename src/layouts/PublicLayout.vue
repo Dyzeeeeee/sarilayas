@@ -4,25 +4,25 @@
     <header 
       class="bg-gradient-to-r from-primary-400 via-primary-500 to-primary-700 shadow-sm sticky z-50 transition-all duration-300 ease-in-out py-2 md:py-3 top-0 lg:top-0 lg:rounded-none lg:mx-0 overflow-visible"
       :class="{
-        'top-3 mx-4 rounded-full': isScrolledToTop,
+        'top-3 mx-2 rounded-4xl': isScrolledToTop,
         'top-0 mx-0 rounded-none': !isScrolledToTop
       }"
     >
       <div class="lg:max-w-none mx-auto px-4 sm:px-6 lg:px-8 overflow-visible">
         <div class="flex justify-between items-center h-[4.5rem] overflow-visible">
           <!-- Logo -->
-          <div class="flex-shrink-0">
+          <div class="flex-shrink-0 -my-6">
             <a @click="handleLogoClick" class="flex items-center gap-2 text-xl font-bold text-white hover:opacity-90 transition-opacity cursor-pointer">
               <div class="relative">
                 <img 
                   :src="primaryLogo" 
                   :alt="`${siteName} logo`" 
-                  class="hidden lg:block h-20 w-auto object-contain relative z-10 seal-emboss"
+                  class="hidden lg:block h-36 top-5 w-auto object-contain relative z-10 seal-emboss drop-shadow-lg"
                 />
                 <img 
                   :src="compactLogo" 
                   :alt="`${siteName} logo`" 
-                  class="lg:hidden h-16 w-16 object-contain relative z-10 seal-emboss"
+                  class="lg:hidden h-28 w-24 top-3 object-contain relative z-10 seal-emboss drop-shadow-lg"
                 />
               </div>
               <div class="flex flex-col leading-tight">

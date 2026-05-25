@@ -17,10 +17,10 @@
       <article v-else-if="project">
         <!-- Header -->
         <header class="mb-6">
-          <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-3">
+          <h1 :class="[projectDetailTitleFontSize, 'text-gray-900 mb-3', projectDetailTitleBold ? 'font-extrabold' : 'font-bold', projectDetailTitleItalic ? 'italic' : '']">
             {{ project.title || 'Untitled Project' }}
           </h1>
-          <div v-if="project.tagline" class="text-xl sm:text-2xl text-primary-600 font-semibold mb-3">
+          <div v-if="project.tagline" :class="`${projectDetailTaglineFontSize} text-primary-600 font-semibold mb-3`">
             {{ project.tagline }}
           </div>
           <div class="flex items-center gap-4 text-sm text-gray-500">
@@ -42,14 +42,14 @@
 
         <!-- Description -->
         <div v-if="project.description" class="prose prose-lg max-w-none mb-6">
-          <p class="text-gray-700 text-lg leading-relaxed whitespace-pre-wrap">
+          <p :class="['text-gray-700 leading-relaxed whitespace-pre-wrap', projectDetailDescriptionFontSize, projectDetailDescriptionBold ? 'font-bold' : 'font-normal', projectDetailDescriptionItalic ? 'italic' : '']">
             {{ project.description }}
           </p>
         </div>
 
         <!-- Content (if available) -->
         <div v-if="project.content" class="prose prose-lg max-w-none">
-          <div class="text-gray-700 leading-relaxed whitespace-pre-wrap">
+          <div :class="['text-gray-700 leading-relaxed whitespace-pre-wrap', projectDetailContentFontSize, projectDetailContentBold ? 'font-bold' : 'font-normal', projectDetailContentItalic ? 'italic' : '']">
             {{ project.content }}
           </div>
         </div>
@@ -121,13 +121,23 @@ import { useRoute, useRouter } from 'vue-router'
 import PublicLayout from '../layouts/PublicLayout.vue'
 import Card from '../components/Card.vue'
 import { Calendar } from 'lucide-vue-next'
-import { projectsService } from '../firebase/firestore'
+import { projectsService, settingsService } from '../firebase/firestore'
 
 const route = useRoute()
 const router = useRouter()
 const project = ref(null)
 const allProjects = ref([])
 const loading = ref(true)
+const projectDetailTitleFontSize = ref('text-3xl sm:text-4xl')
+const projectDetailTitleBold = ref(false)
+const projectDetailTitleItalic = ref(false)
+const projectDetailTaglineFontSize = ref('text-xl sm:text-2xl')
+const projectDetailDescriptionFontSize = ref('text-lg')
+const projectDetailDescriptionBold = ref(false)
+const projectDetailDescriptionItalic = ref(false)
+const projectDetailContentFontSize = ref('text-base')
+const projectDetailContentBold = ref(false)
+const projectDetailContentItalic = ref(false)
 
 // Get other projects (excluding current one)
 const otherProjects = computed(() => {
@@ -201,6 +211,24 @@ function formatDate(date) {
   return dateObj.toLocaleString('en-US', options);
 }
 
+async function loadSettings() {
+  try {
+    const settings = await settingsService.getSettings()
+    projectDetailTitleFontSize.value = settings.projectDetailTitleFontSize || 'text-3xl sm:text-4xl'
+    projectDetailTitleBold.value = settings.projectDetailTitleBold || false
+    projectDetailTitleItalic.value = settings.projectDetailTitleItalic || false
+    projectDetailTaglineFontSize.value = settings.projectDetailTaglineFontSize || 'text-xl sm:text-2xl'
+    projectDetailDescriptionFontSize.value = settings.projectDetailDescriptionFontSize || 'text-lg'
+    projectDetailDescriptionBold.value = settings.projectDetailDescriptionBold || false
+    projectDetailDescriptionItalic.value = settings.projectDetailDescriptionItalic || false
+    projectDetailContentFontSize.value = settings.projectDetailContentFontSize || 'text-base'
+    projectDetailContentBold.value = settings.projectDetailContentBold || false
+    projectDetailContentItalic.value = settings.projectDetailContentItalic || false
+  } catch (error) {
+    console.error('Error loading settings:', error)
+  }
+}
+
 onMounted(async () => {
   const projectId = route.params.id
   if (!projectId) {
@@ -210,6 +238,7 @@ onMounted(async () => {
 
   try {
     loading.value = true
+    await loadSettings()
     allProjects.value = await projectsService.getProjects()
     project.value = allProjects.value.find(p => p.id === projectId) || null
   } catch (err) {

@@ -75,11 +75,11 @@ const updatingPageLoaderStatus = ref(false)
 async function loadSettings() {
   try {
     const settings = await settingsService.getSettings()
-    siteEnabled.value = settings.siteEnabled !== false // Default to true if undefined
-    pageLoaderEnabled.value = settings.pageLoaderEnabled !== false // Default to true if undefined
+    siteEnabled.value = settings.siteEnabled !== false
+    pageLoaderEnabled.value = settings.pageLoaderEnabled !== false
   } catch (error) {
     console.error('Error loading settings:', error)
-    siteEnabled.value = true // Default to enabled on error
+    siteEnabled.value = true
     pageLoaderEnabled.value = true
   }
 }

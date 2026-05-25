@@ -51,18 +51,43 @@
 
         <!-- Column 2: Officers List -->
         <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
-        <div class="px-4 md:px-6 py-3 md:py-4 border-b border-gray-200 flex items-center justify-between">
-          <div>
-            <h2 class="text-base md:text-lg font-semibold text-gray-900">Officers</h2>
-            <p class="text-xs text-gray-500 mt-0.5">Manage organization officers</p>
+        <div class="px-4 md:px-6 py-3 md:py-4 border-b border-gray-200">
+          <!-- Save/Discard Buttons (visible when reorganizing) -->
+          <div v-if="hasUnsavedChanges" class="flex gap-2 mb-4">
+            <button
+              @click="discardOfficerOrderChanges"
+              class="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              @click="saveOfficerOrderChanges"
+              :disabled="loading"
+              class="flex-1 px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {{ loading ? 'Saving...' : 'Save Order' }}
+            </button>
           </div>
-          <button
-            @click="showOfficerModal = true; editingOfficer = null; form = { name: '', position: '', photo: '' }"
-            class="px-3 py-1.5 text-xs font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors flex items-center gap-2"
-          >
-            <Plus class="h-4 w-4" />
-            Add Officer
-          </button>
+
+          <!-- Header with Add Officer (hidden when reorganizing) -->
+          <div v-show="!hasUnsavedChanges" class="flex items-center justify-between">
+            <div>
+              <h2 class="text-base md:text-lg font-semibold text-gray-900">Officers</h2>
+              <p class="text-xs text-gray-500 mt-0.5">Manage organization officers</p>
+            </div>
+            <button
+              @click="showOfficerModal = true; editingOfficer = null; form = { name: '', position: '', photo: '' }"
+              class="px-3 py-1.5 text-xs font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors flex items-center gap-2"
+            >
+              <Plus class="h-4 w-4" />
+              Add Officer
+            </button>
+          </div>
+          <!-- Title only (shown when reorganizing) -->
+          <div v-show="hasUnsavedChanges">
+            <h2 class="text-base md:text-lg font-semibold text-gray-900">Officers</h2>
+            <p class="text-xs text-gray-500 mt-0.5">Drag to reorganize • Click save when done</p>
+          </div>
         </div>
         <div class="p-4 md:p-6">
           <div v-if="loadingData" class="space-y-2">
@@ -83,26 +108,27 @@
             <div
               v-for="(officer, index) in officers"
               :key="officer.id"
-              class="border border-gray-200 rounded-lg p-3 hover:border-gray-300 transition-colors"
+              draggable="true"
+              @dragstart="handleDragStart($event, index)"
+              @dragover="handleDragOver($event); dragOverIndex = index"
+              @drop="handleDrop($event, index)"
+              @dragend="handleDragEnd"
+              @dragleave="handleDragLeave(index)"
+              :class="['border border-gray-200 rounded-lg p-3 transition-all cursor-move', 
+                draggedIndex === index ? 'opacity-50 bg-primary-50' : 'hover:border-gray-300 hover:shadow-md',
+                dragOverIndex === index && draggedIndex !== index ? 'border-primary-500 bg-primary-50' : ''
+              ]"
             >
               <div class="flex items-center space-x-3">
-                <div class="flex flex-col gap-1 shrink-0">
-                  <button
-                    @click="moveOfficer(index, 'up')"
-                    :disabled="index === 0"
-                    class="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                    title="Move up"
-                  >
-                    <ChevronUp class="h-4 w-4" />
-                  </button>
-                  <button
-                    @click="moveOfficer(index, 'down')"
-                    :disabled="index === officers.length - 1"
-                    class="p-1 text-gray-400 hover:text-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                    title="Move down"
-                  >
-                    <ChevronDown class="h-4 w-4" />
-                  </button>
+                <div class="shrink-0 text-gray-400 hover:text-gray-600 transition-colors pt-1">
+                  <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                    <circle cx="6" cy="5" r="2" />
+                    <circle cx="6" cy="12" r="2" />
+                    <circle cx="6" cy="19" r="2" />
+                    <circle cx="14" cy="5" r="2" />
+                    <circle cx="14" cy="12" r="2" />
+                    <circle cx="14" cy="19" r="2" />
+                  </svg>
                 </div>
                 <div v-if="officer.photo" class="shrink-0">
                   <img
@@ -512,7 +538,7 @@ import { aboutUsService } from '../../../firebase/firestore'
 import { useToast } from '../../../composables/useToast'
 import { useConfirm } from '../../../composables/useConfirm'
 import { useBodyScrollLock } from '../../../composables/useBodyScrollLock'
-import { Pencil, X, Plus, Edit, Trash2, ChevronUp, ChevronDown, Eye } from 'lucide-vue-next'
+import { Pencil, X, Plus, Edit, Trash2, Eye } from 'lucide-vue-next'
 
 const { success: showSuccess, error: showError } = useToast()
 const { confirm } = useConfirm()
@@ -530,6 +556,10 @@ const showPreviewModal = ref('') // 'officer' or 'image'
 const officersImage = ref('')
 const uploadingImage = ref(false)
 const imageFileInput = ref(null)
+const draggedIndex = ref(null)
+const dragOverIndex = ref(null)
+const hasUnsavedChanges = ref(false)
+const originalOfficers = ref([])
 
 // Lock body scroll when modals are open
 useLock(showImageModal)
@@ -554,6 +584,9 @@ async function loadOfficers() {
         index: officer.index !== undefined ? officer.index : idx
       }))
       .sort((a, b) => (a.index || 0) - (b.index || 0))
+    // Store a copy of the original state
+    originalOfficers.value = JSON.parse(JSON.stringify(officers.value))
+    hasUnsavedChanges.value = false
     const aboutData = await aboutUsService.getAboutUs()
     officersImage.value = aboutData?.officersImage || ''
   } catch (error) {
@@ -581,6 +614,52 @@ function cancelEdit() {
     fileInput.value.value = ''
   }
   showOfficerModal.value = false
+}
+
+function handleDragStart(event, index) {
+  draggedIndex.value = index
+  event.dataTransfer.effectAllowed = 'move'
+  event.dataTransfer.setData('text/html', event.currentTarget)
+}
+
+function handleDragOver(event) {
+  event.preventDefault()
+  event.dataTransfer.dropEffect = 'move'
+}
+
+function handleDragEnd() {
+  draggedIndex.value = null
+  dragOverIndex.value = null
+}
+
+function handleDragLeave(index) {
+  if (dragOverIndex.value === index) {
+    dragOverIndex.value = null
+  }
+}
+
+async function handleDrop(event, dropIndex) {
+  event.preventDefault()
+  dragOverIndex.value = null
+  
+  if (draggedIndex.value === null || draggedIndex.value === dropIndex) return
+  
+  // Swap officers in the array and their indices
+  const draggedOfficer = officers.value[draggedIndex.value]
+  const targetOfficer = officers.value[dropIndex]
+  
+  // Swap indices
+  const tempIndex = draggedOfficer.index
+  draggedOfficer.index = targetOfficer.index
+  targetOfficer.index = tempIndex
+  
+  // Swap positions in the array (for immediate visual feedback)
+  const temp = officers.value[draggedIndex.value]
+  officers.value[draggedIndex.value] = officers.value[dropIndex]
+  officers.value[dropIndex] = temp
+  
+  draggedIndex.value = null
+  hasUnsavedChanges.value = true
 }
 
 function compressImage(file, maxWidth = 400, maxHeight = 400, quality = 0.8) {
@@ -705,39 +784,38 @@ async function handleSubmit() {
   }
 }
 
-async function moveOfficer(currentIndex, direction) {
-  if (direction === 'up' && currentIndex === 0) return
-  if (direction === 'down' && currentIndex === officers.value.length - 1) return
-
-  const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1
-  const currentOfficer = officers.value[currentIndex]
-  const targetOfficer = officers.value[newIndex]
-
-  // Swap indices
-  const tempIndex = currentOfficer.index
-  const targetIndex = targetOfficer.index
-
-  loading.value = true
-  try {
-    // Update both officers' indices
-    await Promise.all([
-      aboutUsService.updateOfficer(currentOfficer.id, { ...currentOfficer, index: targetIndex }),
-      aboutUsService.updateOfficer(targetOfficer.id, { ...targetOfficer, index: tempIndex })
-    ])
-    await loadOfficers()
-  } catch (error) {
-    console.error('Error reordering officers:', error)
-    showError('Failed to reorder officers')
-  } finally {
-    loading.value = false
-  }
-}
-
 async function saveOfficerAndClose() {
   await handleSubmit()
   if (!loading.value) {
     showOfficerModal.value = false
   }
+}
+
+async function saveOfficerOrderChanges() {
+  loading.value = true
+  try {
+    // Update all officers with their new indices
+    await Promise.all(
+      officers.value.map(officer =>
+        aboutUsService.updateOfficer(officer.id, { ...officer, index: officer.index })
+      )
+    )
+    showSuccess('Officer order saved successfully!')
+    // Update the original officers to mark changes as saved
+    originalOfficers.value = JSON.parse(JSON.stringify(officers.value))
+    hasUnsavedChanges.value = false
+  } catch (error) {
+    console.error('Error saving officer order:', error)
+    showError('Failed to save officer order')
+  } finally {
+    loading.value = false
+  }
+}
+
+function discardOfficerOrderChanges() {
+  // Revert to original state
+  officers.value = JSON.parse(JSON.stringify(originalOfficers.value))
+  hasUnsavedChanges.value = false
 }
 
 async function handleDelete(id) {

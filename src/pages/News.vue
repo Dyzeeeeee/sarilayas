@@ -27,7 +27,7 @@
                     {{ formatDate(headlineArticle.publishDate) }}
                   </span>
                 </div>
-                <h2 class="text-2xl sm:text-4xl font-extrabold mb-3 line-clamp-3 text-primary-300 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                <h2 :class="`${newsHeadlineTitleFontSize} font-extrabold mb-3 line-clamp-3 text-primary-300 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]`">
                   {{ headlineArticle.title || 'Untitled Article' }}
                 </h2>
               </div>
@@ -85,7 +85,7 @@
                 </div>
               </template>
               <template v-if="article.publishDate" #footer>
-                <p class="text-[10px] sm:text-xs text-gray-500 mt-1 flex items-center gap-1">
+                <p :class="`${newsCardDateFontSize} text-gray-500 mt-1 flex items-center gap-1`">
                   <Calendar class="w-3 h-3" />
                   <span class="font-medium">{{ formatDate(article.publishDate) }}</span>
                 </p>
@@ -112,7 +112,7 @@ import PublicLayout from "../layouts/PublicLayout.vue";
 import Card from "../components/Card.vue";
 import Skeleton from "../components/Skeleton.vue";
 import { Calendar } from "lucide-vue-next";
-import { newsService } from "../firebase/firestore";
+import { newsService, settingsService } from "../firebase/firestore";
 import { useViewMode } from "../composables/useViewMode";
 
 const router = useRouter();
@@ -123,6 +123,9 @@ const { viewMode } = useViewMode('news');
 
 const articles = ref([]);
 const loading = ref(true);
+const newsHeadlineTitleFontSize = ref('text-2xl sm:text-4xl');
+const newsCardTitleFontSize = ref('text-sm');
+const newsCardDateFontSize = ref('text-[10px] sm:text-xs');
 
 // Sort articles by date (newest first)
 const sortedArticles = computed(() => {
@@ -209,10 +212,21 @@ function formatDate(date) {
 
 let unsubscribeNews = null
 
+async function loadSettings() {
+  try {
+    const settings = await settingsService.getSettings()
+    newsHeadlineTitleFontSize.value = settings.newsHeadlineTitleFontSize || 'text-2xl sm:text-4xl'
+    newsCardTitleFontSize.value = settings.newsCardTitleFontSize || 'text-sm'
+    newsCardDateFontSize.value = settings.newsCardDateFontSize || 'text-[10px] sm:text-xs'
+  } catch (error) {
+    console.error('Error loading settings:', error)
+  }
+}
+
 const loadArticles = async () => {
   loading.value = true
   let initialLoadComplete = false
-  
+
   try {
     // Set up real-time listener with pagination (20 items)
     unsubscribeNews = newsService.subscribeToNews((news) => {
@@ -229,6 +243,7 @@ const loadArticles = async () => {
 }
 
 onMounted(() => {
+  loadSettings()
   loadArticles()
 })
 

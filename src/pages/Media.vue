@@ -7,9 +7,9 @@
         class="fixed left-0 right-0 bg-gray-50 z-40 px-2 sm:px-4 py-2"
         :class="[
           tabsFixedScrolled && isMobile
-            ? 'top-12'
-            : 'top-16',
-          'md:top-16'
+            ? 'top-22'
+            : 'top-25',
+          'lg:top-24'
         ]"
         ref="tabsRef"
       >
@@ -42,7 +42,7 @@
       </div>
 
       <!-- CONTENT AREA (Scrollable) -->
-      <div class="flex-1 pt-10 md:pt-10">
+      <div class="flex-1 pt-10 md:pt-24">
         <!-- PHOTOS TAB -->
         <div v-show="activeTab === 'photos'">
           <div :class="[

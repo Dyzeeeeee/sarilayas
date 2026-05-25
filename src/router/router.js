@@ -24,6 +24,7 @@ import AdminVideos from '../pages/admin/Videos.vue'
 import AdminPhotos from '../pages/admin/Photos.vue'
 import AdminNews from '../pages/admin/News.vue'
 import AdminProjects from '../pages/admin/Projects.vue'
+import AdminSettings from '../pages/admin/Settings.vue'
 import SuperAdminSettings from '../pages/superadmin/Settings.vue'
 import SuperAdminUsers from '../pages/superadmin/Users.vue'
 import SuperAdminEvents from '../pages/superadmin/Events.vue'
@@ -56,6 +57,7 @@ const routes = [
   { path: '/admin/photos', name: 'AdminPhotos', component: AdminPhotos, meta: { requiresAuth: true } },
   { path: '/admin/news', name: 'AdminNews', component: AdminNews, meta: { requiresAuth: true } },
   { path: '/admin/projects', name: 'AdminProjects', component: AdminProjects, meta: { requiresAuth: true } },
+  { path: '/admin/settings', name: 'AdminSettings', component: AdminSettings, meta: { requiresAuth: true } },
   { path: '/admin/messages', name: 'AdminMessages', component: () => import('../pages/admin/Messages.vue'), meta: { requiresAuth: true } },
   { path: '/superadmin', redirect: '/superadmin/settings' },
   { path: '/superadmin/settings', name: 'SuperAdminSettings', component: SuperAdminSettings, meta: { requiresAuth: true, requiresSuperAdmin: true } },

@@ -202,6 +202,15 @@
           </button>
           <div class="flex-1"></div>
           
+          <!-- View Public Page Button -->
+          <button
+            @click="router.push('/')"
+            class="mr-4 px-3 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors cursor-pointer"
+            title="Go to public page"
+          >
+            View Public
+          </button>
+          
           <!-- Notifications -->
           <div class="relative mr-4">
             <button
